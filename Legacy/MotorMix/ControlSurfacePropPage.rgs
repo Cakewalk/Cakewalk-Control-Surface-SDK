@@ -1,0 +1,23 @@
+HKCR
+{
+	MotorMix.ControlSurfacePropPage.1 = s 'ControlSurface PropPage'
+	{
+		CLSID = s '{75D0A649-84EE-479c-8786-0AA7D7738C28}'
+	}
+	MotorMix.ControlSurfacePropPage = s 'ControlSurface PropPage'
+	{
+		CLSID = s '{75D0A649-84EE-479c-8786-0AA7D7738C28}'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {75D0A649-84EE-479c-8786-0AA7D7738C28} = s 'ControlSurface PropPage'
+		{
+			ProgID = s 'MotorMix.ControlSurfacePropPage.1'
+			VersionIndependentProgID = s 'MotorMix.ControlSurfacePropPage'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'both'
+			}
+		}
+	}
+}

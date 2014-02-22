@@ -1,0 +1,666 @@
+////////////////////////////////////////////////////////////////////////////////
+// $Header: /Src/IDL/ControlSurface.idl 39    11/19/03 12:22p Bdamiano $
+//
+// RemoteControl.idl : IDL source for Cakewalk remote control hooks
+//
+// Copyright (c) 2001- Twelve Tone Systems, Inc.  All rights reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+import "unknwn.idl";
+
+////////////////////////////////////////////////////////////////////////////////
+
+cpp_quote("#define REFRESH_F_MIXER        (1)")
+cpp_quote("#define REFRESH_F_TRANSPORT	   (2)")
+cpp_quote("#define REFRESH_F_OTHER		   (4)")
+
+cpp_quote("#ifndef _MFXTIME_H_")
+#include <MfxTime.h>
+cpp_quote("#endif")
+
+[
+	object,
+	local,
+	uuid( 933A0E58-A8FC-491e-9F4A-DC85B7CC1BE5 ),
+	helpstring( "IControlSurface interface" ),
+	pointer_default( unique )
+]
+interface IControlSurface : IDispatch
+{
+	// Basic dev caps
+	HRESULT GetStatusText(
+		[out] LPSTR pszStatus,	// if NULL, just retrieves required buf len
+		[in, out] DWORD* pdwLen
+	);
+
+	// Hooks to allow the DLL to process MIDI messages sent from the hardware
+	HRESULT MidiInShortMsg(
+		[in] DWORD dwShortMsg
+	);
+	HRESULT MidiInLongMsg(
+		[in] DWORD cbLongMsg,
+		[in, size_is(cbLongMsg)] const BYTE* pbLongMsg
+	);
+
+	// Allows SONAR to grant access to its interfaces, and to take it back.
+	HRESULT Connect(
+		[in] IUnknown* pUnknown,
+		[in] HWND hwndApp
+	);
+
+	HRESULT Disconnect(
+	);
+
+	// Called by SONAR when the surface needs to updated based on a change in
+	// project state.  fdwRefresh is a combination of bits from REFRESH_F_xxx.
+	// In the event of a refresh being the result of the Surface itself
+	// requesting a refresh, the value of Cookie will match the value passed
+	// in by the Surface in the RequestRefresh() call.
+	HRESULT RefreshSurface(
+		[in] DWORD fdwRefresh, [in] DWORD dwCookie
+	);
+
+	// Upon connection, SONAR will disable echo for the specified channels
+	// pwMask is a bit field for all MIDI channels 
+	// where bit significance equals channel.
+	// Example: channels 1, 5 and 10: 0x0211
+	HRESULT GetNoEchoMask(
+		[out] WORD* pwMask,
+		[out] BOOL* pbNoEchoSysx
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	local,
+	uuid( 1F4202FC-5755-473e-8B73-C627E21D7BE3 ),
+	helpstring( "IControlSurface2 interface" ),
+	pointer_default( unique )
+]
+interface IControlSurface2 : IControlSurface
+{
+	// Get the version of the control surface
+	HRESULT GetVersion(
+		[out] ULONG* pnMajor,
+		[out] ULONG* pnMinor,
+		[out] ULONG* pnRevision,
+		[out] ULONG* pnBuild
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	local,
+	uuid( ED0C14F0-40F3-4459-813C-CB5B5A5E4958 ),
+	helpstring( "ISonarMidiOut interface" ),
+	pointer_default( unique )
+]
+interface ISonarMidiOut : IUnknown
+{
+	// Provide a MIDI output data path for the surface
+	HRESULT MidiOutShortMsg(
+		[in] IControlSurface* pControlSurface,
+		[in] DWORD dwShortMsg
+	);
+	HRESULT MidiOutLongMsg(
+		[in] IControlSurface* pControlSurface,
+		[in] DWORD cbLongMsg,
+		[in, size_is(cbLongMsg)] const BYTE* pbLongMsg
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum SONAR_KEYBOARD_EVENT
+{
+	SKE_KEYDOWN = 1,
+	SKE_KEYUP,
+	SKE_KEYDOWNUP
+}
+SONAR_KEYBOARD_EVENT;
+
+typedef enum SONAR_NAVIGATION_KEY
+{
+	SNK_NEXT,
+	SNK_PREV,
+	SNK_CANCEL
+}
+SONAR_NAVIGATION_KEY;
+
+[
+	object,
+	local,
+	uuid( 85F8BB17-75F8-497f-8319-EF33A632C380 ),
+	helpstring( "ISonarKeyboard interface" ),
+	pointer_default( unique )
+]
+interface ISonarKeyboard : IUnknown
+{
+	// Provide a way to navigate around the application with cursor keys
+	HRESULT KeyboardEvent(
+		[in] int nVirtKey,
+		[in] SONAR_KEYBOARD_EVENT keyboardEvent
+	);
+
+	// Allow context sensitive navigation across menus or dialog boxes
+	HRESULT NavigationKey(
+		[in] SONAR_NAVIGATION_KEY navKey
+	);
+
+	// Perform a context sensitive data increment/decrement.  INT_MIN causes
+	// a decrement at the fastest possible rate, INT_MAX causes an increment
+	// at the fastest possible rate.
+	HRESULT SpinControl(
+		[in] int nDelta
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	local,
+	uuid( 55507DE1-C037-4682-A4EC-65B1D2E86B53 ),
+	helpstring( "ISonarCommands interface" ),
+	pointer_default( unique )
+]
+interface ISonarCommands : IUnknown
+{
+	// Get the number of commands in each group.
+	HRESULT GetCommandCount(
+		[out] DWORD* pdwCount
+	);
+
+	// Cash in a command index for a unique ID and displayable text
+	HRESULT GetCommandInfo(
+		[in] DWORD dwIndex,
+		[out] DWORD *pdwCmdID,
+		[out] LPSTR pszName,
+		[in, out] DWORD* pcbName
+	);
+
+	// Invoke a command, by its ID
+	HRESULT DoCommand(
+		[in] DWORD dwCmdID
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	local,
+	uuid( E141CA65-0D23-4251-91E1-46D2E13322E1 ),
+	helpstring( "ISonarProject interface" ),
+	pointer_default( unique )
+]
+interface ISonarProject : IUnknown
+{
+	HRESULT GetProjectName(
+		[out] LPSTR pszName,
+		[in, out] DWORD* pdwLen
+	);
+	HRESULT GetProjectModified();
+
+	HRESULT RequestRefresh( [in] DWORD dwCookie );
+	HRESULT OnNewStatus( DWORD dwReserved );	// dwReserved should always be passed as zero in this version
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum SONAR_MIXER_STRIP
+{
+	MIX_STRIP_TRACK,
+	MIX_STRIP_AUX,			// deprecated as of SONAR 3
+	MIX_STRIP_MAIN,			// deprecated as of SONAR 3 (exposed to older surfaces for compatability)
+	MIX_STRIP_MIDI_SEND,	// for use with GetMixStripName and GetMixStripCount only
+	MIX_STRIP_BUS,			// new for SONAR 3
+	MIX_STRIP_MASTER,		// new for SONAR 3 
+	MIX_STRIP_ANY = 0x7FFFFFFF	// for global param state of any/all strips such as "Rude Solo"
+}
+SONAR_MIXER_STRIP;
+
+typedef enum SONAR_MIXER_TOUCH
+{
+	MIX_TOUCH_MANUAL = 0,	// this means TouchMixParam calls are made for this param by the control surface
+	MIX_TOUCH_NORMAL,			// this means SetMixParam will be surrounded with capture/release states automatically
+	MIX_TOUCH_TIMEOUT			// this means SetMixParam will use the timeout touch mechanism
+}
+SONAR_MIXER_TOUCH;
+
+
+//-----------------------------------------------
+// An enumeration to describe built-in filters
+typedef enum SONAR_MIXER_FILTER
+{
+	MIX_FILTER_EQ = 0,
+	MIX_FILTER_COMP,
+	MIX_FILTER_GATE
+
+} SONAR_MIXER_FILTER;
+
+
+typedef enum SONAR_MIXER_PARAM
+{
+//	dwParam							dwParamNum	Type	Min/Max		Comments
+//	-------							----------	----	-------		--------
+MIX_PARAM_VOL,						//	-			float	0/1			gain mapping is host dependent
+MIX_PARAM_PAN,						//	-			float	0/1			0=left, 0.5=center, 1=right
+MIX_PARAM_MUTE,					//	-			BOOL
+MIX_PARAM_SOLO,					//	-			BOOL
+MIX_PARAM_ARCHIVE,				//	-			BOOL
+MIX_PARAM_RECORD_ARM,			//	-			BOOL
+MIX_PARAM_VOL_TRIM,				//	-			float	0/1			gain mapping is host dependent
+MIX_PARAM_PHASE,					//	-			BOOL					TRUE=phase inverted
+MIX_PARAM_INTERLEAVE,			//	-			int	0/2			0=auto, 1=mono, 2=stereo
+MIX_PARAM_INPUT_MAX, 			//	-			int					read-only, depends on installed h/w
+MIX_PARAM_INPUT,					//	-			enum	0/(max)
+MIX_PARAM_OUTPUT_MAX,			//	output #	int					read-only, depends on bus topology
+MIX_PARAM_OUTPUT,					//	output #	int	0/(max)		output bus ID
+MIX_PARAM_IS_MIDI,				// -			BOOL					read-only
+MIX_PARAM_BANK,					//	-			int	-1/16383		-1="none"
+MIX_PARAM_PATCH,					//	-			int	-1/127		-1="none"
+MIX_PARAM_KEY_OFFSET,			//	-			int	-127/127
+MIX_PARAM_VEL_OFFSET,			//	-			int	127/127
+MIX_PARAM_SELECTED,				//	-			int	0..16383		fValue is the strip index to get/set current
+MIX_PARAM_SEND_ENABLE,			//	output #	BOOL
+MIX_PARAM_SEND_MUTE,				//	output #	BOOL
+MIX_PARAM_SEND_VOL,				//	output #	float	0/1			gain mapping is host dependent
+MIX_PARAM_SEND_PAN,				//	output #	float	0/1			0=left, 0.5=center, 1=right
+MIX_PARAM_SEND_PREPOST,			//	output #	BOOL					FALSE=pre, TRUE=post
+MIX_PARAM_AUDIO_METER,			//	Srfc ID	float	0/1+EPS		See Notes
+MIX_PARAM_MIDI_METER,			//	---		float					// unimplemented at this time
+								
+MIX_PARAM_FX,						// fx#								for GetParamLabel only
+MIX_PARAM_FX_COUNT,				// -			int		0-65535	GetParam returns number of effects on this strip
+MIX_PARAM_FX_PARAM_COUNT,		// f/x #		int		0-65535	number of parameters for f/x #
+MIX_PARAM_FX_PARAM,				// (fx,param)	float	0/1		dwParamNum=MAKELONG(fx#,param#)
+								
+MIX_PARAM_TRACK_EXISTS,			// Trk Indx	int		0/2		0=no track, 1=empty track, 2=track+data
+MIX_PARAM_BUS_TYPE,				// bus ID	int		0/1/2		read-only, 0=track, 1=normal, 2=master
+								
+MIX_PARAM_FILTER,					// 0,1,2		int		0/1		dwParamNum:0=EQ,1=COMP,2=GATE. fVal: 0/1 = enable state
+MIX_PARAM_FILTER_COUNT,			// 0,1,2		int		0/1		dwParamNum:0=EQ,1=COMP,2=GATE, fVal: 0/1 = exists
+MIX_PARAM_FILTER_PARAM_COUNT,	// 0,1,2		int		0-65535	dwParamNum:0=EQ,1=COMP,2=GATE. *pfVal=number of parameters
+MIX_PARAM_FILTER_PARAM,			// filter,param float	0/1	dwParamNum=MAKELONG(filter#,param#)
+
+MIX_PARAM_INPUT_ECHO,			// -			BOOL	0/1
+
+MIX_PARAM_SURROUND_ANGLE,		//	-			float	0/1			0=180(rear-cw) .5=0(front) 1.0=-180(rear ccw)
+MIX_PARAM_SURROUND_SENDANGLE,	//	output #	float	0/1			0=180(rear-cw) .5=0(front) 1.0=-180(rear ccw)
+MIX_PARAM_SURROUND_FOCUS,		//	-			float	0/1			0=center 1=edge
+MIX_PARAM_SURROUND_SENDFOCUS,	//	output #	float	0/1			0=center 1=edge
+MIX_PARAM_SURROUND_WIDTH,		//	---		float	0/1			0=0 1=360
+MIX_PARAM_SURROUND_SENDWIDTH,	//	output #	float	0/1			0=0 1=360
+MIX_PARAM_SURROUND_FR_BAL,		//	---		float	0/1			0=rear, 1=front
+MIX_PARAM_SURROUND_SENDFR_BAL,//	output #	float	0/1			0=rear, 1=front
+MIX_PARAM_SURROUND_LFE,			//	---		float	0/1			0=-inf, 1=+6dB
+MIX_PARAM_SURROUND_SENDLFE,	//	output #	float	0/1			0=-inf, 1=+6dB
+MIX_PARAM_SURROUND_SPKRMUTE,	//  ---		int	0/-1			32 bit mask. 1 bit/speaker (depends on surround config)
+MIX_PARAM_SURROUND_SENDSPKRMUTE,//output #int	0/-1			32 bit mask. 1 bit/speaker (depends on surround config)
+
+MIX_PARAM_SENDCOUNT,				//	-			int	0/65535		returns how many sends exist on this container (track or bus)
+										//												implemented only in GetMixParam
+MIX_PARAM_SENDNAME,				//	-			returns the name for the bus that corresponds to the indexed send
+										//						implemented only in GetMixParamLabel
+
+MIX_PARAM_SEND_ISSURROUND,		//	output #	int	0/1			return true if this output is feeding surround
+MIX_PARAM_ISSURROUND,			//	-			int	0/1			return true if main out is feeding surround
+
+MIX_PARAM_LAYER_MUTE,			// Layer Index BOOL 0/1			Gets/Sets Layer Mute state (CAP_LAYER_MUTESOLO)
+MIX_PARAM_LAYER_SOLO,			// Layer Index BOOL 0/1			Gets/Sets Layer Solo state (CAP_LAYER_MUTESOLO)
+MIX_PARAM_LAYER_COUNT,			//				int	0/65535		Returns how many layers a track has (CAP_LAYER_MUTESOLO)
+
+MIX_PARAM_ANY = 0x7FFFFFFF		// (INT_MAX) For Commands which concern all params on a strip
+}
+SONAR_MIXER_PARAM;
+
+
+// Notes:
+// MIX_PARAM_AUDIO_METER was previously named MIX_PARAM_PLAYBACK_VU.  dwParamNum must be a unique Surface ID
+// obtained from ISonarIdentity::GetUniqueSurfaceId().  To request a meter for a strip, call SetMixParam()
+// with MIX_PARAM_AUDIO_METER and pass a 1.0 for the value.  To resign a meter for a strip, pass 0.0 for the
+// value.  GetMixParam() will return 0 based meter values where 0 = -60dBfs or less and 1.0 = 0dBfs.
+// Anything greater than 1.0 should be considered an "over".
+
+
+//////////////////////////////////////////////////////////////////
+//	Parameter Support matrix
+
+//---------------------------
+// Unimplemented params
+//---------------------------
+// MIX_PARAM_SEND_MUTE );
+// MIX_PARAM_MIDI_METER );
+// MIX_PARAM_SURROUND_SPKRMUTE
+// MIX_PARAM_SURROUND_SENDSPKRMUTE
+
+
+//---------------------------
+// Read-only params
+//---------------------------
+// MIX_PARAM_FX
+// MIX_PARAM_FX_COUNT
+// MIX_PARAM_FX_PARAM_COUNT
+// MIX_PARAM_TRACK_EXISTS
+// MIX_PARAM_IS_MIDI
+// MIX_PARAM_INPUT_MAX
+// MIX_PARAM_OUTPUT_MAX
+
+
+//---------------------------
+// Common to All Strip Types
+//---------------------------
+// MIX_PARAM_VOL
+// MIX_PARAM_PAN);
+// MIX_PARAM_MUTE);
+// MIX_PARAM_SOLO);
+// MIX_PARAM_OUTPUT_MAX);
+// MIX_PARAM_OUTPUT);
+// MIX_PARAM_SEND_ENABLE);
+// MIX_PARAM_SEND_VOL);
+// MIX_PARAM_BUS_TYPE);
+
+
+//---------------------------
+// Common to All Tracks
+//---------------------------
+// MIX_PARAM_RECORD_ARM);
+// MIX_PARAM_INPUT_MAX);
+// MIX_PARAM_INPUT);
+// MIX_PARAM_IS_MIDI);
+// MIX_PARAM_SELECTED);
+// MIX_PARAM_ARCHIVE);
+// MIX_PARAM_INPUT_ECHO
+
+
+//----------------------------------------
+// Common to Audio (aud tracks and buses)
+//----------------------------------------
+// MIX_PARAM_SEND_PREPOST);
+// MIX_PARAM_SEND_PAN);
+// MIX_PARAM_INTERLEAVE);
+// MIX_PARAM_FX);
+// MIX_PARAM_FX_COUNT);
+// MIX_PARAM_FX_PARAM_COUNT);
+// MIX_PARAM_FX_PARAM);
+
+// MIX_PARAM_FILTER			
+// MIX_PARAM_FILTER_COUNT		
+// MIX_PARAM_FILTER_PARAM_COUNT
+// MIX_PARAM_FILTER_PARAM,	
+
+// MIX_PARAM_AUDIO_METER
+
+// MIX_PARAM_SURROUND_ANGLE,			// not available on surround buses
+// MIX_PARAM_SURROUND_SENDANGLE,		// not available on surround buses
+// MIX_PARAM_SURROUND_FOCUS,			// not available on surround buses
+// MIX_PARAM_SURROUND_SENDFOCUS,		// not available on surround buses
+// MIX_PARAM_SURROUND_WIDTH,			// not available on surround buses
+// MIX_PARAM_SURROUND_SENDWIDTH,		// not available on surround buses
+// MIX_PARAM_SURROUND_FR_BAL,			// not available on surround buses
+// MIX_PARAM_SURROUND_SENDFR_BAL,		// not available on surround buses
+// MIX_PARAM_SURROUND_LFE,				// not available on surround buses
+// MIX_PARAM_SURROUND_SENDLFE,			// not available on surround buses
+// MIX_PARAM_SURROUND_SPKRMUTE,			// not available on surround buses
+// MIX_PARAM_SURROUND_SENDSPKRMUTE		// not available on surround buses
+
+
+
+//----------------------------
+// Audio Track Only
+//----------------------------
+// MIX_PARAM_VOL_TRIM);
+// MIX_PARAM_PHASE);
+
+
+//----------------------------
+// Midi Track Only
+//----------------------------
+// MIX_PARAM_BANK);
+// MIX_PARAM_PATCH);
+// MIX_PARAM_KEY_OFFSET);
+// MIX_PARAM_VEL_OFFSET);
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	local,
+	uuid( C579794F-A55E-4c56-8A2F-FE4AE839EA98 ),
+	helpstring( "ISonarMixer interface" ),
+	pointer_default( unique )
+]
+interface ISonarMixer : IUnknown
+{
+	// How many elements are there in a particular strip category, i.e., how
+	// many tracks, aux buses, and mains are there?
+	HRESULT GetMixStripCount(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[out] DWORD* pdwCount
+	);
+
+	// User-friendly description for each strip.
+	// Note: For MIX_STRIP_BUS, dwStripNum is a bus ID, otherwise dwStripNum is an index.
+	HRESULT GetMixStripName(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[out] LPSTR pszName,
+		[in, out] DWORD* pdwLen
+	);
+	HRESULT SetMixStripName(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[out] LPCSTR pszName
+	);
+
+	HRESULT GetMixParamLabel(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[out] LPSTR pszText,
+		[in, out] DWORD* pdwLen
+	);
+
+	// Set the value of a mix parameter
+	HRESULT SetMixParam(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[in] float fValue,
+		[in] SONAR_MIXER_TOUCH eTouch
+	);
+
+	// Get the current value of a mix parameter
+	HRESULT GetMixParam(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[out] float* pfValue
+	);
+
+	// Get display value for parameter (e.g., pan might return "100% Left" as pszDisplayValue when fValue = 0.0).
+	HRESULT GetMixParamValueText(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[in] float fValue,
+		[out] LPSTR pszDisplayText,
+		[in,out] DWORD*	pdwLen
+	);
+
+	// Touch-sensitive controls
+	HRESULT TouchMixParam(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[in] BOOL bTouchState	// on/off
+	);
+
+	// Automation recording
+	HRESULT SetArmMixParam(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[in] BOOL bArm
+	);
+
+	HRESULT GetArmMixParam(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum,
+		[in] BOOL* pbArm
+	);
+
+	HRESULT SnapshotMixParam(
+		[in] SONAR_MIXER_STRIP mixerStrip,
+		[in] DWORD dwStripNum,
+		[in] SONAR_MIXER_PARAM mixerParam,
+		[in] DWORD dwParamNum
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum SONAR_TRANSPORT_STATE
+{
+	TRANSPORT_STATE_AUDIO,	// on/off state of the audio engine
+	TRANSPORT_STATE_PLAY,
+	TRANSPORT_STATE_SCRUB,
+	TRANSPORT_STATE_REC,
+	TRANSPORT_STATE_REC_AUTOMATION,
+	TRANSPORT_STATE_LOOP
+}
+SONAR_TRANSPORT_STATE;
+
+typedef enum SONAR_TRANSPORT_TIME
+{
+	TRANSPORT_TIME_CURSOR,
+	TRANSPORT_TIME_LOOP_IN,
+	TRANSPORT_TIME_LOOP_OUT,
+	TRANSPORT_TIME_PUNCH_IN,
+	TRANSPORT_TIME_PUNCH_OUT,
+}
+SONAR_TRANSPORT_TIME;
+
+[
+	object,
+	local,
+	uuid( B1B5DBD1-6E24-4522-BEB3-AE016D1D31DF ),
+	helpstring( "ISonarTransport interface" ),
+	pointer_default( unique )
+]
+interface ISonarTransport : IUnknown
+{
+	// Control the transport, e.g., start or stop it
+	HRESULT SetTransportState(
+		[in] SONAR_TRANSPORT_STATE transportState,
+		[in] BOOL bValue
+	);
+	HRESULT GetTransportState(
+		[in] SONAR_TRANSPORT_STATE transportState,
+		[out] BOOL* pbValue
+	);
+
+	// Read or write various time values in the transport.
+	// Note: To clear loop or autopunch, set pTime->stf to TF_NULL.
+	HRESULT SetTransportTime(
+		[in] SONAR_TRANSPORT_TIME transportTime,
+		[in, out] struct MFX_TIME* pTime
+	);
+	HRESULT GetTransportTime(
+		[in] SONAR_TRANSPORT_TIME transportTime,
+		[in, out] struct MFX_TIME* pTime
+	);
+};
+
+
+////////////////////////////////////////////////////////////////////////////
+// Capability ENUMs
+typedef enum HOST_CAPABILITY
+{
+	CAP_FLEX_BUSES = 0,		// Host has flexible busing
+	CAP_SURROUND_BUSES,		// host has surround buses
+	CAP_SURROUND_TRACKS,		// host has surround tracks
+	CAP_AUDIO_METERS,			// host has audio meters
+	CAP_MIDI_METERS,			// host has midi meters
+	CAP_INPUT_ECHO,			// host has input echo
+	CAP_PARAM_ANY,				// host supports MIX_PARAM_ANY for Set/GetArmMixParam
+	CAP_STRIP_ANY,				// host supports MIX_STRIP_ANY for Mute / Solo / Arm 
+	CAP_STRIP_FILTER,			// host supports built-in filter(s) (EQ, etc)
+	CAP_LAYER_MUTESOLO,		// host supports Per-Layer Mute / Solo
+}HOST_CAPABILITY;
+
+[
+	object,
+	local,
+	uuid( 08258AD9-BF14-4ee2-8ACD-7FDA799EA5BE ),
+	helpstring( "ISonarIdentity interface" ),
+	pointer_default( unique )
+]
+interface ISonarIdentity : IUnknown
+{
+	// Obtain a Unique ID for the surface instance.
+	// This ID is guranteed to be repeatable across host sessions
+	// so long as the surface and port configuration is the same
+	HRESULT GetUniqueSurfaceId(
+		[in] IControlSurface* pControlSurface,
+		[out] DWORD* pdwId
+		);
+	// obtain the version of the host
+	HRESULT GetHostVersion(
+		[out] ULONG* pnMajor,
+		[out] ULONG* pnMinor,
+		[out] ULONG* pnRevision,
+		[out] ULONG* pnBuild
+		);
+	// obtain the host name
+	HRESULT GetHostName(
+		[out] LPSTR pszHostName,	// if NULL, just retrieves required buf len
+		[in, out] DWORD* pdwLen
+		);
+	// check if a capability is implemented in the host
+	HRESULT HasCapability(
+		[in] HOST_CAPABILITY cap
+		);
+};
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Library definition
+//////////////////////////////////////////////////////////////////////////////
+
+[
+	uuid( EE2CAC15-64B1-45b9-BA9B-B57A0D641E74 ),
+	version( 1.0 ),
+	helpstring( "ControlSurface 1.0 Type Library" )
+]
+library ControlSurface
+{
+	interface ISonarMidiOut;
+	interface ISonarKeyboard;
+	interface ISonarCommands;
+	interface ISonarProject;
+	interface ISonarMixer;
+	interface ISonarTransport;
+	interface IControlSurface;
+	interface IControlSurface2;
+	interface ISonarIdentity;
+};
+

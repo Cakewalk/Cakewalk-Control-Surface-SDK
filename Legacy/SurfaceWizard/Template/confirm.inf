@@ -1,0 +1,23 @@
+The SONAR Control Surface Wizard will now create "$$friendly_name$$":
+
+The main files for the "$$friendly_name$$" project will be:
+
+  + $$Safe_root$$.h, $$Safe_root$$.cpp:
+   - the source files for your C$$Safe_root$$ plugin class.
+  + $$Safe_root$$PropPage.h, $$Safe_root$$PropPage.cpp:
+   - the source files for your C$$Safe_root$$PropPage class -- an 
+     MFC CDialog class that implements the plugin's GUI.
+  + $$Safe_root$$Gen.cpp
+   - implements the methods that are standard for all surfaces.
+  + ControlSurface.idl
+    - The interface declaration for all ISonarXxx interfaces.
+  + MfxTime.h
+    - Declaration of the MFX_TIME structure and associated constants.
+  + CommandIDs.h
+    - List of SONAR command IDs available to a control surface.
+  + Readme.txt
+   - provides a general description of each of the components
+     of your new project.
+
+The SONAR Control Surface Wizard will also generate fresh CLSIDs and
+place them  in your project.

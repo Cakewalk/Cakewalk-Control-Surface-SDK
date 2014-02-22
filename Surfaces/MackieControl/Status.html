@@ -1,0 +1,117 @@
+<h2>SONAR 2 Mackie Control Status</h2>
+
+<h3>Bugs</h3>
+
+<ul>
+<table border=1>
+	<tr>
+		<th align=left>Bug
+		<th align=left>Reason/Comment
+
+	<tr>
+		<td>Input and Output selection only works in Track mode
+		<td>SONAR bug? Being investigated, waiting on reply from Cakewalk<br>
+		Does this work on the SAC-2K?
+
+	<tr>
+		<td>Toggling Aux Send Pre/Post while playing causes the audio to go silent
+		<td>SONAR bug. Being investigated
+
+	<tr>
+		<td>BUG05704 - Mackie - M1 + Next Win doesn't select the previous window
+		<td>Seems to work in Win98, but not XP<br>
+		Out of my control, I'm sending SONAR the correct key sequence
+
+	<tr>
+		<td>Level meters and signal present LEDs don't work
+		<td>MIX_PARAM_PLAYBACK_VU isn't implemented<br>
+			Will this be added to 2.1?
+
+	<tr>
+		<td>Sometimes there's a large delay after switching projects before the surface is updated
+		<td>SONAR problem, not really a bug
+
+	<tr>
+		<td>Select current track (currently M1-Select) may not work in Win 9x
+		<td>The virtual key code for comma is only defined for 2K/XP<br>
+			Can a DoCommand() ID be added to access this?
+
+	<tr>
+		<td>Extend current track selection (currently M2-Select) doesn't even work in XP
+		<td>Can a DoCommand() ID be added to access this?
+</table>
+</ul>
+
+<h3>Fixed or Not Bugs</h3>
+
+<ul>
+<table border=1>
+	<tr>
+		<th align=left>Bug
+		<th align=left>Reason/Comment
+
+	<tr>
+		<td>BUG05291 - Mackie unexpected behavior when scrolling through markers in track view
+		<td>The next/prev marker behaviour is consistent with SONAR<br>
+		 Could it be the key repeat that's confusing things?
+
+	<tr>
+		<td>BUG05292 - Mackie Loop points get set at the wrong time when pressing Loop On/off
+		<td>Not a bug
+			<br>Use Set Loop From Selection (M2-Loop) to do this
+
+	<tr>
+		<td>BUG05293 - Mackie - multiple instances of (certain) same dialogs can be launched
+		<td>Fixed in 2.1b6
+	<tr>
+		<td>BUG05297 - Mackie - Assertion Error when using the Edit function on the Mackie Control
+		<td>The assert seems to have been removed (checked in 2.1b6)
+
+	<tr>
+		<td>BUG05298 - Mackie - Assertion error when using the scrub function on the Mackie
+		<td>The assert seems to have been removed (checked in 2.1b6)
+
+	<tr>
+		<td>BUG05315 - Mackie - SONAR hangs when changing Mono/Stereo settings of a track
+		<td>Fixed in 2.1? (seems OK in 2.1b6)
+
+	<tr>
+		<td>BUG05685 - Mackie - inconsistent behavior of Arm for automation
+		<td>Fixed in Mackie Control - never arm while playing
+
+	<tr>
+		<td>BUG05705 - Mackie - automation on archived tracks should be ignored
+		<td>Fixed in Mackie Control - don't update faders and VPots of archived tracks
+
+	<tr>
+		<td>BUG05707 - Mackie - Assertion error when pressing M1 in Aux mode
+		<td>Fixed in Mackie Control
+
+	<tr>
+		<td>BUG05737 - Mackie - display refresh problem
+		<td>Fixed in Mackie Control
+
+	<tr>
+		<td>MIDI Bank and Patch selection doesn't work
+		<td>Fixed in 2.1
+
+	<tr>
+		<td>Enabling/Disabling Aux Sends while playing causes audio to go silent
+		<td>Fixed in 2.1
+
+	<tr>
+		<td>Changing the Input source while playing causes audio to go silent
+		<td>Fixed in 2.1
+
+	<tr>
+		<td>Changing the Output destination while playing causes audio to go silent
+		<td>Fixed in 2.1
+</table>
+</ul>
+
+
+<h3>TODO</h3>
+
+<ul>
+	<li>MIDI Channel parameter (how do I access it? SONAR 2.1 only?)
+</ul>

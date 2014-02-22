@@ -1,0 +1,484 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""ActController.ver""\r\n"
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE DIALOGEX 0, 0, 622, 216
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Tab1",IDC_TAB_CTRL,"SysTabControl32",WS_TABSTOP,7,7,608,158
+    GROUPBOX        "Active Controller Technology",IDC_STATIC,7,169,218,40
+    CONTROL         "Enable",IDC_ACT_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,20,186,38,10
+    LTEXT           "",IDC_ACT_NAME,61,186,120,10,0,WS_EX_STATICEDGE
+    CONTROL         "Lock",IDC_ACT_LOCK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,186,186,32,10
+    GROUPBOX        "Rotaries Mode",IDC_STATIC,229,169,142,40
+    CONTROL         "Multi Channel",IDC_MULTI_CHANNEL,"Button",BS_AUTORADIOBUTTON | WS_GROUP,242,186,59,10
+    CONTROL         "Channel Strip",IDC_CHANNEL_STRIP,"Button",BS_AUTORADIOBUTTON,305,186,58,10
+    GROUPBOX        "Control Group",IDC_STATIC,375,169,131,40
+    CONTROL         "Track",IDC_GROUP_TRACK,"Button",BS_AUTORADIOBUTTON | WS_GROUP,388,186,35,10
+    CONTROL         "Bus",IDC_GROUP_BUS,"Button",BS_AUTORADIOBUTTON,426,186,28,10
+    CONTROL         "Main",IDC_GROUP_MAIN,"Button",BS_AUTORADIOBUTTON,457,186,37,10
+    GROUPBOX        "Shift Modifier",IDC_STATIC,511,169,104,29
+    PUSHBUTTON      "Shift Learn...",IDC_MIDI_LEARN_SHIFT,537,179,50,14
+    LTEXT           "Press F1 for Help.",IDC_STATIC,534,201,57,8
+END
+
+IDD_CELL_MIDI_PROPS DIALOGEX 0, 0, 209, 185
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Cell MIDI Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "&Absolute Value",IDC_RAD_INTERPRET,"Button",BS_AUTORADIOBUTTON | WS_GROUP,11,22,128,10
+    CONTROL         "&Increment/Decrement",IDC_RAD1_INTERPRET,"Button",BS_AUTORADIOBUTTON,11,34,128,10
+    LTEXT           "&Center Value:",IDC_STATIC,13,49,58,8
+    EDITTEXT        IDC_CENTER_VAL,74,46,27,14,ES_AUTOHSCROLL
+    CONTROL         "&Supports Acceleration",IDC_USE_ACCEL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,62,124,10
+    DEFPUSHBUTTON   "OK",IDOK,152,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,152,24,50,14
+    LTEXT           "MIDI Short Message (hex):",IDC_STATIC,11,96,143,8
+    EDITTEXT        IDC_STATUS,50,108,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NUM,129,108,21,14,ES_AUTOHSCROLL
+    LTEXT           "MIDI Sysx Message (hex):",IDC_STATIC,11,131,170,8
+    LTEXT           "F0",IDC_STATIC,11,147,9,8
+    EDITTEXT        IDC_SYSEX_STRING,24,143,160,25,ES_MULTILINE | ES_AUTOHSCROLL | WS_HSCROLL
+    LTEXT           "F7",IDC_STATIC,188,146,9,8
+    GROUPBOX        "MIDI Interpretation",IDC_STATIC,7,7,138,71
+    GROUPBOX        "MIDI Message",IDC_STATIC,7,84,195,90
+    RTEXT           "Status:",IDC_STATIC,7,112,38,8
+    RTEXT           "Number:",IDC_STATIC,85,112,38,8
+END
+
+IDD_MIDI_INIT DIALOGEX 0, 0, 220, 126
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "MIDI Initialization Messages"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,163,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,163,24,50,14
+    LTEXT           "MIDI Short Message (hex):",IDC_STATIC,7,7,103,8
+    EDITTEXT        IDC_STATUS,7,19,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_NUM,33,19,21,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_VALUE,59,19,21,14,ES_AUTOHSCROLL
+    LTEXT           "MIDI Long Message (Sysx):",IDC_STATIC,7,56,206,8
+    LTEXT           "F0",IDC_STATIC,7,91,9,8
+    EDITTEXT        IDC_SYSEX_STRING,20,89,178,27,ES_MULTILINE | ES_AUTOHSCROLL | WS_HSCROLL
+    LTEXT           "F7",IDC_STATIC,204,91,9,8
+    PUSHBUTTON      "Load Sysx",IDC_LOAD_SYSEX,20,71,84,14
+    PUSHBUTTON      "&Clear Sysx",IDC_CLEAR_SYSEX,114,71,84,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 615
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 209
+    END
+
+    IDD_CELL_MIDI_PROPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 202
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 178
+    END
+
+    IDD_MIDI_INIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 213
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_TAB1 DIALOGEX 0, 0, 603, 142
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CTEXT           "",IDC_ROTARY_BANK_LABEL,7,7,30,8
+    COMBOBOX        IDC_ACTIVE_ROTARY_BANK,7,16,30,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CTEXT           "",IDC_SLIDER_BANK_LABEL,7,40,30,8
+    COMBOBOX        IDC_ACTIVE_SLIDER_BANK,7,49,30,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CTEXT           "",IDC_BUTTON_BANK_LABEL,7,73,30,8
+    COMBOBOX        IDC_ACTIVE_BUTTON_BANK,7,82,30,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CTEXT           "",IDC_R1_LABEL,41,7,65,8
+    CTEXT           "",IDC_R2_LABEL,111,7,65,8
+    CTEXT           "",IDC_R3_LABEL,181,7,65,8
+    CTEXT           "",IDC_R4_LABEL,251,7,65,8
+    CTEXT           "",IDC_R5_LABEL,321,7,65,8
+    CTEXT           "",IDC_R6_LABEL,391,7,65,8
+    CTEXT           "",IDC_R7_LABEL,461,7,65,8
+    CTEXT           "",IDC_R8_LABEL,531,7,65,8
+    CTEXT           "",IDC_R1_NAME,41,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R2_NAME,111,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R3_NAME,181,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R4_NAME,251,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R5_NAME,321,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R6_NAME,391,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R7_NAME,461,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R8_NAME,531,16,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R1_VALUE,41,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R2_VALUE,111,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R3_VALUE,181,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R4_VALUE,251,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R5_VALUE,321,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R6_VALUE,391,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R7_VALUE,461,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_R8_VALUE,531,26,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S1_LABEL,41,40,65,8
+    CTEXT           "",IDC_S2_LABEL,111,40,65,8
+    CTEXT           "",IDC_S3_LABEL,181,40,65,8
+    CTEXT           "",IDC_S4_LABEL,251,40,65,8
+    CTEXT           "",IDC_S5_LABEL,321,40,65,8
+    CTEXT           "",IDC_S6_LABEL,391,40,65,8
+    CTEXT           "",IDC_S7_LABEL,461,40,65,8
+    CTEXT           "",IDC_S8_LABEL,531,40,65,8
+    CTEXT           "",IDC_S1_NAME,41,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S2_NAME,111,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S3_NAME,181,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S4_NAME,251,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S5_NAME,321,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S6_NAME,391,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S7_NAME,461,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S8_NAME,531,49,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S1_VALUE,41,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S2_VALUE,111,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S3_VALUE,181,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S4_VALUE,251,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S5_VALUE,321,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S6_VALUE,391,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S7_VALUE,461,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_S8_VALUE,531,59,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB1_LABEL,41,73,65,8
+    CTEXT           "",IDC_SB2_LABEL,111,73,65,8
+    CTEXT           "",IDC_SB3_LABEL,181,73,65,8
+    CTEXT           "",IDC_SB4_LABEL,251,73,65,8
+    CTEXT           "",IDC_SB5_LABEL,321,73,65,8
+    CTEXT           "",IDC_SB6_LABEL,391,73,65,8
+    CTEXT           "",IDC_SB7_LABEL,461,73,65,8
+    CTEXT           "",IDC_SB8_LABEL,531,73,65,8
+    CTEXT           "",IDC_SB1_NAME,41,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB2_NAME,111,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB3_NAME,181,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB4_NAME,251,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB5_NAME,321,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB6_NAME,391,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB7_NAME,461,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB8_NAME,531,82,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB1_VALUE,41,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB2_VALUE,111,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB3_VALUE,181,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB4_VALUE,251,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB5_VALUE,321,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB6_VALUE,391,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB7_VALUE,461,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_SB8_VALUE,531,92,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B1_LABEL,41,106,65,8
+    CTEXT           "",IDC_B2_LABEL,111,106,65,8
+    CTEXT           "",IDC_B3_LABEL,181,106,65,8
+    CTEXT           "",IDC_B4_LABEL,251,106,65,8
+    CTEXT           "",IDC_B5_LABEL,321,106,65,8
+    CTEXT           "",IDC_B6_LABEL,391,106,65,8
+    CTEXT           "",IDC_B7_LABEL,461,106,65,8
+    CTEXT           "",IDC_B8_LABEL,531,106,65,8
+    CTEXT           "",IDC_B1_NAME,41,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B2_NAME,111,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B3_NAME,181,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B4_NAME,251,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B5_NAME,321,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B6_NAME,391,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B7_NAME,461,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B8_NAME,531,115,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B1_VALUE,41,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B2_VALUE,111,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B3_VALUE,181,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B4_VALUE,251,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B5_VALUE,321,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B6_VALUE,391,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B7_VALUE,461,125,65,10,0,WS_EX_STATICEDGE
+    CTEXT           "",IDC_B8_VALUE,531,125,65,10,0,WS_EX_STATICEDGE
+END
+
+IDD_TAB2 DIALOGEX 0, 0, 603, 142
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD | WS_VISIBLE
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Rotaries:",IDC_STATIC,7,20,29,8
+    COMBOBOX        IDC_KNOBS_BANK,39,18,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_KNOBS_BINDING,113,18,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Exclude this bank from ACT",IDC_EXCLUDE_ROTARIES_ACT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,265,19,123,10
+    LTEXT           "Sliders:",IDC_STATIC,7,36,24,8
+    COMBOBOX        IDC_SLIDERS_BANK,39,34,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_SLIDERS_BINDING,113,34,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Exclude this bank from ACT",IDC_EXCLUDE_SLIDERS_ACT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,265,35,123,10
+    LTEXT           "Buttons:",IDC_STATIC,7,57,27,8
+    COMBOBOX        IDC_BUTTON_BANK,39,55,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_BUTTON_SELECT,113,55,70,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_BUTTON_ACTION,187,55,200,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Exclude this button from ACT",IDC_BUTTON_EXCLUDE_ACT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,393,56,123,10
+    CONTROL         "Select highlights track (Channel Strip mode only)",IDC_SELECT_HIGHLIGHTS_TRACK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,75,209,10
+    CONTROL         "ACT follows context",IDC_ACT_FOLLOWS_CONTEXT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,90,150,10
+    RTEXT           "Comments:",IDC_STATIC,260,76,66,8
+    EDITTEXT        IDC_COMMETS,329,75,267,59,ES_MULTILINE | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL
+    PUSHBUTTON      "Defaults",IDC_DEFAULTS,7,120,50,14
+    PUSHBUTTON      "Clear MIDI Learn",IDC_RESET_MIDI_LEARN,61,120,61,14
+    COMBOBOX        IDC_KNOBS_CAPTMODE,208,18,51,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_SLIDERS_CAPTMODE,208,34,51,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Capture Mode:",IDC_STATIC,188,7,69,8
+    LTEXT           "Bank",IDC_STATIC,41,7,50,8
+    LTEXT           "Parameter",IDC_STATIC,113,7,67,8
+    PUSHBUTTON      "Send",IDC_SEND,176,111,50,14
+    PUSHBUTTON      "Edit",IDC_EDIT_INIT,235,111,50,14
+    GROUPBOX        "MIDI Initialization Messages",IDC_STATIC,163,94,136,40
+END
+
+IDD_EDIT_LABEL DIALOG  0, 0, 161, 46
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit Label"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_LABEL,18,16,75,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,104,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,104,24,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_TAB1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 596
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 135
+    END
+
+    IDD_TAB2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 596
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_EDIT_LABEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 154
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_CONTROLLERS_TAB     "Controllers"
+    IDS_OPTIONS_TAB         "Options"
+    IDS_VOL                 "Vol"
+    IDS_PAN                 "Pan"
+    IDS_SEND_N_VOL          "Send %d Vol"
+    IDS_SEND_N_PAN          "Send %d Pan"
+    IDS_CMD_NONE            "--- None ---"
+    IDS_CMD_ACT_ENABLE      "ACT Enable"
+    IDS_CMD_ACT_LOCK        "ACT Lock"
+    IDS_CMD_ACT_LEARN       "ACT Learn"
+    IDS_CMD_ROTARIES_MODE   "Rotaries Mode"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CMD_NEXT_ROTARIES_AND_SLIDERS_BANK "Next Rotaries and Sliders Bank"
+    IDS_FONT_NAME           "Tahoma"
+    IDS_CAPT_JUMP           "Jump"
+    IDS_CAPT_MATCH          "Match"
+    IDS_CAPT_CONVERGE       "Converge"
+    IDS_CMD_PROPS_TOGGLE    "Property Page Toggle"
+    IDS_CMD_PROPS_SHOW      "Property Page Show"
+    IDS_CMD_PROPS_HIDE      "Property Page Hide"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CMD_PREV_TRACK      "Previous Track"
+    IDS_CMD_NEXT_TRACK      "Next Track"
+    IDS_CMD_PREV_TRACK_BANK "Previous Track Bank"
+    IDS_CMD_NEXT_TRACK_BANK "Next Track Bank"
+    IDS_CMD_PREV_STRIP_TYPE "Previous Group"
+    IDS_CMD_NEXT_STRIP_TYPE "Next Group"
+    IDS_CMD_PREV_SEL_TRACK  "Previous Selected Track"
+    IDS_CMD_NEXT_SEL_TRACK  "Next Selected Track"
+    IDS_CMD_MUTE_SEL_TRACK  "Mute Selected Track"
+    IDS_CMD_SOLO_SEL_TRACK  "Solo Selected Track"
+    IDS_CMD_REC_ARM_SEL_TRACK "Rec Arm Selected Track"
+    IDS_CMD_PREV_ROTARIES_BANK "Previous Rotaries Bank"
+    IDS_CMD_NEXT_ROTARIES_BANK "Next Rotaries Bank"
+    IDS_CMD_PREV_SLIDERS_BANK "Previous Sliders Bank"
+    IDS_CMD_NEXT_SLIDERS_BANK "Next Sliders Bank"
+    IDS_CMD_PREV_BUTTONS_BANK "Previous Buttons Bank"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CMD_NEXT_BUTTONS_BANK "Next Buttons Bank"
+    IDS_CMD_PREV_CONTROLLERS_BANK "Previous Controllers Bank"
+    IDS_CMD_NEXT_CONTROLLERS_BANK "Next Controllers Bank"
+    IDS_BANK_N              "Bank %d"
+    IDS_MIDI_LEARN_DDD      "MIDI Learn..."
+    IDS_ON                  "On"
+    IDS_OFF                 "Off"
+    IDS_MULTI_CHANNEL       "Multi Channel"
+    IDS_CHANNEL_STRIP       "Channel Strip"
+    IDS_STRIP_PARAMETERS    "Strip Parameters"
+    IDS_BANK                "Bank"
+    IDS_INPUT_TRIM          "Input Trim"
+    IDS_SYSX_OFN_LIST       "Sysx Binary^*.syx^All Files^*.*"
+    IDS_CMD_AUTO_READ_SEL_TRACK "Automation Read Selected Track"
+    IDS_CMD_AUTO_WRITE_SEL_TRACK "Automation Write Selected Track"
+    IDS_CMD_PREV_ROTARIES_AND_SLIDERS_BANK 
+                            "Previous Rotaries and Sliders Bank"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CMD_OPEN_CUR_FX     "Open Current Plugin"
+    IDS_CMD_CLOSE_CUR_FX    "Close Current Plugin"
+    IDS_CMD_FOCUS_NEXT_FX   "Focus Next Plugin"
+    IDS_CMD_FOCUS_PREV_FX   "Focus Previous Plugin"
+    IDS_CMD_OPEN_NEXT_FX    "Open Next Plugin"
+    IDS_CMD_OPEN_PREV_FX    "Open Previous Plugin"
+END
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "ActController.ver"
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

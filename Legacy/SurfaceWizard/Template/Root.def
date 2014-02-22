@@ -1,0 +1,8 @@
+LIBRARY      "$$root$$"
+DESCRIPTION  '$$friendly_name$$'
+
+EXPORTS
+	DllGetClassObject PRIVATE
+	DllCanUnloadNow PRIVATE
+	DllRegisterServer PRIVATE
+	DllUnregisterServer PRIVATE

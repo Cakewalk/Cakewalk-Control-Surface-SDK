@@ -1,0 +1,251 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""MackieControl.ver""\r\n"
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE_XT DIALOGEX 0, 0, 333, 115
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "Press F1 for Help.",IDC_STATIC,7,99,57,8
+    LTEXT           "Copyright © 2002-2006, Cakewalk",IDC_STATIC,216,99,110,8
+    LTEXT           "Please see the main Mackie Control properties page for options",IDC_STATIC,67,53,199,8
+    LTEXT           "Chris Boucher <chris@sorted.org>",IDC_STATIC,89,99,108,8
+END
+
+IDD_PROPPAGE_MASTER DIALOGEX 0, 0, 463, 293
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Function Buttons",IDC_STATIC,7,7,240,167
+    LTEXT           "F1:",IDC_STATIC,18,21,11,8
+    COMBOBOX        IDC_FUNCTION1,36,19,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F2:",IDC_STATIC,18,40,11,8
+    COMBOBOX        IDC_FUNCTION2,36,38,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F3:",IDC_STATIC,18,59,11,8
+    COMBOBOX        IDC_FUNCTION3,36,57,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F4:",IDC_STATIC,18,78,11,8
+    COMBOBOX        IDC_FUNCTION4,36,76,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F5:",IDC_STATIC,18,97,11,8
+    COMBOBOX        IDC_FUNCTION5,36,95,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F6:",IDC_STATIC,18,116,11,8
+    COMBOBOX        IDC_FUNCTION6,36,114,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F7:",IDC_STATIC,18,135,11,8
+    COMBOBOX        IDC_FUNCTION7,36,133,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "F8:",IDC_STATIC,18,154,11,8
+    COMBOBOX        IDC_FUNCTION8,36,152,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Foot Switches",IDC_STATIC,7,179,240,52
+    LTEXT           "A:",IDC_STATIC,21,194,8,8
+    COMBOBOX        IDC_FOOT_SWITCH_A,36,192,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "B:",IDC_STATIC,21,213,8,8
+    COMBOBOX        IDC_FOOT_SWITCH_B,36,211,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Master Fader",IDC_STATIC,7,237,240,33
+    COMBOBOX        IDC_VIRTUAL_MAIN_TYPE,24,250,100,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_VIRTUAL_MAIN,135,250,100,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Jog Wheel Resolution",IDC_STATIC,255,7,200,29
+    CONTROL         "Measures",IDC_JOG_MEASURES,"Button",BS_AUTORADIOBUTTON | WS_GROUP,274,20,47,10
+    CONTROL         "Beats",IDC_JOG_BEATS,"Button",BS_AUTORADIOBUTTON,331,20,34,10
+    CONTROL         "Ticks",IDC_JOG_TICKS,"Button",BS_AUTORADIOBUTTON,375,20,33,10
+    GROUPBOX        "Transport Resolution",IDC_STATIC,255,41,200,29
+    CONTROL         "Measures",IDC_TRANSPORT_MEASURES,"Button",BS_AUTORADIOBUTTON | WS_GROUP,274,55,47,10
+    CONTROL         "Beats",IDC_TRANSPORT_BEATS,"Button",BS_AUTORADIOBUTTON,331,55,34,10
+    CONTROL         "Ticks",IDC_TRANSPORT_TICKS,"Button",BS_AUTORADIOBUTTON,375,55,33,10
+    GROUPBOX        "Time Display Format",IDC_STATIC,255,75,200,29
+    CONTROL         "MBT",IDC_TIME_FORMAT_MBT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,274,88,31,10
+    CONTROL         "HMSF",IDC_TIME_FORMAT_HMSF,"Button",BS_AUTORADIOBUTTON,331,88,36,10
+    GROUPBOX        "Options",IDC_STATIC,255,110,200,121
+    CONTROL         "Disable fader movements",IDC_DISABLE_FADERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,274,124,95,10
+    CONTROL         "Disable relay click",IDC_DISABLE_RELAY_CLICK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,274,138,73,10
+    CONTROL         "Disable LCD updates",IDC_DISABLE_LCD_UPDATES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,274,152,83,10
+    CONTROL         "Solo selects channel",IDC_SOLO_SELECTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,274,166,81,10
+    CONTROL         "Fader touch selects channel",IDC_FADER_SELECTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,274,180,105,10
+    CONTROL         "Select highlights track",IDC_SELECT_HIGHLIGHTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,274,194,85,10
+    GROUPBOX        "Layout",IDC_STATIC,256,237,199,33
+    PUSHBUTTON      "Configure Layout",IDC_CONFIGURE_LAYOUT,291,249,128,14
+    LTEXT           "Press F1 for Help.",IDC_STATIC,7,276,57,8
+    LTEXT           "Chris Boucher <chris@sorted.org>",IDC_STATIC,177,276,108,8
+    LTEXT           "Copyright © 2002-2006, Cakewalk",IDC_STATIC,345,276,110,8
+    LTEXT           "Meters:",IDC_STATIC,274,214,24,8
+    COMBOBOX        IDC_METERS,299,212,120,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PROPPAGE_C4 DIALOGEX 0, 0, 333, 194
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Function Buttons",IDC_STATIC,7,7,319,167
+    LTEXT           "F1:",IDC_STATIC,18,21,11,8
+    COMBOBOX        IDC_FUNCTION1,36,19,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,21,26,8
+    EDITTEXT        IDC_DISP1,276,18,40,14,ES_AUTOHSCROLL
+    LTEXT           "F2:",IDC_STATIC,18,40,11,8
+    COMBOBOX        IDC_FUNCTION2,36,38,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,40,26,8
+    EDITTEXT        IDC_DISP2,276,37,40,14,ES_AUTOHSCROLL
+    LTEXT           "F3:",IDC_STATIC,18,59,11,8
+    COMBOBOX        IDC_FUNCTION3,36,57,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,59,26,8
+    EDITTEXT        IDC_DISP3,276,56,40,14,ES_AUTOHSCROLL
+    LTEXT           "F4:",IDC_STATIC,18,78,11,8
+    COMBOBOX        IDC_FUNCTION4,36,76,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,78,26,8
+    EDITTEXT        IDC_DISP4,276,75,40,14,ES_AUTOHSCROLL
+    LTEXT           "F5:",IDC_STATIC,18,97,11,8
+    COMBOBOX        IDC_FUNCTION5,36,95,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,97,26,8
+    EDITTEXT        IDC_DISP5,276,94,40,14,ES_AUTOHSCROLL
+    LTEXT           "F6:",IDC_STATIC,18,116,11,8
+    COMBOBOX        IDC_FUNCTION6,36,114,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,116,26,8
+    EDITTEXT        IDC_DISP6,276,113,40,14,ES_AUTOHSCROLL
+    LTEXT           "F7:",IDC_STATIC,18,135,11,8
+    COMBOBOX        IDC_FUNCTION7,36,133,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,135,26,8
+    EDITTEXT        IDC_DISP7,276,132,40,14,ES_AUTOHSCROLL
+    LTEXT           "F8:",IDC_STATIC,18,154,11,8
+    COMBOBOX        IDC_FUNCTION8,36,152,200,150,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Display:",IDC_STATIC,245,154,26,8
+    EDITTEXT        IDC_DISP8,276,151,40,14,ES_AUTOHSCROLL
+    LTEXT           "Press F1 for Help.",IDC_STATIC,7,179,57,8
+    LTEXT           "Chris Boucher <chris@sorted.org>",IDC_STATIC,89,179,108,8
+    LTEXT           "Copyright © 2002-2006, Cakewalk",IDC_STATIC,216,179,110,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_PROPPAGE_XT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 326
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_PROPPAGE_MASTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 455
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 284
+    END
+
+    IDD_PROPPAGE_C4, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 326
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 187
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "MackieControl.ver"
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

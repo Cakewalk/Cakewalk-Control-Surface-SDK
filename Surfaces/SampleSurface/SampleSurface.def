@@ -1,0 +1,8 @@
+LIBRARY      "EuconController"
+DESCRIPTION  'Eucon Controller'
+
+EXPORTS
+	DllGetClassObject PRIVATE
+	DllCanUnloadNow PRIVATE
+	DllRegisterServer PRIVATE
+	DllUnregisterServer PRIVATE

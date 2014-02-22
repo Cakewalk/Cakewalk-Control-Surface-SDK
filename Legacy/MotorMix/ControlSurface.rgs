@@ -1,0 +1,31 @@
+HKCR
+{
+	CakewalkControlSurfaces
+	{
+		'{5E604989-B1F0-4412-B9D1-64A54B2277D0}'
+		{
+			val Description = s 'C.M. Labs MotorMix'
+			val HelpFilePath = s ''
+		}
+	}
+	MotorMix.ControlSurface.1 = s 'ControlSurface Class'
+	{
+		CLSID = s '{5E604989-B1F0-4412-B9D1-64A54B2277D0}'
+	}
+	MotorMix.ControlSurface = s 'ControlSurface Class'
+	{
+		CLSID = s '{5E604989-B1F0-4412-B9D1-64A54B2277D0}'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {5E604989-B1F0-4412-B9D1-64A54B2277D0} = s 'ControlSurface Class'
+		{
+			ProgID = s 'MotorMix.ControlSurface.1'
+			VersionIndependentProgID = s 'MotorMix.ControlSurface'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'both'
+			}
+		}
+	}
+}

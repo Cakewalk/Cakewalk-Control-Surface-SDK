@@ -1,0 +1,8 @@
+LIBRARY      "VS100"
+DESCRIPTION  'VS-100 Surface'
+
+EXPORTS
+	DllGetClassObject PRIVATE
+	DllCanUnloadNow PRIVATE
+	DllRegisterServer PRIVATE
+	DllUnregisterServer PRIVATE

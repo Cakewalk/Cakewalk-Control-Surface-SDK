@@ -1,0 +1,33 @@
+$$// newproj.inf = template for list of template files
+$$//  format is 'sourceResName' \t 'destFileName'
+$$//    The source res name may be preceded by any combination of '=', '-',  '!', '?', ':', '#', and/or '*'
+$$//       '=' => the resource is binary
+$$//       '-' => the file should not be added to the project (all files are added to the project by default)
+$$//       '!' => the file should be marked exclude from build
+$$//       '?' => the file should be treated as a help file
+$$//       ':' => the file should be treated as a resource
+$$//       '#' => the file should be treated as a template (implies '!')
+$$//       '*' => bypass the custom AppWizard's resources when loading
+$$//	if name starts with / => create new subdir
+
+
+
+/res
+
+
+ROOTSURFACEGEN.CPP	$$Safe_root$$SurfaceGen.cpp
+ROOT.DEF	$$Safe_root$$.def
+ROOT.H	$$Safe_root$$.h
+ROOT.RC	$$Safe_root$$.rc
+ROOTPROPPAGE.CPP	$$Safe_root$$PropPage.cpp
+ROOTPROPPAGE.H	$$Safe_root$$PropPage.h
+RESOURCE.H	resource.h
+STDAFX.CPP	StdAfx.cpp
+STDAFX.H	StdAfx.h
+:ROOT.RC2	res\$$Safe_root$$.rc2
+ROOT.CPP	$$Safe_root$$.cpp
+ROOT.CLW	$$Safe_root$$.clw
+README.TXT	ReadMe.txt
+CONTROLSURFACE.IDL	ControlSurface.idl
+MFXTIME.H	MfxTime.h
+COMMANDIDS.H	CommandIDs.h

@@ -1,0 +1,297 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""TacomaSurface.ver""\r\n"
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE DIALOGEX 0, 0, 197, 119
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    COMBOBOX        IDC_PRESET,7,55,74,57,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_INTERFACE,5,31,37,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_REVTYPE,128,16,53,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_REVPREDELAY,125,37,51,65,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Disable fader movements",IDC_FADER_DISABLE,9,98,107,10
+    LTEXT           "Fader touch selects channel",IDC_FADER_TOUCH,7,78,112,11
+END
+
+IDD_BUTTON_PROPS DIALOGEX 0, 0, 227, 131
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Button Properties"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,170,7,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,170,24,50,14
+    CONTROL         "&Host Command",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,7,7,103,10
+    CONTROL         "&Keystroke",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,7,38,105,10
+    COMBOBOX        IDC_COMMANDLIST,22,22,140,181,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Shift",IDC_SHIFT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,50,50,10
+    CONTROL         "Control",IDC_CTRL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,61,50,10
+    CONTROL         "Alt",IDC_ALT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,72,50,10
+    COMBOBOX        IDC_KEYLIST,22,49,75,108,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Transport State",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,7,90,105,10
+    COMBOBOX        IDC_TRANSPORT_STATE_LIST,23,104,140,181,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_EDIT_DLG DIALOGEX 0, 0, 160, 12
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT1,0,0,160,12,ES_AUTOHSCROLL
+END
+
+IDD_REG_REMINDER DIALOGEX 0, 0, 233, 118
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Registering your VS-700"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Register my VS-700",IDOK,134,97,92,14
+    PUSHBUTTON      "Already Registered",IDCANCEL,7,97,85,14
+    LTEXT           "The Benefits of registering your VS-700:",IDC_STATIC,7,7,219,13
+    LTEXT           "1. Notifications about important Firmware updates.\n\n2. Notifications about patches and software updates for your VS-700\n\n3. Technical support for your VS-700",IDC_STATIC,7,25,219,69
+END
+
+IDD_PATCHBAY DIALOGEX 0, 0, 239, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Octa-Capture Patchbay"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Close",IDOK,168,148,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,21,148,50,14
+    PUSHBUTTON      "Multi-Monitor",IDC_MONITOR_BTN,59,7,57,15
+    PUSHBUTTON      "Initial-Setting",IDC_SETTING_BTN,130,7,65,16
+    COMBOBOX        IDC_COMBO1,111,38,95,16,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO2,112,57,97,13,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO3,113,76,98,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO4,115,96,97,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO5,116,115,97,13,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 190
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 112
+    END
+
+    IDD_BUTTON_PROPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 220
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 124
+    END
+
+    IDD_REG_REMINDER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 226
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+    END
+
+    IDD_PATCHBAY, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 232
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_IOPANEL             BITMAP                  "res\\mainbackground.bmp"
+IDB_GAIN_KNOB           BITMAP                  "res\\gainknob.bmp"
+IDB_PHASE_BTN           BITMAP                  "res\\phase_btn.bmp"
+IDB_PHANTOM_BTN         BITMAP                  "res\\p48_btn.bmp"
+IDB_PAD_BTN             BITMAP                  "res\\pad_btn.bmp"
+IDB_DM_TAB              BITMAP                  "res\\dm_tab.bmp"
+IDB_ACT_TAB             BITMAP                  "res\\act_tab.bmp"
+IDB_MICPRE_TAB          BITMAP                  "res\\preamp_tab.bmp"
+IDB_PREFS_TAB           BITMAP                  "res\\prefs_tab.bmp"
+IDB_SMALL_BTN           BITMAP                  "res\\small_btn.bmp"
+IDB_CHECKBOX            BITMAP                  "res\\check_btn.bmp"
+IDB_LARGE_BTN           BITMAP                  "res\\large_btn.bmp"
+IDB_DM_BKG              BITMAP                  "res\\dm_bkg.bmp"
+IDB_PREAMP_BKG          BITMAP                  "res\\preamp_bkg.bmp"
+IDB_PREFS_BKG           BITMAP                  "res\\prefs_bkg.bmp"
+IDB_DEL_BUTTON          BITMAP                  "res\\del_btn.bmp"
+IDB_SAVE_BTN            BITMAP                  "res\\save_btn.bmp"
+IDB_PICKER              BITMAP                  "res\\preset_picker.bmp"
+IDB_PRESET_EDIT         BITMAP                  "res\\preset_edit.bmp"
+IDB_DELETE_BTN          BITMAP                  "res\\del_btn.bmp"
+IDB_MARKERS_IND         BITMAP                  "res\\markers_ind.bmp"
+IDB_FX_IND              BITMAP                  "res\\fx_ind.bmp"
+IDB_LAYER_IND           BITMAP                  "res\\layer_ind.bmp"
+IDB_ACT_IND             BITMAP                  "res\\acontext_ind.bmp"
+IDB_PREFS_BTN           BITMAP                  "res\\prefs_btn.bmp"
+IDB_ACT_BKG             BITMAP                  "res\\act_bkg.bmp"
+IDB_DISPBTN1            BITMAP                  "res\\d1act_btn.bmp"
+IDB_DISPBTN2            BITMAP                  "res\\d2act_btn.bmp"
+IDB_DISPBTN3            BITMAP                  "res\\d3act_btn.bmp"
+IDB_DISPBTN4            BITMAP                  "res\\d4act_btn.bmp"
+IDB_ACT_BTN             BITMAP                  "res\\act_btn.bmp"
+IDB_TACT_BTN            BITMAP                  "res\\tact_btn.bmp"
+IDB_PRE_SAVE_BTN        BITMAP                  "res\\preampsave_btn.bmp"
+IDB_PRE_DELETE_BTN      BITMAP                  "res\\preampcancel_btn.bmp"
+IDB_LOCUT               BITMAP                  "res\\locut_btn.bmp"
+IDB_COMP                BITMAP                  "res\\comp_btn.bmp"
+IDB_LINK                BITMAP                  "res\\link_btn.bmp"
+IDB_RAD                 BITMAP                  "res\\mprb_btn.bmp"
+IDB_FADER               BITMAP                  "res\\fader.bmp"
+IDB_FADER_PRE_BK        BITMAP                  "res\\micpre_fader.bmp"
+IDB_FADER_DM_BK         BITMAP                  "res\\dm_fader.bmp"
+IDB_MONO_BTN            BITMAP                  "res\\mono_btn.bmp"
+IDB_MUTESOLO_BTN        BITMAP                  "res\\mutesolo_btn.bmp"
+IDB_DM_LINK             BITMAP                  "res\\dm_link_btn.bmp"
+IDB_DM_RADIO            BITMAP                  "res\\dmrb_btn.bmp"
+IDB_IOLINK              BITMAP                  "res\\mplink_btn.bmp"
+IDB_FADER_DM_ANAIN      BITMAP                  "res\\analogin_fdr_bkg.bmp"
+IDB_FADER_DM_ARX        BITMAP                  "res\\arx_fdr_bkg.bmp"
+IDB_FADER_DM_DIG1       BITMAP                  "res\\digital1_fdr_bkg.bmp"
+IDB_FADER_DM_DIG2       BITMAP                  "res\\digital2_fdr_bkg.bmp"
+IDB_OC_PREAMP_BKG       BITMAP                  "res\\oc_preamp_bkg.bmp"
+IDB_HIZ_BTN             BITMAP                  "res\\hiz_btn.bmp"
+IDB_DMA_BKG             BITMAP                  "res\\oc_dmA_bkg.bmp"
+IDB_FADER_OC_MIXIN      BITMAP                  "res\\oc_inputdm_fdr_bkg.bmp"
+IDB_FADER_OC_MIXOUT     BITMAP                  "res\\oc_outputdm_fdr_bkg.bmp"
+IDB_FADER_OC_MASTER     BITMAP                  "res\\oc_masterdm_fdr_bkg.bmp"
+IDB_FADER_OC            BITMAP                  "res\\oc_dm_master_fdr.bmp"
+IDB_OCTAB_A             BITMAP                  "res\\oc_dm_A_btn.bmp"
+IDB_OCTAB_B             BITMAP                  "res\\oc_dm_B_btn.bmp"
+IDB_OCTAB_C             BITMAP                  "res\\oc_dm_C_btn.bmp"
+IDB_OCTAB_D             BITMAP                  "res\\oc_dm_D_btn.bmp"
+IDB_OCBAY_BTN           BITMAP                  "res\\oc_dm_patchbay_btn.bmp"
+IDB_DMB_BKG             BITMAP                  "res\\oc_dmB_bkg.bmp"
+IDB_DMC_BKG             BITMAP                  "res\\oc_dmC_bkg.bmp"
+IDB_DMD_BKG             BITMAP                  "res\\oc_dmD_bkg.bmp"
+IDB_IOLINKOC            BITMAP                  "res\\complink_btn.bmp"
+IDB_SYNC_DIG            BITMAP                  "res\\digital_btn.bmp"
+IDB_SYNC_IN             BITMAP                  "res\\internal_btn.bmp"
+IDB_BAY_BKGD            BITMAP                  "res\\patchbay_bkg.bmp"
+IDB_OUT12_IND           BITMAP                  "res\\oc_dm_out12_ind.bmp"
+IDB_OUT34_IND           BITMAP                  "res\\oc_dm_out34_ind.bmp"
+IDB_OUT56_IND           BITMAP                  "res\\oc_dm_out56_ind.bmp"
+IDB_OUT78_IND           BITMAP                  "res\\oc_dm_out78_ind.bmp"
+IDB_OUT910_IND          BITMAP                  "res\\oc_dm_out910_ind.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PROMPT_PRESET_OVERWRITE "Preset ""%s"" already exists.  Overwrite?"
+    IDS_PROMPT_PRESET_DELETE "Delete Preset ""%s""?  Are you sure?"
+    IDS_PROMPT_PHANTOM      "Loading Preset ""%s"" will turn Phantom Power on.  Continue?"
+    IDS_WARN_NO_PORTS       "Warning: Unable to open MIDI ports to the VS-700R.  Make sure that the VS-700R is connected and its MIDI ports are not in use by any other application"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_DISABLE_FADER_CHK   "Disable fader movements"
+    IDS_TOUCHSELECT_CHK     "Fader touch selects channel"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "TacomaSurface.ver"
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

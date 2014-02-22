@@ -1,0 +1,360 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "FileDescription", "Control Surface Probe control surface"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "Control Surface Probe"
+            VALUE "LegalCopyright", "Copyright © Chris Boucher 2003"
+            VALUE "OriginalFilename", "Control Surface Probe.DLL"
+            VALUE "ProductName", "Control Surface Probe control surface DLL"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_PROPPAGE DIALOGEX 0, 0, 527, 494
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "Counts",IDC_STATIC,7,7,171,115
+    RTEXT           "Refreshes:",IDC_STATIC,11,20,35,8
+    LTEXT           "Static",IDC_UPDATE_COUNT,56,20,27,8
+    RTEXT           "GetMixStripCount(MIX_STRIP_TRACK):",IDC_STATIC,17,34,128,8
+    LTEXT           "Static",IDC_NUM_TRACKS,150,34,25,8
+    RTEXT           "GetMixStripCount(MIX_STRIP_AUX):",IDC_STATIC,27,48,118,8
+    LTEXT           "Static",IDC_NUM_AUXS,150,48,25,8
+    RTEXT           "GetMixStripCount(MIX_STRIP_MAIN):",IDC_STATIC,23,62,122,8
+    LTEXT           "Static",IDC_NUM_MAINS,150,62,25,8
+    RTEXT           "GetMixStripCount(MIX_STRIP_BUS):",IDC_STATIC,27,76,118,8
+    LTEXT           "Static",IDC_NUM_BUSES,150,76,25,8
+    RTEXT           "GetMixStripCount(MIX_STRIP_MASTER):",IDC_STATIC,11,90,134,8
+    LTEXT           "Static",IDC_NUM_MASTER,150,90,25,8
+    GROUPBOX        "Mixer Strip",IDC_STATIC,7,123,330,137
+    COMBOBOX        IDC_MIX_STRIP,13,136,170,210,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Strip Name:",IDC_STATIC,197,137,38,8
+    LTEXT           "Static",IDC_STRIP_NAME,240,137,82,8
+    LTEXT           "Strip Number:",IDC_STATIC,75,156,44,8
+    EDITTEXT        IDC_STRIP_NUM,123,153,60,14,ES_AUTOHSCROLL | ES_NUMBER
+    RTEXT           "Param Label:",IDC_STATIC,193,151,42,8
+    LTEXT           "Static",IDC_MIX_VALUE_LABEL,240,151,82,8
+    COMBOBOX        IDC_MIX_PARAM,13,172,170,340,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "Param Value:",IDC_STATIC,192,165,43,8
+    LTEXT           "Static",IDC_MIX_VALUE,240,165,82,8
+    LTEXT           "Parameter Number:",IDC_STATIC,59,192,62,8
+    EDITTEXT        IDC_PARAM_NUM,123,189,60,14,ES_AUTOHSCROLL | ES_NUMBER
+    RTEXT           "Value Text:",IDC_STATIC,198,179,37,8
+    LTEXT           "Static",IDC_MIX_VALUE_TEXT,240,179,82,8
+    LTEXT           "HI:",IDC_STATIC,67,211,10,8
+    EDITTEXT        IDC_PARAM_NUM_HIGH,79,208,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "LO:",IDC_STATIC,129,211,12,8
+    EDITTEXT        IDC_PARAM_NUM_LOW,143,208,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    RTEXT           "Armed:",IDC_STATIC,211,193,23,8
+    LTEXT           "Static",IDC_MIX_VALUE_ARM,240,193,82,8
+    CONTROL         "Spin1",IDC_STRIP_NUM_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,15,190,11,14
+    CONTROL         "Spin2",IDC_PARAM_NUM_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,30,190,11,14
+    PUSHBUTTON      "Send:",IDC_MIX_SEND,79,226,50,14
+    EDITTEXT        IDC_MIX_NEW_VAL,133,226,50,14,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_PARAM_NUM_SPIN_HIGH,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,15,207,11,14
+    CONTROL         "Spin2",IDC_PARAM_NUM_SPIN_LOW,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,30,207,11,14
+    LTEXT           "Num Meters:",IDC_STATIC,195,207,41,8
+    LTEXT           "Static",IDC_STRIP_NUM_METERS,240,207,28,8
+    LTEXT           "Meter Values:",IDC_STATIC,192,221,44,8
+    LTEXT           "Static",IDC_STRIP_METER_VALUES,240,221,85,28,0,WS_EX_STATICEDGE
+    GROUPBOX        "Transport",IDC_STATIC,7,262,330,108
+    RTEXT           "TRANSPORT_STATE_AUDIO:",IDC_STATIC,58,275,102,8
+    LTEXT           "Static",IDC_TS_AUDIO,164,275,25,8
+    PUSHBUTTON      "Set",IDC_TS_AUDIO_SET,198,273,50,12
+    PUSHBUTTON      "Clear",IDC_TS_AUDIO_CLEAR,251,273,50,12
+    RTEXT           "TRANSPORT_STATE_PLAY:",IDC_STATIC,63,288,97,8
+    LTEXT           "Static",IDC_TS_PLAY,164,288,25,8
+    PUSHBUTTON      "Set",IDC_TS_PLAY_SET,198,286,50,12
+    PUSHBUTTON      "Clear",IDC_TS_PLAY_CLEAR,251,286,50,12
+    RTEXT           "TRANSPORT_STATE_SCRUB:",IDC_STATIC,56,301,104,8
+    LTEXT           "Static",IDC_TS_SCRUB,164,301,25,8
+    PUSHBUTTON      "Set",IDC_TS_SCRUB_SET,198,299,50,12
+    PUSHBUTTON      "Clear",IDC_TS_SCRUB_CLEAR,251,299,50,12
+    RTEXT           "TRANSPORT_STATE_REC:",IDC_STATIC,66,314,94,8
+    LTEXT           "Static",IDC_TS_REC,164,314,25,8
+    PUSHBUTTON      "Set",IDC_TS_REC_SET,198,312,50,12
+    PUSHBUTTON      "Clear",IDC_TS_REC_CLEAR,251,312,50,12
+    RTEXT           "TRANSPORT_STATE_REC_AUTOMATION:",IDC_STATIC,14,327,146,8
+    LTEXT           "Static",IDC_TS_REC_AUTO,164,327,25,8
+    PUSHBUTTON      "Set",IDC_TS_REC_AUTO_SET,198,325,50,12
+    PUSHBUTTON      "Clear",IDC_TS_REC_AUTO_CLEAR,251,325,50,12
+    RTEXT           "TRANSPORT_STATE_LOOP:",IDC_STATIC,62,340,98,8
+    LTEXT           "Static",IDC_TS_LOOP,164,340,25,8
+    PUSHBUTTON      "Set",IDC_TS_LOOP_SET,198,338,50,12
+    PUSHBUTTON      "Clear",IDC_TS_LOOP_CLEAR,251,338,50,12
+    RTEXT           "TRANSPORT_STATE_AUTOPUNCH:",IDC_STATIC,36,353,124,8
+    LTEXT           "Static",IDC_TS_AUTOPUNCH,164,353,25,8
+    PUSHBUTTON      "Set",IDC_TS_AUTOPUNCH_SET,198,351,50,12
+    PUSHBUTTON      "Clear",IDC_TS_AUTOPUNCH_CLEAR,252,351,50,12
+    GROUPBOX        "Commands",IDC_STATIC,7,374,330,35
+    PUSHBUTTON      "DoCommand",IDC_DO_COMMAND,13,387,50,14
+    COMBOBOX        IDC_COMMANDS,72,388,253,210,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Identity",IDC_STATIC,7,413,330,59
+    LTEXT           "Unique ID:",IDC_STATIC,30,426,35,8
+    LTEXT           "Static",IDC_UNIQUE_ID,67,426,130,8
+    LTEXT           "Host Version:",IDC_STATIC,22,440,43,8
+    LTEXT           "Static",IDC_HOST_VERSION,67,440,130,8
+    LTEXT           "Host Name:",IDC_STATIC,27,454,38,8
+    LTEXT           "Static",IDC_HOST_NAME,67,454,130,8
+    PUSHBUTTON      "Capabilities...",IDC_CAPABILITIES,273,439,50,14
+    GROUPBOX        "Markers",IDC_STATIC,343,262,176,210
+    LTEXT           "Number of Markers:",IDC_STATIC,354,275,63,8
+    LTEXT           "Static",IDC_MARKER_COUNT,428,275,44,8
+    EDITTEXT        IDC_MARKER_LIST,354,288,154,135,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    CONTROL         "Spin1",IDC_MARKER_MEAS_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,457,432,11,14
+    CONTROL         "Spin1",IDC_MARKER_BEAT_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,470,432,11,14
+    CONTROL         "Spin1",IDC_MARKER_TICK_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_ARROWKEYS,484,432,11,14
+    EDITTEXT        IDC_MARKER_MEASURES,354,432,30,14,ES_NUMBER
+    EDITTEXT        IDC_MARKER_BEATS,389,432,30,14,ES_NUMBER
+    EDITTEXT        IDC_MARKER_TICKS,424,432,30,14,ES_NUMBER
+    PUSHBUTTON      "Nearest:",IDC_MARKER_GET_NEAREST,354,451,50,14
+    LTEXT           "Static",IDC_MARKER_THE_NEAREST,408,454,82,8
+    LTEXT           "Copyright © Chris Boucher <chris@sorted.org> 2003 - 2006",IDC_STATIC,121,476,188,8
+    GROUPBOX        "ACT Parameters",IDC_STATIC,184,7,335,115
+    CONTROL         "SCT_SWITCH",IDC_SCT_SWITCH,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,189,67,60,10
+    CONTROL         "",IDC_SCT_ROTARY,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,284,81,49,12
+    LTEXT           "SCT_ROTARY1",IDC_STATIC,282,106,53,8
+    LTEXT           "SCT_SLIDER1",IDC_STATIC,284,66,49,8
+    LTEXT           "Param",IDC_SCT_ROTARY_CAPTION,282,95,55,9,0,WS_EX_STATICEDGE
+    LTEXT           "Param",IDC_SCT_SWITCH_CAPTION,189,55,62,9,0,WS_EX_STATICEDGE
+    LTEXT           "Param",IDC_SCT_SLIDER_CAPTION,285,56,48,9,0,WS_EX_STATICEDGE
+    LTEXT           "Mapping Name",IDC_STATIC,190,18,49,8
+    LTEXT           "Static",IDC_MAP_NAME,190,27,72,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_ROTARY2,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,339,81,49,12
+    LTEXT           "SCT_ROTARY2",IDC_STATIC,338,106,53,8
+    LTEXT           "Param",IDC_SCT_ROTARY_CAPTION2,340,95,48,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_ROTARY3,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,394,81,49,12
+    LTEXT           "SCT_ROTARY3",IDC_STATIC,393,106,53,8
+    LTEXT           "Param",IDC_SCT_ROTARY_CAPTION3,395,95,48,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_ROTARY4,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,450,81,49,12
+    LTEXT           "SCT_ROTARY4",IDC_STATIC,448,106,53,8
+    LTEXT           "Param",IDC_SCT_ROTARY_CAPTION4,450,95,48,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_SLIDER,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,300,14,18,40
+    LTEXT           "SCT_SLIDER2",IDC_STATIC,338,66,49,8
+    LTEXT           "Param",IDC_SCT_SLIDER_CAPTION2,340,56,48,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_SLIDER2,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,355,14,18,40
+    LTEXT           "SCT_SLIDER3",IDC_STATIC,394,66,49,8
+    LTEXT           "Param",IDC_SCT_SLIDER_CAPTION3,395,56,48,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_SLIDER3,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,410,14,18,40
+    LTEXT           "SCT_SLIDER4",IDC_STATIC,450,66,49,8
+    LTEXT           "Param",IDC_SCT_SLIDER_CAPTION4,450,56,48,9,0,WS_EX_STATICEDGE
+    CONTROL         "",IDC_SCT_SLIDER4,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,465,14,18,40
+    CONTROL         "Lock Contxt",IDC_LOCK_CONTEXT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,189,88,53,12
+    CONTROL         "Read Enable",IDC_READ_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,245,57,10
+    CONTROL         "Write Enable",IDC_MIX_ARM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,245,57,10
+    LTEXT           "UI Context:",IDC_STATIC,189,42,36,8
+    LTEXT           "Static",IDC_UI_CONTEXT,230,42,34,9,0,WS_EX_STATICEDGE
+    CONTROL         "Learn Enab",IDC_LEARN_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,189,104,53,10
+    LTEXT           "Window",IDC_STATIC,368,145,27,8
+    COMBOBOX        IDC_WND_TYPE,400,142,110,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Current State",IDC_STATIC,353,165,42,8
+    LTEXT           "Static",IDC_WND_STATE,401,165,106,8
+    PUSHBUTTON      "Open",IDC_WND_OPEN,358,181,45,14
+    PUSHBUTTON      "Close",IDC_WND_CLOSE,410,181,45,14
+    PUSHBUTTON      "Minimize",IDC_WND_MIN,462,181,45,14
+    LTEXT           "Zoom",IDC_STATIC,380,223,19,8
+    PUSHBUTTON      ">>",IDC_WND_ZOOM_RIGHT2,412,222,10,10
+    PUSHBUTTON      ">",IDC_WND_ZOOM_RIGHT,402,222,10,10
+    GROUPBOX        "Window Control",IDC_STATIC,343,123,176,137
+    PUSHBUTTON      "<<",IDC_WND_ZOOM_LEFT2,354,222,10,10
+    PUSHBUTTON      "<",IDC_WND_ZOOM_LEFT,364,222,10,10
+    PUSHBUTTON      "^",IDC_WND_ZOOM_UP,383,211,10,10
+    PUSHBUTTON      "v",IDC_WND_ZOOM_DOWN,383,233,10,10
+    PUSHBUTTON      "^^",IDC_WND_ZOOM_UP2,383,201,10,10
+    PUSHBUTTON      "vv",IDC_WND_ZOOM_DOWN2,383,243,10,10
+    LTEXT           "Scroll",IDC_STATIC,464,223,18,8
+    PUSHBUTTON      ">>",IDC_WND_SCROLL_RIGHT2,497,222,10,10
+    PUSHBUTTON      ">",IDC_WND_SCROLL_RIGHT,487,222,10,10
+    PUSHBUTTON      "<<",IDC_WND_SCROLL_LEFT2,439,222,10,10
+    PUSHBUTTON      "<",IDC_WND_SCROLL_LEFT,449,222,10,10
+    PUSHBUTTON      "^",IDC_WND_SCROLL_UP,469,211,10,10
+    PUSHBUTTON      "v",IDC_WND_SCROLL_DOWN,469,233,10,10
+    PUSHBUTTON      "^^",IDC_WND_SCROLL_UP2,469,201,10,10
+    PUSHBUTTON      "vv",IDC_WND_SCROLL_DOWN2,469,243,10,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_PROPPAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 519
+        VERTGUIDE, 234
+        VERTGUIDE, 337
+        VERTGUIDE, 343
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 484
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CAPABILITIES DIALOG  0, 0, 214, 198
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Capabilities"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,87,177,50,14
+    EDITTEXT        IDC_CAPABILITIES,7,7,200,159,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_CAPABILITIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 207
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 191
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,55 @@
+////////////////////////////////////////////////////////////////////////////////
+// $Header: /Src/ControlSurfaces/MotorMix/MotorMix.idl 7     1/16/02 1:55p Rkuper $
+//
+// MotorMix.idl : IDL source for Control Surface support DLL
+//
+// Copyright (c) 2001- Twelve Tone Systems, Inc.  All rights reserved.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+import "ocidl.idl";
+import "ControlSurface.idl";
+
+[
+	object,
+	local,
+	uuid( 95FEB8DD-DD64-4460-AB31-CA5610BDCC33 ),
+	helpstring( "ICSProperties interface" ),
+	pointer_default( unique )
+]
+interface ICSProperties : IUnknown
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Library definition
+//////////////////////////////////////////////////////////////////////////////
+
+[
+	uuid( EE2CAC15-64B1-45b9-BA9B-B57A0D641E74 ),
+	version( 1.0 ),
+	helpstring( "MotorMix 1.0 Type Library" )
+]
+library SURFACEFRAMEWORKLib
+{
+	[
+		uuid(75D0A649-84EE-479c-8786-0AA7D7738C28),
+		helpstring("MotorMix PropPage")
+	]
+	coclass ControlSurfacePropPage
+	{
+		[default] interface IPropertyPage;
+	};
+
+	[
+		uuid(5E604989-B1F0-4412-B9D1-64A54B2277D0),
+		helpstring("MotorMix Class")
+	]
+	coclass ControlSurface
+	{
+		[default] interface IControlSurface;
+		interface ICSProperties;
+		interface IPersistStream;
+		interface ISpecifyPropertyPages;
+	};
+};

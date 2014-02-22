@@ -1,0 +1,126 @@
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by TacomaSurface.rc
+//
+#define IDD_PROPPAGE                    102
+#define IDB_IOPANEL                     138
+#define IDD_BUTTON_PROPS                143
+#define IDB_GAIN_KNOB                   144
+#define IDB_PHASE_BTN                   146
+#define IDB_PHANTOM_BTN                 147
+#define IDB_PAD_BTN                     148
+#define IDB_DM_TAB                      157
+#define IDB_MICPRE_TAB                  158
+#define IDB_PREFS_TAB                   159
+#define IDB_SMALL_BTN                   160
+#define IDB_CHECKBOX                    161
+#define IDB_LARGE_BTN                   162
+#define IDB_DM_BKG                      163
+#define IDB_PREAM_BKG                   164
+#define IDB_PREAMP_BKG                  164
+#define IDB_PREFS_BKG                   165
+#define IDB_DEL_BUTTON                  166
+#define IDB_SAVE_BTN                    167
+#define IDB_PICKER                      168
+#define IDB_PRESET_EDIT                 169
+#define IDB_DELETE_BTN                  170
+#define IDS_PROMPT_PRESET_OVERWRITE     171
+#define IDS_PROMPT_PRESET_DELETE        172
+#define IDD_EDIT_DLG                    172
+#define IDS_PROMPT_PHANTOM              173
+#define IDB_MARKERS_IND                 173
+#define IDS_WARN_NO_PORTS               174
+#define IDB_FX_IND                      175
+#define IDB_LAYER_IND                   176
+#define IDB_ACT_IND                     177
+#define IDB_PREFS_BTN                   178
+#define IDB_ACT_TAB                     179
+#define IDB_ACT_BKG                     180
+#define IDB_DISPBTN1                    181
+#define IDB_DISPBTN2                    182
+#define IDB_DISPBTN3                    183
+#define IDB_DISPBTN4                    184
+#define IDB_ACT_BTN                     185
+#define IDB_TACT_BTN                    186
+#define IDB_PRE_SAVE_BTN                187
+#define IDB_PRE_DELETE_BTN              188
+#define IDB_LOCUT                       189
+#define IDB_COMP                        190
+#define IDB_LINK                        191
+#define IDB_RAD                         192
+#define IDB_FADER                       193
+#define IDB_FADER_PRE_BK                194
+#define IDB_FADER_DM_BK                 195
+#define IDB_MONO_BTN                    196
+#define IDB_MUTESOLO_BTN                197
+#define IDB_DM_LINK                     251
+#define IDB_DM_RADIO                    252
+#define IDB_IOLINK                      253
+#define IDD_DIALOG1                     254
+#define IDD_REG_REMINDER                254
+#define IDB_FADER_DM_ANAIN              257
+#define IDB_FADER_DM_ARX                260
+#define IDB_FADER_DM_DIG1               263
+#define IDB_FADER_DM_DIG2               264
+#define IDB_OC_PREAMP_BKG               265
+#define IDB_HIZ_BTN                     266
+#define IDB_DMA_BKG                     267
+#define IDB_FADER_OC_MIXIN              268
+#define IDB_FADER_OC_MIXOUT             269
+#define IDB_FADER_OC_MASTER             270
+#define IDB_FADER_OC                    271
+#define IDB_OCTAB_A                     272
+#define IDS_DISABLE_FADER_CHK           274
+#define IDB_OCTAB_B                     274
+#define IDS_TOUCHSELECT_CHK             275
+#define IDB_OCTAB_C                     275
+#define IDB_OCTAB_D                     276
+#define IDB_OCBAY_BTN                   277
+#define IDB_DMB_BKG                     278
+#define IDB_DMC_BKG                     279
+#define IDB_DMD_BKG                     280
+#define IDB_IOLINKOC                    281
+#define IDB_SYNC_DIG                    282
+#define IDB_SYNC_IN                     283
+#define IDD_PATCHBAY                    284
+#define IDB_BAY_BKGD                    286
+#define IDB_OUT12_IND                   287
+#define IDB_OUT34_IND                   288
+#define IDB_OUT56_IND                   289
+#define IDB_OUT78_IND                   290
+#define IDB_OUT910_IND                  291
+#define IDC_RADIO1                      1159
+#define IDC_RADIO2                      1160
+#define IDC_RADIO3                      1161
+#define IDC_COMMANDLIST                 1164
+#define IDC_SHIFT                       1165
+#define IDC_CTRL                        1166
+#define IDC_ALT                         1167
+#define IDC_KEYLIST                     1168
+#define IDC_EDIT1                       1169
+#define IDC_COMMANDLIST2                1169
+#define IDC_TRANSPORT_STATE_LIST        1169
+#define IDC_PRESET                      1170
+#define IDC_INTERFACE                   1171
+#define IDC_REVTYPE                     1177
+#define IDC_REVPREDELAY                 1179
+#define IDC_MONITOR_BTN                 1180
+#define IDC_SETTING_BTN                 1181
+#define IDC_COMBO1                      1182
+#define IDC_COMBO2                      1183
+#define IDC_COMBO3                      1184
+#define IDC_COMBO4                      1185
+#define IDC_COMBO5                      1186
+#define IDC_FADER_DISABLE               1187
+#define IDC_FADER_TOUCH                 1188
+
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE        292
+#define _APS_NEXT_COMMAND_VALUE         32771
+#define _APS_NEXT_CONTROL_VALUE         1189
+#define _APS_NEXT_SYMED_VALUE           103
+#endif
+#endif
