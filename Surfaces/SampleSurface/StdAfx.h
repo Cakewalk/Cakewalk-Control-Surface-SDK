@@ -39,6 +39,8 @@
 #include <AtlBase.h>
 #include <AtlCom.h>
 
+#include <vector>
+
 #include <ControlSurface.h>
 #include <CommandIDs.h>
 

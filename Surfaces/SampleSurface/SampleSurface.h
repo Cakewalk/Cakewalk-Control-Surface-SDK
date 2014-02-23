@@ -186,7 +186,7 @@ protected:
 private:
 	BOOL				m_bDirty;
 
-	CCriticalSection	m_cs;		// critical section to guard properties
+	CSFKCriticalSection	m_cs;		// critical section to guard properties
 
 	MFX_TIME_FORMAT				m_mfxfPrimary;		// TimeFormat for Cursor / In/Out times
 

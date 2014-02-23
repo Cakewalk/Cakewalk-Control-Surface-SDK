@@ -52,7 +52,6 @@
 #define DWORD_PTR DWORD
 #endif
 
-#include <ttsdbg.h>
 #include <macros.h>
 
 //{{AFX_INSERT_LOCATION}}

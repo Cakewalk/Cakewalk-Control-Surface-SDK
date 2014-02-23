@@ -5,10 +5,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+
+#pragma warning(disable:4100)
+
 #include "Htmlhelp.h"
 #include "surface.h"
 #include "sfkUtils.h"
 #include <mmsystem.h>
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -74,7 +78,7 @@ static char makeCrunchChar( char c, char prev )
 	// is it the first character of a word?
 	if (isalpha( c ) && (isalnum( prev ) == FALSE) )
 		if (islower( c ))
-			return toupper( c );
+			return char(toupper( c ));
 
 	return c;
 }
@@ -153,7 +157,7 @@ void CrunchString( LPCSTR pszString, int cbyString, char *pBuf, int nBudget, cha
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOL MakeExePathName( HINSTANCE hInstance, char* pszPathName, int cbMax, const char* pszBase /* = NULL */ )
+BOOL MakeSurfacePathName( HINSTANCE hInstance, TCHAR* pszPathName, int cbMax, const TCHAR* pszBase /* = NULL */ )
 {
 	// Call us with pszBase NULL or not.
 	//
@@ -171,29 +175,29 @@ BOOL MakeExePathName( HINSTANCE hInstance, char* pszPathName, int cbMax, const c
 
 	// Guarantee that the base name and the path name together doesn't exceed cbMax!
 	if (NULL != pszBase)
-		if ((int)strlen( pszPathName ) + (int)strlen( pszBase ) + 1 > cbMax)
+		if ((int)::_tcslen( pszPathName ) + (int)::_tcslen( pszBase ) + 1 > cbMax)
 			return FALSE;
 
-	char* p = strrchr( pszPathName, '\\' );
+	TCHAR* p = _tcsrchr( pszPathName, '\\' );
 	if (p)
 	{
 		if (pszBase != NULL)
 			// Copy their pszBase over the \\PROGNAME.EXE portion.
-			strcpy( p + 1, pszBase );
+			::_tcscpy( p + 1, pszBase );
 		else
 		{
 			// Simply zap the trailing '\\'
-			if ((p - pszPathName) == 2 && pszPathName[ 1 ] == ':')
+			if ((p - pszPathName) == 2 && pszPathName[ 1 ] == _T(':') )
 				++p;		// If at the root (ex: c:\) leave the '\\'
-			*p = '\0';
+			*p = _T('\0');
 		}
 	}
 	else
 	{
 		if (pszBase != NULL)
-			strcpy( pszPathName, pszBase );
+			::_tcscpy( pszPathName, pszBase );
 		else
-			*pszPathName = '\0';
+			*pszPathName = _T('\0');
 	}
 
 	return TRUE;
@@ -204,14 +208,14 @@ BOOL MakeExePathName( HINSTANCE hInstance, char* pszPathName, int cbMax, const c
 // An application should call HelpInit during Application startup and 
 // HelpTerminate during shutdown (MS Warns: not during process detach)
 
-DWORD HelpInit( HINSTANCE hInstance /* = NULL*/, char* pszPathName /*= NULL*/, int cbMax /*= 0*/, const char* pszBase /*= NULL*/ )
+DWORD HelpInit( HINSTANCE hInstance /* = NULL*/, TCHAR* pszPathName /*= NULL*/, int cbMax /*= 0*/, const TCHAR* pszBase /*= NULL*/ )
 {
 	// Initialize HtmlHelp and optionally build a Help file pathname for caller.
 	// Returns a "cookie" that must be passed to the Terminate function later
 
 	if (hInstance && pszPathName && cbMax && pszBase)
 	{
-		MakeExePathName( hInstance, pszPathName, cbMax, pszBase );
+		MakeSurfacePathName( hInstance, pszPathName, cbMax, pszBase );
 	}
 
 	DWORD dwCookie = 0;
@@ -257,7 +261,7 @@ UINT MapWHToHtmlCmd( UINT idWinHelpCmd )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-HWND HelpLaunch( HWND hWndParent, LPCSTR pszHelpFilePath, UINT idWinHelpCmd, DWORD dwData )
+HWND HelpLaunch( HWND hWndParent, LPCTSTR pszHelpFilePath, UINT idWinHelpCmd, DWORD dwData )
 {
 	// Call HTML help to launch an instance with a numberic topic or HELP_FINDER
 	// We are going to use HTML Help instead of WinHelp now
@@ -274,22 +278,22 @@ void HelpTerminate( DWORD dwCookie )
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Class CHelpAssist
+// Class CSFKHelpAssist
 
-BOOL CHelpAssist::Init( HINSTANCE hInstance, HWND hWndParent, const char* pszBase )
+BOOL CSFKHelpAssist::Init( HINSTANCE hInstance, HWND hWndParent, const TCHAR* pszBase )
 {
 	// is this specified as a full path?
 	CString strBase( pszBase );
-	if (-1 == strBase.Find( "\\" ) && -1 == strBase.Find( "/" ))
+	if (-1 == strBase.Find( _T("\\") ) && -1 == strBase.Find( _T("/") ))
 	{
-		char szPath[ _MAX_PATH ];
+		TCHAR szPath[ _MAX_PATH ];
 
 		if (!( hInstance && pszBase && *pszBase ))
 		{
 			_ASSERT( 0 );
 			return FALSE;
 		}
-		m_dwCookie		= HelpInit( hInstance, szPath, sizeof( szPath ), pszBase );
+		m_dwCookie		= HelpInit( hInstance, szPath, _countof( szPath ), pszBase );
 		m_strHelpPath	= szPath;
 	}
 	else
@@ -305,7 +309,7 @@ BOOL CHelpAssist::Init( HINSTANCE hInstance, HWND hWndParent, const char* pszBas
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void CHelpAssist::Launch( UINT idWinHelpCmd, DWORD dwData, const char* pcszCustomHelpPath /*= NULL*/ )
+void CSFKHelpAssist::Launch( UINT idWinHelpCmd, DWORD dwData, const TCHAR* pcszCustomHelpPath /*= NULL*/ )
 {
 	if (m_dwCookie == 0) // HTML Help not installed
 		return;
@@ -333,7 +337,7 @@ void CHelpAssist::Launch( UINT idWinHelpCmd, DWORD dwData, const char* pcszCusto
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void CHelpAssist::Terminate() 
+void CSFKHelpAssist::Terminate() 
 {
 	if (m_dwCookie)
 		HelpTerminate( m_dwCookie ); 
@@ -353,7 +357,7 @@ CTimer::CTimer( CControlSurface *pSurface ):
 {
 	TIMECAPS timeDevCaps;
 	timeGetDevCaps( &timeDevCaps, sizeof( timeDevCaps ) );
-	m_wTimerPeriod = max( timeDevCaps.wPeriodMin, 10 );
+	m_wTimerPeriod = WORD(max( timeDevCaps.wPeriodMin, 10 ));
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -413,7 +417,7 @@ void CTimer::setTimerActive( BOOL bIsActive )
 /////////////////////////////////////////////////////////////////////////
 HRESULT CTimer::SetPeriod( CTimerClient *pClient, WORD wPeriod )
 {
-	CCriticalSectionAuto lock( m_cs );
+	CSFKCriticalSectionAuto lock( m_cs );
 
 	if (pClient == NULL)
 		return E_POINTER;
@@ -461,7 +465,7 @@ void CTimer::onTimer()
 	TimerClientSet setTick;
 	TimerClientSetIt it;
 	{
-		CCriticalSectionAuto lock( m_cs );
+		CSFKCriticalSectionAuto lock( m_cs );
 		// check what to do with each timer
 		for (it = m_setClients.begin(); it != m_setClients.end(); it++)
 		{

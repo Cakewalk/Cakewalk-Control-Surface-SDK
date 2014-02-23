@@ -11,17 +11,17 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-class CCriticalSection
+class CSFKCriticalSection
 {
 	// This is a simple wrapper class for the Win32 CRITICAL_SECTION API.
 	// An advantage of using this class (instead of a raw CRITICAL_SECTION
 	// data object) is that the ctor/dtor do the Initialize and Delete calls.
 	// This is particularly useful when working with a 'static' instance of
-	// a CCriticalSection object.
+	// a CSFKCriticalSection object.
 public:
 // Ctors
-	CCriticalSection();
-	~CCriticalSection();
+	CSFKCriticalSection();
+	~CSFKCriticalSection();
 
 // Operations
 	inline void Enter() { ::EnterCriticalSection( m_pcs ); }
@@ -32,18 +32,18 @@ private:
 	CRITICAL_SECTION*	m_pcs;
 
 	// Copy prohibited
-	CCriticalSection( const CCriticalSection& rhs );
-	CCriticalSection& operator=( const CCriticalSection& rhs );
+	CSFKCriticalSection( const CSFKCriticalSection& rhs );
+	CSFKCriticalSection& operator=( const CSFKCriticalSection& rhs );
 };
 
-inline CCriticalSection::CCriticalSection()
+inline CSFKCriticalSection::CSFKCriticalSection()
 {
 	m_pcs = new CRITICAL_SECTION;
 	ASSERT( m_pcs );
 	::InitializeCriticalSection( m_pcs );
 }
 
-inline CCriticalSection::~CCriticalSection()
+inline CSFKCriticalSection::~CSFKCriticalSection()
 {
 	if (m_pcs)
 	{
@@ -55,49 +55,49 @@ inline CCriticalSection::~CCriticalSection()
 
 /////////////////////////////////////////////////////////////////////////////
 
-class CCriticalSectionAuto
+class CSFKCriticalSectionAuto
 {
-	// This is a simple "sandwich class" to use in conjunction with CCriticalSection.
+	// This is a simple "sandwich class" to use in conjunction with CSFKCriticalSection.
 	// Like any sandiwch class, it is intended to be used by declaring an 'auto'
 	// instance of the class.
-	// - The ctor calls CCriticalSection::Enter().
-	// - The dtor calls CCriticalSection::Leave().
+	// - The ctor calls CSFKCriticalSection::Enter().
+	// - The dtor calls CSFKCriticalSection::Leave().
 	// This way, the CS can be released implicitly when the 'auto' variable
 	// goes out of scope.
 public:
-	inline CCriticalSectionAuto( CCriticalSection& cs ) : m_rcs( cs ) { m_rcs.Enter(); }
-	inline ~CCriticalSectionAuto() { m_rcs.Leave(); }
+	inline CSFKCriticalSectionAuto( CSFKCriticalSection& cs ) : m_rcs( cs ) { m_rcs.Enter(); }
+	inline ~CSFKCriticalSectionAuto() { m_rcs.Leave(); }
 
 // Implementation
 private:
-	CCriticalSection&	m_rcs;
+	CSFKCriticalSection&	m_rcs;
 
 	// Copy prohibited
-	CCriticalSectionAuto( const CCriticalSectionAuto& rhs );
-	CCriticalSectionAuto& operator=( const CCriticalSectionAuto& rhs );
+	CSFKCriticalSectionAuto( const CSFKCriticalSectionAuto& rhs );
+	CSFKCriticalSectionAuto& operator=( const CSFKCriticalSectionAuto& rhs );
 };
 
 /////////////////////////////////////////////////////////////////////////
 
-BOOL MakeExePathName( HINSTANCE hInstance, char* pszPathName, int cbMax, const char* pszBase = NULL );
+BOOL MakeSurfacePathName( HINSTANCE hInstance, TCHAR* pszPathName, int cbMax, const TCHAR* pszBase = NULL );
 
 /////////////////////////////////////////////////////////////////////////
-class CHelpAssist
+class CSFKHelpAssist
 {
 public:
-	CHelpAssist() :
+	CSFKHelpAssist() :
 		m_hWndParent( NULL ),
 		m_dwCookie( 0 )
 	{}
 
-	~CHelpAssist() 
+	~CSFKHelpAssist() 
 	{}
 
-	BOOL Init( HINSTANCE hInstance, HWND hWndParent, const char* pszBase );
-	void Launch( UINT idWinHelpCmd, DWORD dwData, const char* pcszCustomHelpPath = NULL );
+	BOOL Init( HINSTANCE hInstance, HWND hWndParent, const TCHAR* pszBase );
+	void Launch( UINT idWinHelpCmd, DWORD dwData, const TCHAR* pcszCustomHelpPath = NULL );
 	void SetHWnd( HWND hWnd ) { m_hWndParent = hWnd; }
 	void Terminate();
-	LPCSTR GetPath() const { return m_strHelpPath; }
+	LPCTSTR GetPath() const { return m_strHelpPath; }
 
 private:
 	CString m_strHelpPath;	// Customized Help Path
@@ -122,7 +122,7 @@ class CControlSurface;
 // timer in the entire surface framework.
 /////////////////////////////////////////////////////////////////////////
 
-typedef std::set< CTimerClient*, std::less< CTimerClient* >, std::allocator<CTimerClient* > > TimerClientSet;
+typedef std::set< CTimerClient* > TimerClientSet;
 typedef TimerClientSet::iterator TimerClientSetIt;
 
 class CTimer
@@ -136,6 +136,7 @@ public:
 	HRESULT SetPeriod( CTimerClient *pClient, WORD wPeriod );
 
 	void SetIsActive( BOOL bIsActive );
+	BOOL	GetIsActive() const { return m_bIsTimerActive; }
 
 private:
 	static void CALLBACK EXPORT timerCallback(
@@ -156,7 +157,7 @@ private:
 	WORD					m_wTimerPeriod;
 	BOOL					m_bIsTimerActive;
 	TimerClientSet		m_setClients;
-	CCriticalSection	m_cs;
+	CSFKCriticalSection	m_cs;
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -171,11 +172,18 @@ class CTimerClient
 
 public:
 	CTimerClient() :
-		m_bOneShot( FALSE )
+		m_bOneShot( false )
 	{
 	}
 
 	virtual ~CTimerClient() {}
+
+	void SetIsOneShot( bool bIsOneShot )
+	{
+		m_bOneShot = bIsOneShot;
+	}
+
+	bool GetIsOneShot() { return m_bOneShot; }
 
 protected:
 	virtual void Tick()
@@ -183,17 +191,12 @@ protected:
 		_ASSERT( 0 );
 	}
 
-	void SetIsOneShot( BOOL bIsOneShot )
-	{
-		m_bOneShot = bIsOneShot;
-	}
 
-	BOOL GetIsOneShot() { return m_bOneShot; }
 
 private:
 	WORD m_wCountTicks;
 	WORD m_wNormalPeriod;
-	BOOL m_bOneShot;
+	bool m_bOneShot;
 };
 
 

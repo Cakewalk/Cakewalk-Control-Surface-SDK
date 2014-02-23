@@ -19,10 +19,42 @@ enum JogResolution
 	JOG_FRAMES
 };
 
+////////////////////////////////////////////////////////////////////////////
+static void ZeroTime( MFX_TIME& mfxTime )
+{
+	switch( mfxTime.timeFormat )
+	{
+	case TF_MBT:
+		mfxTime.mbt.nMeas = mfxTime.mbt.nBeat = 1;
+		mfxTime.mbt.nTick = 0;
+		break;
+	case TF_SECONDS:
+		mfxTime.dSeconds = 0;
+		break;
+	case TF_SAMPLES:
+		mfxTime.llSamples = 0;
+		break;
+	case TF_TICKS:
+		mfxTime.lTicks = 0;
+		break;
+	case TF_UTICKS:
+		mfxTime.llUTicks = 0;
+		break;
+	case TF_FRAMES:
+	case TF_FRAMES_REL:
+		mfxTime.frames.lFrame = 0;
+		break;
+	case TF_SMPTE:
+	case TF_SMPTE_REL:
+		mfxTime.smpte.nFrame = mfxTime.smpte.nHour = mfxTime.smpte.nMin = mfxTime.smpte.nSec = 0;
+		mfxTime.smpte.nSub400 = 0;
+		break;
+	}
+}
 
 //---------------------------------------------------------------------
 // Given a time, a res, and an amount, Alter the time
-void NudgeTimeCursor( MFX_TIME& mfxTime,					// [in][out] Current Time in, Modified time out
+static void NudgeTimeCursor( MFX_TIME& mfxTime,					// [in][out] Current Time in, Modified time out
 							JogResolution eJogResolution,		// Time Res
 							int iDir )								// Motion increment
 {
@@ -68,12 +100,12 @@ void NudgeTimeCursor( MFX_TIME& mfxTime,					// [in][out] Current Time in, Modif
 			break;
 
 		case JOG_BEATS:
-			mfxTime.mbt.nBeat += iDir;	// oy I don;'t think the host handles rolling over the measure for us!
+			mfxTime.mbt.nBeat += short(iDir);	// oy I don;'t think the host handles rolling over the measure for us!
 			mfxTime.mbt.nTick = 0;
 			break;
 
 		case JOG_TICKS:
-			mfxTime.mbt.nTick += iDir;
+			mfxTime.mbt.nTick += short(iDir);
 			break;
 
 		case JOG_HOURS:
@@ -102,7 +134,11 @@ void NudgeTimeCursor( MFX_TIME& mfxTime,					// [in][out] Current Time in, Modif
 
 		case JOG_FRAMES:
 			{
-				double dFramePeriod;
+				// argh this is a bug.  we're modifying the dSeconds field which
+				// means we can't possibly be using the .smpte.fps field since they
+				// are  unionized together. What we need to do is accept a separate arg
+				// for FPS.
+				double dFramePeriod = dFramePeriod = 1.0 / 30.0;
 
 				switch (mfxTime.smpte.fps)
 				{
@@ -112,9 +148,6 @@ void NudgeTimeCursor( MFX_TIME& mfxTime,					// [in][out] Current Time in, Modif
 					case FPS_2997_DROP:		dFramePeriod = 1.0 / 29.97;		break;
 					case FPS_30:			dFramePeriod = 1.0 / 30.0;		break;
 					case FPS_30_DROP:		dFramePeriod = 1.0 / 30.0;		break;
-
-					default:
-						return;
 				}
 
 				mfxTime.dSeconds += (double)iDir * dFramePeriod;

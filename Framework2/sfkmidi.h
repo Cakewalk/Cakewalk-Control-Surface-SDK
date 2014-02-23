@@ -96,11 +96,6 @@ private:
 // The CMidiInputRouter is responsible for listening and redirecting raw MIDI
 // messages into those CMidiMsg(s) that are registered.
 // This implementation creates a hash based index to optimize performance.
-// When a CMidiMsg is created it may be given one or more CMidiInputListeners.
-// That action indicates the CMidiMsg is intended for MIDI input,
-// and automatically adds the message into the CMidiInputRouter's list.
-// Each time a CMidiMsg is added into the list, the index is rebuilt to
-// reflect the latest state of the CMidiMsg list.
 /////////////////////////////////////////////////////////////////////////
 
 typedef std::set< CMidiMsg*, std::less< CMidiMsg* >, std::allocator< CMidiMsg* > > MsgSet;
@@ -173,16 +168,17 @@ class CMidiMsg
 public:
 	enum eMsgType
 	{
-		mtCC,			// message consists of the 7 bit value of a specified CC
-		mtNrpn,		// message consists of the 14 bit value of a specified NRPN
-		mtRpn,		// message consists of the 14 bit value of a specified RPN
-		mtSysX7bit,	// message consists of the 7 bit value sandwiched between the specified SYSX Pre and Post strings
-		mtSysXHiLo,	// message consists of the 14 bit value sandwiched between the specified SYSX Pre and Post strings (High byte first)
-		mtSysXLoHi,	// message consists of the 14 bit value sandwiched between the specified SYSX Pre and Post strings (Low byte first)
-		mtSysXString,	// message consists of a fixed length forward ordered ASCII string sandwiched between the specified SYSX Pre and Post strings
-		mtWheel,		// message consists of the 14 bit value of the pitch wheel
-		mtNote,		// message consists of the 7 bit value in the note's velocity
-		mtChAft		// message consists of the 7 bit value of a Channel Aftertouch
+		mtCC,         // message consists of the 7 bit value of a specified CC
+		mtNrpn,       // message consists of the 14 bit value of a specified NRPN
+		mtRpn,        // message consists of the 14 bit value of a specified RPN
+		mtSysX7bit,   // message consists of the 7 bit value sandwiched between the specified SYSX Pre and Post strings
+		mtSysXHiLo,   // message consists of the 14 bit value sandwiched between the specified SYSX Pre and Post strings (High byte first)
+		mtSysXLoHi,   // message consists of the 14 bit value sandwiched between the specified SYSX Pre and Post strings (Low byte first)
+		mtSysXString, // message consists of a fixed length forward ordered ASCII string sandwiched between the specified SYSX Pre and Post strings
+		mtWheel,      // message consists of the 14 bit value of the pitch wheel
+		mtNote,       // message consists of the 7 bit value in the note's velocity
+		mtChAft,      // message consists of the 7 bit value of a Channel Aftertouch
+		mtWheel7Bit   // message consists of the 7 bit value of the pitch wheel. Not common, use to support operation of t-bar, LFE-send and joystick on VS-700.
 	};
 
 	enum ValueMode
@@ -204,7 +200,7 @@ public:
 		DWORD dwH;
 	};
 
-	CMidiMsg( CControlSurface* pSurface );
+	CMidiMsg( CControlSurface* pSurface, LPCTSTR pszName = NULL, DWORD dwID = (DWORD)-1 );
 
 	virtual ~CMidiMsg();
 	HRESULT SetMessageType( eMsgType mtType )
@@ -216,18 +212,22 @@ public:
 		case mtSysX7bit:
 		case mtNote:
 		case mtChAft:
-			m_dwMaxValue = 127;
+		case mtWheel7Bit:
+			m_dwMaxValue = 0x7F; // 7 bits, 127
 			break;
+
 		case mtNrpn:
 		case mtRpn:
 		case mtSysXHiLo:
 		case mtSysXLoHi:
 		case mtWheel:
-			m_dwMaxValue = 16383;
+			m_dwMaxValue = 0x3FFF; // 14 bits, 16383
 			break;
+
 		case mtSysXString:
 			m_dwMaxValue = 0; // this is not a "receivable" message
 			break;
+
 		default:
 			_ASSERT( 0 );
 			return E_INVALIDARG;
@@ -235,12 +235,14 @@ public:
 		return S_OK; 
 	}
 
+	DWORD		GetId() const		{ return m_dwID; }
 	WORD		GetStatusWord();
 
 	eMsgType GetMessageType() const { return m_mtType; }
 
 	HRESULT SetCCNum( int iCC )
 	{ 
+		_ASSERT( m_mtType == mtCC );
 		_ASSERT( isValidCC( (WORD)iCC ) ); 
 		m_wCC = (WORD)iCC; return S_OK; 
 	}	
@@ -250,6 +252,7 @@ public:
 
 	HRESULT SetNoteNum( int iNote )
 	{
+		_ASSERT( m_mtType == mtNote );
 		_ASSERT( isValidNote( (WORD)iNote ) ); 
 		m_wNote = (WORD)iNote; return S_OK; 
 	}
@@ -258,6 +261,7 @@ public:
 
 	HRESULT SetNrpn( int iNrpn )
 	{
+		_ASSERT( m_mtType == mtNrpn );
 		_ASSERT ( isValidNrpn( (WORD)iNrpn ) );
 		m_wNrpn = (WORD)iNrpn; return S_OK;
 	}
@@ -266,6 +270,7 @@ public:
 
 	HRESULT SetRpn( int iRpn ) 
 	{ 
+		_ASSERT( m_mtType == mtRpn );
 		_ASSERT ( isValidNrpn( (WORD)iRpn ) ); 
 		m_wRpn = (WORD)iRpn; return S_OK; 
 	}
@@ -333,6 +338,7 @@ public:
 		case mtNote:
 		case mtChAft:
 		case mtWheel:
+		case mtWheel7Bit:
 			return true;
 		}
 		return false;
@@ -346,6 +352,7 @@ public:
 		case mtNote:
 		case mtChAft:
 		case mtWheel:
+		case mtWheel7Bit:
 			return 1;
 		case mtNrpn:
 		case mtRpn:
@@ -364,6 +371,7 @@ public:
 		case mtNote:
 		case mtChAft:
 		case mtWheel:
+		case mtWheel7Bit:
 			m_bIsTrigger = bIsTrigger;
 			m_dwTrigValue = dwTrigValue;
 			return S_OK;
@@ -406,6 +414,8 @@ public:
 	void OnLongMsg( DWORD dwMsgCount, DWORD cbLongMsg, const BYTE *pbLongMsg );
 	void OnNrpn( DWORD dwMsgCount, CNrpnContext::EPNType ePNType, DWORD dwParamNum, DWORD dwChan, DWORD dwVal, DWORD dwPort );
 
+	void SetVal( float f );
+	float GetVal() const;
 private:
 	// Value Validation
 	BOOL isValidPort( WORD wPort ) const { return (wPort >= 0 && wPort <= MAX_PORTS); }
@@ -417,7 +427,18 @@ private:
 	// helpers
 	void sendString( DWORD cbyString, LPCSTR pszString );
 	BOOL useTextCruncher() { return m_bUseTextCruncher; }
-	void setCurrentVal( DWORD dwVal );		// will apply delta modes
+
+public:
+	enum ValueChange
+	{
+		VC_None,
+		VC_Decrease,
+		VC_Increase,
+	};
+	CString					m_strName;	// useful for debugging
+private:
+	void setCurrentVal( DWORD dwVal, ValueChange* pvc );		// will apply delta modes
+
 
 	eMsgType		m_mtType;
 
@@ -474,5 +495,7 @@ private:
 
 	CControlSurface*		m_pSurface;
 	DWORD						m_dwLastMsgCount;
+
+	DWORD						m_dwID;		// a unique ID for callback identification
 };
 

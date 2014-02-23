@@ -1,3 +1,5 @@
+#pragma once
+
 ////////////////////////////////////////////////////////////////////////////////
 // The following is a list of commands supported thru ISonarCommands.
 //
@@ -9,6 +11,7 @@
 // Thus, invoking a particular command ID is not guaranteed to work in future
 // releases.
 ////////////////////////////////////////////////////////////////////////////////
+
 typedef enum SONAR_COMMAND_IDS
 {
 	CMD_FILE_NEW_TEMPLATE = 1,

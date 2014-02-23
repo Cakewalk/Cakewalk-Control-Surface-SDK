@@ -5,7 +5,6 @@
 
 #include "SampleSurface.h"
 #include "SampleSurfacePropPage.h"
-#include "ControlSurface_i.c"
 #include "sfkTransportTimeUtils.h"
 #include "MixParam.h"
 
@@ -116,7 +115,7 @@ HRESULT CSampleSurface::GetDynamicControlCount( DWORD* pdwCount )
 	if (!pdwCount)
 		return E_POINTER;
 
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	*pdwCount = 0;
 
@@ -148,7 +147,7 @@ HRESULT CSampleSurface::SetLearnState( BOOL bLearning )
 CMixParam* CSampleSurface::createMixParam()
 {
 	CMixParam* pParam = new CMixParam;
-	pParam->SetInterfaces( m_pSonarMixer, m_pSonarMixer2, m_pSonarTransport, m_dwSurfaceID );
+	pParam->SetInterfaces( m_pSonarMixer, m_pSonarTransport, m_dwSurfaceID );
 	m_setEveryMixparam.insert( pParam );
 	return pParam;
 }

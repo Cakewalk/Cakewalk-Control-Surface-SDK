@@ -882,7 +882,8 @@ typedef enum HOST_CAPABILITY
 	CAP_PARAM_ANY,				// host supports MIX_PARAM_ANY for Set/GetArmMixParam and Set/GetReadMixParam
 	CAP_STRIP_ANY,				// host supports MIX_STRIP_ANY for Mute / Solo / Arm 
 	CAP_STRIP_FILTER,			// host supports built-in filter(s) (EQ, etc)
-	CAP_LAYER_MUTESOLO		// host supports Per-Layer Mute / Solo
+	CAP_LAYER_MUTESOLO,		// host supports Per-Layer Mute / Solo
+	CAP_CAN_SET_ACTIVE_TRK, // host has threadsafe means of setting current Track
 }HOST_CAPABILITY;
 
 [

@@ -5,5 +5,5 @@
 
 #include "stdafx.h"
 
-#pragma warning( disable: 4192 )	// automatically excluding _GUID while importing type library
-#import <TTSLogger.tlb> named_guids
+//#pragma warning( disable: 4192 )	// automatically excluding _GUID while importing type library
+//#import <TTSLogger.tlb> named_guids

@@ -14,10 +14,14 @@
 #endif // _MSC_VER > 1000
 
 #define STRICT
+
+#include "ttswinver.h"
+
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0400
 #endif
 #define _ATL_APARTMENT_THREADED
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <afxwin.h>
 #include <afxdisp.h>
@@ -28,14 +32,18 @@
 #include <afxctl.h>			 // for COlePropertyPage
 
 #include <afxcmn.h>			// MFC support for Windows Common Controls
+#include <vector>
 
 #pragma warning( push )
-#pragma warning( disable : 4786 )
+#pragma warning(disable:4786)
+#pragma warning(disable:4100)
+
 #include "CommandIDs.h"
+#include "ControlSurface.h"
 #include "SfkUtils.h"
 #include "SfkMidi.h"
-#include "SfkParams.h"
-#include "SfkStates.h"
+//#include "SfkParams.h"
+//#include "SfkStates.h"
 #pragma warning( pop )
 
 //You may derive a class from CComModule and use it if you want to override

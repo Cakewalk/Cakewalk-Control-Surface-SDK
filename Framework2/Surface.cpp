@@ -5,8 +5,13 @@
 /////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+
+#pragma warning(disable:4100)
+#pragma warning(disable:4189)
+
 #include "surface.h"
 #include "SfkMidi.h"
+#include "ControlSurface_i.c"
 
 /////////////////////////////////////////////////////////////////////////
 // CControlSurface:
@@ -14,20 +19,25 @@
 CControlSurface::CControlSurface():
 	m_hwndApp( NULL )
 	,m_cRef( 1 )
-	,m_bIsConnected( FALSE )
+	,m_bConnected( false )
 	,m_pSonarMixer( NULL )
 	,m_pSonarMixer2( NULL )
 	,m_pSonarMidiOut( NULL )
 	,m_pSonarTransport( NULL )
+	,m_pSonarTransport2( NULL )
 	,m_pSonarCommands( NULL )
 	,m_pSonarKeyboard( NULL )
 	,m_pSonarProject( NULL )
 	,m_pSonarProject2( NULL )
+	,m_pSonarProject3( NULL )
 	,m_pSonarIdentity( NULL )
-	,m_pSonarIdentity2( NULL )
 	,m_pSonarVUMeters( NULL )
 	,m_pSonarUIContext( NULL )
 	,m_pSonarParamMapping( NULL )
+	,m_pHostDataEdit( NULL )
+	,m_pHostWindow( NULL )
+	,m_pHostStripinfo( NULL )
+	,m_pHostLockStrip(NULL)
 	,m_dwSurfaceID( 0 )
 	,m_dwSupportedRefreshFlags( 0 )
 	,m_dwRefreshCount(0)
@@ -137,7 +147,9 @@ HRESULT CControlSurface::GetNoEchoMask( WORD* pwMask, BOOL* pbNoEchoSysx )
 // cache various host states as needed
 HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 {
-	CCriticalSectionAuto lock( m_cs );
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CSFKCriticalSectionAuto lock( m_cs );
 
 	HRESULT hr = S_OK;
 
@@ -152,12 +164,12 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 	hr = pHostUnk->QueryInterface( IID_ISonarMixer, (void**)&m_pSonarMixer );
 	if (hr != S_OK)
 		return hr;
-	// optional ISonarMixer2
+
 	_ASSERT( m_pSonarMixer2 == NULL );
 	if ( FAILED( pHostUnk->QueryInterface( IID_ISonarMixer2, (void**)&m_pSonarMixer2 ) ) )
-		m_pSonarMixer2 = NULL;
+      m_pSonarMixer2 = NULL;
 
-	_ASSERT( m_pSonarMidiOut == NULL );
+   _ASSERT( m_pSonarMidiOut == NULL );
 	hr = pHostUnk->QueryInterface( IID_ISonarMidiOut, (void**)&m_pSonarMidiOut );
 	if (hr != S_OK)
 		return hr;
@@ -166,6 +178,9 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 	hr = pHostUnk->QueryInterface( IID_ISonarTransport, (void**)&m_pSonarTransport );
 	if (hr != S_OK)
 		return hr;
+	_ASSERT( m_pSonarTransport2 == NULL );
+	if ( FAILED( pHostUnk->QueryInterface( IID_ISonarTransport2, (void**)&m_pSonarTransport2 ) ) )
+		m_pSonarTransport2 = NULL;
 
 	_ASSERT( m_pSonarKeyboard == NULL );
 	hr = pHostUnk->QueryInterface( IID_ISonarKeyboard, (void**)&m_pSonarKeyboard );
@@ -180,6 +195,9 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 	_ASSERT( m_pSonarProject2 == NULL );
 	if ( FAILED( pHostUnk->QueryInterface( IID_ISonarProject2, (void**)&m_pSonarProject2 ) ) )
 		m_pSonarProject2 = NULL;
+	_ASSERT( m_pSonarProject3 == NULL );
+	if ( FAILED( pHostUnk->QueryInterface( IID_ISonarProject3, (void**)&m_pSonarProject3 ) ) )
+		m_pSonarProject3 = NULL;
 
 	_ASSERT( m_pSonarIdentity == NULL );
 	if ( SUCCEEDED( pHostUnk->QueryInterface( IID_ISonarIdentity, (void**)&m_pSonarIdentity ) ))
@@ -190,11 +208,12 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 			return hr;
 	}
 	// optional ISonarIdentity2
-	_ASSERT( NULL == m_pSonarIdentity2 );
-	if ( FAILED( pHostUnk->QueryInterface( IID_ISonarIdentity2, (void**)&m_pSonarIdentity2 ) ) )
-		m_pSonarIdentity2 = NULL;
-	else
-		m_pSonarIdentity2->GetSupportedRefreshFlags( &m_dwSupportedRefreshFlags );
+	ISonarIdentity2* pID2 = NULL;
+	if ( SUCCEEDED( pHostUnk->QueryInterface( IID_ISonarIdentity2, (void**)&pID2 ) ) )
+	{
+		pID2->GetSupportedRefreshFlags( &m_dwSupportedRefreshFlags );
+		pID2->Release();
+	}
 
 
 	// optional Sonar Param Mapping
@@ -208,10 +227,27 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 		m_pSonarVUMeters = NULL;
 
 	_ASSERT( NULL == m_pSonarUIContext );
-	if ( FAILED ( pHostUnk->QueryInterface( IID_ISonarUIContext2, (void**)&m_pSonarUIContext ) ))
-	{
+	if ( FAILED ( pHostUnk->QueryInterface( IID_ISonarUIContext3, (void**)&m_pSonarUIContext ) ))
 		m_pSonarUIContext = NULL;
-	}
+
+	// optional IHostDataEdit interface
+	_ASSERT( m_pHostDataEdit == NULL );
+	if ( FAILED ( pHostUnk->QueryInterface( IID_IHostDataEdit, (void**)&m_pHostDataEdit ) ))
+		m_pHostDataEdit = NULL;
+
+	// optional IHOstWindow interface
+	_ASSERT( m_pHostWindow == NULL );
+	if ( FAILED( pHostUnk->QueryInterface( IID_IHostWindow, (void**)&m_pHostWindow ) ))
+		m_pHostWindow = NULL;
+
+	_ASSERT( m_pHostStripinfo == NULL );
+	if ( FAILED( pHostUnk->QueryInterface( IID_IHostStripInfo, (void**)&m_pHostStripinfo ) ))
+		m_pHostStripinfo = NULL;
+
+	_ASSERT( m_pHostLockStrip == NULL );
+	if ( FAILED( pHostUnk->QueryInterface( IID_IHostLockStrip, (void**)&m_pHostLockStrip ) ))
+		m_pHostLockStrip = NULL;
+
 
 	if (hr != S_OK)
 	{
@@ -221,7 +257,7 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 
 	onConnect();	// let derived classes do something useful
 
-	m_bIsConnected = TRUE;
+	m_bConnected = true;
 
 	return hr;
 }
@@ -230,9 +266,11 @@ HRESULT CControlSurface::Connect( IUnknown* pHostUnk, HWND hwndApp )
 // Host is done with us.  Release everything we QI'd for in Connect()
 HRESULT CControlSurface::Disconnect()
 {
-	CCriticalSectionAuto lock( m_cs );
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
-	m_bIsConnected = FALSE;
+	CSFKCriticalSectionAuto lock( m_cs );
+
+	m_bConnected = false;
 
 	onDisconnect();	// let derived classes do something useful
 
@@ -248,13 +286,16 @@ HRESULT CControlSurface::Disconnect()
 		m_pSonarMixer2->Release();
 	m_pSonarMixer2 = NULL;
 
-	if (m_pSonarMidiOut != NULL)
+   if (m_pSonarMidiOut != NULL)
 		m_pSonarMidiOut->Release();
 	m_pSonarMidiOut = NULL;
 
 	if (m_pSonarTransport != NULL)
 		m_pSonarTransport->Release();
 	m_pSonarTransport = NULL;
+	if (m_pSonarTransport2 != NULL)
+		m_pSonarTransport2->Release();
+	m_pSonarTransport2 = NULL;
 
 	if (m_pSonarKeyboard != NULL)
 		m_pSonarKeyboard->Release();
@@ -268,13 +309,13 @@ HRESULT CControlSurface::Disconnect()
 		m_pSonarProject2->Release();
 	m_pSonarProject2 = NULL;
 
+	if (m_pSonarProject3 != NULL)
+		m_pSonarProject3->Release();
+	m_pSonarProject3 = NULL;
+
 	if (m_pSonarIdentity)
 		m_pSonarIdentity->Release();
 	m_pSonarIdentity = NULL;
-
-	if (m_pSonarIdentity2)
-		m_pSonarIdentity2->Release();
-	m_pSonarIdentity2 = NULL;
 
 	if (m_pSonarVUMeters)
 		m_pSonarVUMeters->Release();
@@ -287,6 +328,22 @@ HRESULT CControlSurface::Disconnect()
 	if ( m_pSonarUIContext )
 		m_pSonarUIContext->Release();
 	m_pSonarUIContext = NULL;
+
+	if ( m_pHostDataEdit )
+		m_pHostDataEdit->Release();
+	m_pHostDataEdit = NULL;
+
+	if ( m_pHostWindow )
+		m_pHostWindow->Release();
+	m_pHostWindow = NULL;
+
+	if ( m_pHostStripinfo )
+		m_pHostStripinfo->Release();
+	m_pHostStripinfo = NULL;
+
+	if ( m_pHostLockStrip )
+		m_pHostLockStrip->Release();
+	m_pHostLockStrip = NULL;
 
 	return S_OK;
 }
@@ -339,7 +396,7 @@ HRESULT CControlSurface::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 	if (pdwLen == NULL)
 		return E_POINTER;
 
-	LPCTSTR sz = "override me";	// a short message describing state ie: "tracks 1-8"
+	LPCSTR sz = "override me";	// a short message describing state ie: "tracks 1-8"
 
 	// Return results to caller
 	if (NULL == pszStatus)
@@ -354,18 +411,27 @@ HRESULT CControlSurface::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 	return S_OK;
 }
 
-
+///////////////////////////////////////////////////////////////////
+// Request that the host re-queries us for the status text
+void CControlSurface::RequestStatusQuery()
+{
+	if ( m_pSonarProject )
+		m_pSonarProject->OnNewStatus( 0 );
+}
 
 /////////////////////////////////////////////////////////////////////////
 // Periodically called from the host
 HRESULT CControlSurface::RefreshSurface( DWORD fdwRefresh, DWORD dwCookie )
 {
-	CCriticalSectionAuto lock( m_cs );
+//	CSFKCriticalSectionAuto lock( m_cs );
 
 	// up our refresh count.  this can be used to thin out updates.  For example,
 	// motors and meters should be updated as often as possible.  However, switches,
 	// and text names can be updated less often.  You can also use this to interlace
 	// updates (even/odd strips get updated every other refresh)
+	if ( 0 == m_dwRefreshCount )
+		onFirstRefresh();
+
 	m_dwRefreshCount++;	
 
 	// call the refresh handler.  Your derived surface should override this,
@@ -386,6 +452,7 @@ HRESULT CControlSurface::GetStripRangeCount( DWORD* pdwCount )
 	
 	return S_OK;
 }
+
 
 /////////////////////////////////////////////////////////////////////
 // Given an index, return strip range information
@@ -441,7 +508,6 @@ HRESULT CControlSurface::SetLearnState( BOOL bLearning )
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 // IPersistStream
@@ -453,7 +519,7 @@ HRESULT CControlSurface::SetLearnState( BOOL bLearning )
 
 HRESULT CControlSurface::Save( IStream* pStm, BOOL bClearDirty )
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	// Here you should write any data to pStm which you wish to store.
 	// Typically you will write values for all of your properties.
@@ -477,7 +543,7 @@ HRESULT CControlSurface::Save( IStream* pStm, BOOL bClearDirty )
 
 HRESULT CControlSurface::Load( IStream* pStm )
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	// Here you should read the data using the format you used in Save().
 	// Save() and Load() are used for the host application to provide "Presets"
@@ -502,7 +568,7 @@ HRESULT CControlSurface::Load( IStream* pStm )
 
 HRESULT CControlSurface::GetSizeMax( ULARGE_INTEGER* pcbSize )
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	TRACE("CControlSurface::GetSizeMax()\n");
 
@@ -545,6 +611,7 @@ bool CControlSurface::GetIsStripMidiTrack( SONAR_MIXER_STRIP mixerStrip, DWORD d
 	
 	return (fVal > 0.5);
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Convenient helper to determine state of a transport state
@@ -599,6 +666,21 @@ bool CControlSurface::IsSurround(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum
 	return bSur;
 }
 
+////////////////////////////////////////////////////////////////////////
+// Convenient helper to determine if a strip's send is surround or not
+bool CControlSurface::IsSendSurround(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, DWORD dwSendNum )
+{
+	bool bSur = false;
+
+	float fVal;
+
+	HRESULT hr = m_pSonarMixer->GetMixParam(eMixerStrip, dwStripNum, MIX_PARAM_SEND_ISSURROUND, dwSendNum, &fVal);
+
+	if (SUCCEEDED(hr))
+		bSur = (fVal >= 0.5f);
+
+	return bSur;
+}
 /////////////////////////////////////////////////////////////////////////
 // Convenient helper helper to get a strip's name as a CString
 void	CControlSurface::GetInputName( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, CString* pstr )
@@ -609,7 +691,7 @@ void	CControlSurface::GetInputName( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStrip
 	float fVal = 0.f;
 	m_pSonarMixer->GetMixParam( eMixerStrip, dwStripNum, MIX_PARAM_INPUT, 0, &fVal );
 
-	TCHAR sz[64];
+	char sz[64];
 	DWORD csz = _countof(sz)-1;
 	m_pSonarMixer->GetMixParamValueText( eMixerStrip, dwStripNum, MIX_PARAM_INPUT, 0, fVal, sz, &csz );
 	*pstr = sz;
@@ -625,7 +707,7 @@ void	CControlSurface::GetOutputName( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStri
 	float fVal = 0.f;
 	m_pSonarMixer->GetMixParam( eMixerStrip, dwStripNum, MIX_PARAM_OUTPUT, 0, &fVal );
 
-	TCHAR sz[64];
+	char sz[64];
 	DWORD csz = _countof(sz)-1;
 	m_pSonarMixer->GetMixParamValueText( eMixerStrip, dwStripNum, MIX_PARAM_OUTPUT, 0, fVal, sz, &csz );
 	*pstr = sz;
@@ -724,10 +806,12 @@ void CControlSurface::ActivateCurrentFx( SONAR_UI_ACTION uia )
 		return;
 	
 	SONAR_UI_CONTEXT uic = GetCurrentUIContext();
-	if ( UIC_PLUGIN != uic )
-		return;
 
-	m_pSonarUIContext->SetUIContext(MIX_STRIP_TRACK, 0xB0B,MIX_PARAM_DYN_MAP,m_dwSurfaceID,uia );
+	m_pSonarUIContext->SetUIContext( MIX_STRIP_TRACK,		// for ACT this is Don't Care
+												ACTKEY_BASE,			// Has to be one of our control IDs
+												MIX_PARAM_DYN_MAP,	// It's ACT
+												m_dwSurfaceID,
+												uia );
 }
 
 
@@ -749,6 +833,25 @@ void CControlSurface::ActivateNextFx( SONAR_UI_ACTION uia )
 	m_pSonarUIContext->SetNextUIContext( m_dwSurfaceID, uia );
 }
 
+
+////////////////////////////////////////////////////////////////////
+// Helper to set the context to a given strip's FX bin.
+// hint: the synth rack is also a "strip" type so you can use this to
+// set the context to the rack as well
+void CControlSurface::ActivateStripFx( SONAR_MIXER_STRIP mixerStrip, DWORD dwStripNum, SONAR_UI_ACTION uia )
+{
+	if ( !m_pSonarUIContext )
+		return;
+
+	m_pSonarUIContext->SetUIContext( mixerStrip,
+												dwStripNum,			
+												MIX_PARAM_FX_PARAM,
+												0,		// 0th fx, 0th param
+												uia );
+}
+
+
+
 //////////////////////////////////////////////////////////////////////
 // Convenient helper to determine if the host supports ACT
 bool CControlSurface::SupportsDynamicMappings()
@@ -760,7 +863,7 @@ bool CControlSurface::SupportsDynamicMappings()
 // Convenient helper determine if ACT lock is enabled
 bool CControlSurface::GetLockDynamicMappings()
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	if (!m_pSonarParamMapping)
 		return false;
@@ -779,7 +882,7 @@ bool CControlSurface::GetLockDynamicMappings()
 // Convenient helper lock ACT
 void CControlSurface::SetLockDynamicMappings(bool b)
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	if (!m_pSonarParamMapping)
 		return;
@@ -795,7 +898,7 @@ void CControlSurface::SetLockDynamicMappings(bool b)
 // Convenient helper to determine if ACT learn is enabled
 bool CControlSurface::GetLearnDynamicMappings()
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	if (!m_pSonarParamMapping)
 		return false;
@@ -814,7 +917,7 @@ bool CControlSurface::GetLearnDynamicMappings()
 // Convenient helper Enable act learn mode
 void CControlSurface::SetLearnDynamicMappings(bool b)
 {
-	CCriticalSectionAuto csa( m_cs );
+	CSFKCriticalSectionAuto csa( m_cs );
 
 	if (!m_pSonarParamMapping)
 		return;
@@ -843,19 +946,28 @@ void CControlSurface::GetDynamicMappingName(CString *pstr)
 // Convenient helper to set a strip's read mode
 HRESULT CControlSurface::SetReadMode( DWORD dwStrip, SONAR_MIXER_STRIP eStrip, bool b )
 {
-	if ( !m_pSonarMixer2 )
-		return E_FAIL;
-	return m_pSonarMixer2->SetReadMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, b );
+	ISonarMixer2*	pMixer2 = NULL;
+	if ( FAILED( m_pSonarMixer->QueryInterface( IID_ISonarMixer2, (void**)&pMixer2 ) ) )
+		return E_NOINTERFACE;
+
+	HRESULT hr = pMixer2->SetReadMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, b );
+	pMixer2->Release();
+
+	return hr;
 }
 
 //////////////////////////////////////////////////////////////////////
 // Convenient helper to get a strip's read mode
 bool CControlSurface::GetReadMode( DWORD dwStrip, SONAR_MIXER_STRIP eStrip )
 {
-	BOOL b;
-	if ( !m_pSonarMixer2 )
+	ISonarMixer2*	pMixer2 = NULL;
+	if ( FAILED( m_pSonarMixer->QueryInterface( IID_ISonarMixer2, (void**)&pMixer2 ) ) )
 		return false;
-	m_pSonarMixer2->GetReadMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, &b );
+
+	BOOL b;
+	pMixer2->GetReadMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, &b );
+	pMixer2->Release();
+
 	return !!b;
 }
 
@@ -895,24 +1007,344 @@ void	CControlSurface::GetMeterValues( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStr
 
 	DWORD dwCount = _countof( m_afMeter );
 	HRESULT hr = m_pSonarVUMeters->GetMeterValues( eMixerStrip, dwStripNum, m_dwSurfaceID, m_afMeter, &dwCount );
-	if ( FAILED( hr ) )
+	if ( S_OK != hr )
 		return;
 
-	if ( dwCount != dwPhysicalMeters )
-	{
-		// just max all channels and put it everywhere (we could do some slick "downmixing" algorithm)
-		float f = 0.f;
-		for ( DWORD i = 0; i < dwCount; i++ )
-			f = max( f, m_afMeter[i] );
+   // For a track or bus strip, the fader is going to control all the channels.
+   // For a master (output) strip each fader controls the left or right channel, so pick
+   // the meter based on the index of the strip
 
-		for ( DWORD i = 0; i < dwPhysicalMeters; i++ )
-			pv->push_back( f );
-	}
-	else
+   if ((eMixerStrip == MIX_STRIP_MASTER) && (dwCount == 2))
+   {
+		// Use the left for even and right for odd,
+      // display as many as we can on the amount of physical
+      // meters the surface strip has, if it has more then
+      // make them zero.
+	   for ( DWORD i = 0; i < dwPhysicalMeters; i++ )
+      {
+         if (i < dwCount)
+		      pv->push_back(m_afMeter[dwStripNum % 2]);
+         else
+		      pv->push_back(0.f);
+      }
+   }
+   else
+   {
+	   if ( dwCount != dwPhysicalMeters )
+	   {
+		   // just max all channels and put it everywhere (we could do some slick "downmixing" algorithm)
+		   float f = 0.f;
+		   for ( DWORD i = 0; i < dwCount; i++ )
+			   f = max( f, m_afMeter[i] );
+
+		   for ( DWORD i = 0; i < dwPhysicalMeters; i++ )
+			   pv->push_back( f );
+	   }
+	   else
+	   {
+		   for ( DWORD i = 0; i < dwCount; i++ )
+			   pv->push_back( m_afMeter[i] );
+	   }
+   }
+}
+
+////////////////////////////////////////////////////////////////
+// Enable or disable a built-in filter
+void CControlSurface::SetFilterEnabled( SONAR_MIXER_FILTER filter, SONAR_MIXER_STRIP mixerStrip, DWORD dwStripNum, bool b )
+{
+	m_pSonarMixer->SetMixParam( mixerStrip, dwStripNum, MIX_PARAM_FILTER, (DWORD)filter, b? 1.f : 0.f, MIX_TOUCH_MANUAL );
+}
+
+///////////////////////////////////////////////////////////////
+// Return if a built-in filter is enabled
+bool CControlSurface::IsFilterEnabled( SONAR_MIXER_FILTER filter, SONAR_MIXER_STRIP mixerStrip, DWORD dwStripNum )
+{
+	float fVal = 0.f;
+	m_pSonarMixer->GetMixParam( mixerStrip, dwStripNum, MIX_PARAM_FILTER, (DWORD)filter, &fVal );
+
+	return fVal >= .5f;
+}
+
+bool	CControlSurface::GetMuteDefeat()
+{
+	float fVal = 0.f;
+	m_pSonarMixer->GetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_MUTE_DEFEAT, 0, &fVal );
+	return fVal >= .5f;
+}
+
+void	CControlSurface::ClearMuteDefeat()
+{
+	m_pSonarMixer->SetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_MUTE_DEFEAT, 0, 0.f, MIX_TOUCH_NORMAL );
+}
+
+bool	CControlSurface::GetRudeSolo()
+{
+	float fVal = 0.f;
+	m_pSonarMixer->GetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_SOLO, 0, &fVal );
+	return fVal >= .5f;
+}
+
+void	CControlSurface::ClearSolo()
+{
+	m_pSonarMixer->SetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_SOLO, 0, 0.f, MIX_TOUCH_NORMAL );
+}
+
+bool	CControlSurface::GetRudeMute()
+{
+	float fVal = 0.f;
+	m_pSonarMixer->GetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_MUTE, 0, &fVal );
+	return fVal >= .5f;
+}
+
+void	CControlSurface::ClearMute()
+{
+	m_pSonarMixer->SetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_MUTE, 0, 0.f, MIX_TOUCH_NORMAL );
+}
+
+bool	CControlSurface::GetRudeArm()
+{
+	float fVal = 0.f;
+	m_pSonarMixer->GetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_RECORD_ARM, 0, &fVal );
+	return fVal >= .5f;
+}
+
+void	CControlSurface::ClearArm()
+{
+	m_pSonarMixer->SetMixParam( MIX_STRIP_ANY, 0, MIX_PARAM_RECORD_ARM, 0, 0.f, MIX_TOUCH_NORMAL );
+}
+
+
+
+void	CControlSurface::AllRead( SONAR_MIXER_STRIP eStrip, DWORD dwStrip, bool bIncludeSynth /* = false */ )
+{
+	ISonarMixer2* pm2 = NULL;
+	if ( FAILED( m_pSonarMixer->QueryInterface( IID_ISonarMixer2, (void**)&pm2 ) ) )
+		return;
+
+	BOOL bRead = 0;
+	pm2->GetReadMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, &bRead );
+	pm2->SetReadMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, !bRead );
+	if ( bIncludeSynth )
+		pm2->SetReadMixParam( MIX_STRIP_RACK, dwStrip, MIX_PARAM_FX_PARAM, DWORD(-1), !bRead );
+
+	pm2->Release();
+}
+
+void	CControlSurface::AllWrite( SONAR_MIXER_STRIP eStrip, DWORD dwStrip, bool bIncludeSynth /* = false */ )
+{
+	BOOL bWrite = 0;
+	m_pSonarMixer->GetArmMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, &bWrite );
+	m_pSonarMixer->SetArmMixParam( eStrip, dwStrip, MIX_PARAM_ANY, 0, !bWrite );
+
+	if ( bIncludeSynth )
+		m_pSonarMixer->SetArmMixParam( MIX_STRIP_RACK, dwStrip, MIX_PARAM_FX_PARAM, DWORD(-1), !bWrite );
+}
+
+
+
+void CControlSurface::Stop()
+{
+	if ( m_pSonarTransport )
+		m_pSonarTransport->SetTransportState( TRANSPORT_STATE_PLAY, FALSE );
+}
+
+void CControlSurface::Play( )
+{
+	if ( !m_pSonarTransport )
+		return;
+
+	if ( IsRecording() )
+		return;	//  don't touch the transport
+
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_PLAY, TRUE );
+}
+
+void CControlSurface::Record( bool bToggle )
+{
+	if ( !m_pSonarTransport )
+		return;
+
+	BOOL bRec = TRUE;
+	if ( bToggle )
 	{
-		for ( DWORD i = 0; i < dwCount; i++ )
-			pv->push_back( m_afMeter[i] );
+		BOOL b;
+		m_pSonarTransport->GetTransportState( TRANSPORT_STATE_REC, &b );
+		bRec = !b;
 	}
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_REC, bRec );
+}
+
+void CControlSurface::GotoStart( bool bOnTheFly )
+{
+	MFX_TIME time;
+	time.timeFormat = TF_SECONDS;
+	time.dSeconds = 0.0;
+	SetNowTime( time, bOnTheFly, false );
+}
+
+void CControlSurface::GotoEnd( bool bOnTheFly )
+{
+	MFX_TIME time;
+	time.timeFormat = TF_MBT;
+	if ( SUCCEEDED( m_pSonarTransport->GetTransportTime( TRANSPORT_TIME_SEQ_END, &time ) ) )
+		SetNowTime( time, bOnTheFly, false );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void CControlSurface::SetNowTime( MFX_TIME& time, bool bOnTheFly, bool bAllowScrub )
+{
+	BOOL b;
+	m_pSonarTransport->GetTransportState( TRANSPORT_STATE_REC, &b );
+	if ( b )
+		return;	// not during record
+
+	if ( !bAllowScrub )
+	{
+		// scrubbing?  Stop that
+		m_pSonarTransport->GetTransportState( TRANSPORT_STATE_SCRUB, &b );
+		if ( b )
+			m_pSonarTransport->SetTransportState( TRANSPORT_STATE_SCRUB, FALSE );
+	}
+
+	if ( !bOnTheFly )
+	{
+		// only if not rolling. 
+		m_pSonarTransport->GetTransportState( TRANSPORT_STATE_PLAY, &b );
+		if ( b )
+			return;
+	}
+
+	m_pSonarTransport->SetTransportTime( TRANSPORT_TIME_CURSOR, &time );
+}
+
+//////////////////////////////////////////////////////////////////
+void	CControlSurface::GotoMarker( DWORD dwIxMarker, bool bOnTheFly )
+{
+	if ( !m_pSonarProject2 )
+		return;
+
+	MFX_TIME time;
+	time.timeFormat = TF_SECONDS;
+	if ( SUCCEEDED( m_pSonarProject2->GetMarkerTime( dwIxMarker, &time ) ) )
+		SetNowTime( time, bOnTheFly, false );
+}
+
+void	CControlSurface::Rewind( int nSpeed )
+{
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_REWIND, nSpeed );
+}
+
+bool	CControlSurface::IsRewind()
+{
+	BOOL b = 0;
+	m_pSonarTransport->GetTransportState( TRANSPORT_STATE_REWIND, &b );
+	
+	return !!b;
+}
+
+void	CControlSurface::FastForward( int nSpeed )
+{
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_FFWD, nSpeed );
+}
+
+bool	CControlSurface::IsFastForward()
+{
+	BOOL b = 0;
+	m_pSonarTransport->GetTransportState( TRANSPORT_STATE_FFWD, &b );
+	return !!b;
+}
+
+
+void	CControlSurface::Pause( bool b)
+{
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_PAUSE, b );
+}
+
+bool	CControlSurface::IsPause()
+{
+	BOOL b = 0;
+	m_pSonarTransport->GetTransportState( TRANSPORT_STATE_PAUSE, &b );
+	return !!b;
+}
+
+void	CControlSurface::Audition( )
+{
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_AUDITION_SELECTION, TRUE );
+}
+
+bool	CControlSurface::IsAudition()
+{
+	BOOL b = 0;
+	m_pSonarTransport->GetTransportState( TRANSPORT_STATE_AUDITION_SELECTION, &b );
+	return !!b;
+}
+
+void CControlSurface::Scrub( bool b )
+{
+	m_pSonarTransport->SetTransportState( TRANSPORT_STATE_SCRUB, b );
+}
+
+bool CControlSurface::IsScrub()
+{
+	BOOL b = 0;
+	m_pSonarTransport->GetTransportState( TRANSPORT_STATE_SCRUB, &b );
+	return !!b;
+}
+
+
+
+//////////////////////////////////////////////////////////////
+// Sometimes you know a command ID and need the rest of the info
+// therefore you need the index
+DWORD	CControlSurface::IndexForCommandID( DWORD dwIDSearch )
+{
+	DWORD dwCount = 0;
+	m_pSonarCommands->GetCommandCount( &dwCount );
+	for ( DWORD i = 0; i < dwCount; i++ )
+	{
+		DWORD dwID = 0;
+		DWORD cbLen = 0;
+		m_pSonarCommands->GetCommandInfo( i, &dwID, NULL, &cbLen );
+		if ( dwID == dwIDSearch )
+			return i;
+	}
+	return (DWORD)-1;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////
+// Given a strip type and index, get the names of any plug-ins in the strip's bin
+HRESULT CControlSurface::GetPluginListForStrip( SONAR_MIXER_STRIP eStrip, 
+															  DWORD dwStrip, 
+															  std::vector<AnsiString>* pV,
+															  size_t cMax )	// = 8
+{
+	size_t cFx = 0;
+	float fFx = 0.f;
+	m_pSonarMixer->GetMixParam( eStrip, dwStrip, MIX_PARAM_FX_COUNT, 0, &fFx );
+	cFx = (size_t)fFx;
+
+	cFx = min(cFx,cMax);
+
+	if ( cFx )
+	{
+		char sz[64];
+		DWORD cb = 0;
+		for ( DWORD dwIx = 0; dwIx < cFx; dwIx++ )
+		{
+			sz[0] = '\0';
+			cb = sizeof(sz);
+			
+			if ( SUCCEEDED( m_pSonarMixer->GetMixParamLabel( eStrip, dwStrip, MIX_PARAM_FX, dwIx, sz, &cb ) ))
+			{
+				pV->push_back( sz );
+			}
+		}
+	}
+
+	return S_OK;
 }
 
 

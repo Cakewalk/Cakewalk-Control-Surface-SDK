@@ -21,25 +21,5 @@ protected:
 };
 
 /////////////////////////////////////////////////////////////////////////////
-// Unicode Version
-
-class CStringCruncherU
-{
-public:
-	CStringCruncherU();
-	virtual ~CStringCruncherU();
-
-	void CrunchString( LPCTSTR pszString, TCHAR *pBuf, int nBudget, TCHAR cPad =_T(' ') );
-
-protected:
-	TCHAR MakeCrunchChar( TCHAR c, TCHAR prev, TCHAR next );
-	int   GetCharPriority( TCHAR c, TCHAR prev, TCHAR next );
-	bool  IsVowel( TCHAR c );
-	bool  IsConsonant( TCHAR c );
-
-	LANGID	m_lid;
-};
-
-/////////////////////////////////////////////////////////////////////////////
 
 #endif // StringCruncher_h

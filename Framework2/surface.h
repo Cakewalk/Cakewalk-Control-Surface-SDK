@@ -14,15 +14,16 @@
 
 
 #include "sfkUtils.h"
-#include <map>
-#include <set>
-#include <vector>
+#include "SfkMidi.h"
 
 #define UNDEF_STRIP_NUM ((DWORD)-1)
+#define TRUEFLOAT( _f ) _f >= .5f
+#define CID_IN( _bid, _bidMin, _bidMax ) (_bid >= _bidMin && _bid <= _bidMax )
 
 class CMidiInputRouter;
 class CTimer;
 class CMidiMsg;
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CControlSurface
@@ -35,12 +36,12 @@ class CControlSurface :
 {
 public:
 	CControlSurface();
-	~CControlSurface();
+	virtual ~CControlSurface();
 
 	// *** IUnknown methods ***
-	HRESULT STDMETHODCALLTYPE QueryInterface( REFIID riid, void** ppv );
-  	ULONG STDMETHODCALLTYPE	AddRef();
-	ULONG STDMETHODCALLTYPE Release();
+	virtual HRESULT STDMETHODCALLTYPE QueryInterface( REFIID riid, void** ppv );
+  	virtual ULONG STDMETHODCALLTYPE	AddRef();
+	virtual ULONG STDMETHODCALLTYPE Release();
 
 
 	// Idispatch... blah
@@ -67,7 +68,7 @@ public:
 
 	// IControlSurface implementation:
 	// Basic dev caps
-	HRESULT STDMETHODCALLTYPE GetStatusText(LPSTR pszStatus,DWORD* pdwLen);
+	virtual HRESULT STDMETHODCALLTYPE GetStatusText(LPSTR pszStatus,DWORD* pdwLen);
 
 	// Hooks to allow the DLL to process MIDI messages sent from the hardware
 	HRESULT STDMETHODCALLTYPE MidiInShortMsg(DWORD dwShortMsg);
@@ -111,7 +112,7 @@ public:
 
 
 	// Callbacks for CMidiMessage
-	virtual HRESULT	OnMIDIMessageDelivered( CMidiMsg* pObj, float fValue ) {ASSERT(0); return S_OK;}	// override
+	virtual HRESULT	OnMIDIMessageDelivered( CMidiMsg* pObj, float fValue, CMidiMsg::ValueChange vtRet ) {ASSERT(0); return S_OK;}	// override
 
 	// host supports dynamic mapping?
 	HRESULT GetSupportsDynamicMapping( BOOL* pb );
@@ -144,8 +145,11 @@ public:
 	void				ActivateCurrentFx( SONAR_UI_ACTION uia );
 	void				ActivateNextFx( SONAR_UI_ACTION uia );
 	void				ActivatePrevFx( SONAR_UI_ACTION uia );
+	void				ActivateStripFx( SONAR_MIXER_STRIP mixerStrip, DWORD dwStripNum, SONAR_UI_ACTION uia );
 
-	
+	bool				IsFilterEnabled( SONAR_MIXER_FILTER filter, SONAR_MIXER_STRIP mixerStrip, DWORD dwStripNum );
+	void				SetFilterEnabled( SONAR_MIXER_FILTER filter, SONAR_MIXER_STRIP mixerStrip, DWORD dwStripNum, bool b );
+
 	// non add-refed interface access
 	ISonarTransport*	GetTransportInterface() { return m_pSonarTransport; }
 	ISonarMidiOut*		GetMidiOutInterface() { return m_pSonarMidiOut; }
@@ -158,23 +162,63 @@ public:
 	DWORD					GetSelectedTrack();
 	void					SetSelectedTrack(DWORD dwStripNum);
 	bool					IsSurround(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum );
-	void					GetStripFormatString( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, CString* pstr );
+   bool              IsSendSurround(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, DWORD dwSendNum );
+   void					GetStripFormatString( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, CString* pstr );
 	void					GetInputName( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, CString* pstr );
 	void					GetOutputName( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, CString* pstr );
 	void					GetMeterValues( SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, std::vector<float>* pv, DWORD dwPhysicalMeters );
+
+	bool					GetMuteDefeat();
+	void					ClearMuteDefeat();
+	bool					GetRudeSolo();
+	void					ClearSolo();
+	bool					GetRudeMute();
+	void					ClearMute();
+	bool					GetRudeArm();
+	void					ClearArm();
+
+	void 					Stop();
+	void 					Play( );
+	bool 					IsPlaying() { return GetTransportState( TRANSPORT_STATE_PLAY ); }
+	void 					Record( bool bToggle );
+	bool 					IsRecording() { return GetTransportState( TRANSPORT_STATE_REC ); }
+	void					SetNowTime( MFX_TIME& time, bool bOnTheFly, bool bAllowScrub );
+	void					GotoEnd( bool bOnTheFly );
+	void					GotoStart( bool bOnTheFly );
+	void					GotoMarker( DWORD dwIxMarker, bool bOnTheFly );
+	void					Rewind( int );
+	bool					IsRewind();
+	void					FastForward( int );
+	bool					IsFastForward();
+	void					Pause( bool );
+	bool					IsPause();
+	void					Audition( );
+	bool					IsAudition();
+	void					Scrub( bool );
+	bool					IsScrub();
+
+	void					AllRead( SONAR_MIXER_STRIP eStrip, DWORD dwStrip, bool bIncludeSynth = false );
+	void					AllWrite( SONAR_MIXER_STRIP eStrip, DWORD dwStrip, bool bIncludeSynth = false );
+	void					SetOffsetMode();
+
+
+	DWORD					IndexForCommandID( DWORD dwID );
+
+	void					RequestStatusQuery();
 
 	CMidiInputRouter*	GetMidiInputRouter() { return m_pMidiInputRouter; }
 	CTimer*				GetTimer() { return m_pTimer; }
 
 	DWORD GetSurfaceID() const { return m_dwSurfaceID; }
 
-
 	// ISonarMidiOut pass thru's
 	HRESULT MidiOutShortMsg( DWORD dwShortMsg );
 	HRESULT MidiOutLongMsg( DWORD cbLongMsg, const BYTE* pbLongMsg );
 
-	HRESULT GetStripName( SONAR_MIXER_STRIP eStrip, DWORD dwStrip, CString* pstr );
-	
+	// Plug-in Access
+	typedef std::basic_string<char>	AnsiString;
+	HRESULT GetPluginListForStrip( SONAR_MIXER_STRIP eStrip, DWORD dwStrip, std::vector<AnsiString>* pV, size_t cMaxFx = 8 );
+
 	// automation modes
 	HRESULT SetReadMode( DWORD dwStrip, SONAR_MIXER_STRIP eStrip, bool b );
 	bool GetReadMode( DWORD dwStrip, SONAR_MIXER_STRIP eStrip );
@@ -184,6 +228,7 @@ public:
 protected:
 	virtual HRESULT persist( IStream* pStm, bool bSave ) = 0;	// must override this
 	virtual HRESULT onRefreshSurface( DWORD fdwRefresh, DWORD dwCookie ){ return S_OK; }
+	virtual HRESULT onFirstRefresh(){ return S_OK; }
 	virtual void	onConnect(){}
 	virtual void	onDisconnect(){}
 
@@ -193,22 +238,29 @@ protected:
 	DWORD					m_dwSurfaceID;
 	DWORD					m_dwSupportedRefreshFlags;
 
+public:
 	// Host interfaces we will QI for.  Your surface should handle situations
 	// where some of these are not implemented.
 	ISonarMixer*					m_pSonarMixer;
 	ISonarMixer2*					m_pSonarMixer2;
 	ISonarMidiOut*					m_pSonarMidiOut;
 	ISonarTransport*				m_pSonarTransport;
+	ISonarTransport2*				m_pSonarTransport2;
 	ISonarCommands*				m_pSonarCommands;
 	ISonarKeyboard*				m_pSonarKeyboard;
 	ISonarProject*					m_pSonarProject;
 	ISonarProject2*				m_pSonarProject2;
+	ISonarProject3*				m_pSonarProject3;
 	ISonarIdentity*				m_pSonarIdentity;
-	ISonarIdentity2*				m_pSonarIdentity2;
 	ISonarVUMeters*				m_pSonarVUMeters;
 	ISonarParamMapping*			m_pSonarParamMapping;
-	ISonarUIContext2*				m_pSonarUIContext;
+	ISonarUIContext3*				m_pSonarUIContext;
+	IHostDataEdit*					m_pHostDataEdit;
+	IHostWindow*					m_pHostWindow;
+	IHostStripInfo*				m_pHostStripinfo;
+	IHostLockStrip*				m_pHostLockStrip;
 
+protected:
 
 #define ACTKEY_BASE (0xB0B)
 
@@ -224,17 +276,16 @@ protected:
 
 	CMidiInputRouter*				m_pMidiInputRouter;
 	CTimer*							m_pTimer;
+	bool								m_bConnected;
+	CSFKCriticalSection			m_cs;
 
-private:
+protected:
 
 	HWND								m_hwndApp;
 
 	LONG								m_cRef;
-	BOOL								m_bIsConnected;
-	CCriticalSection				m_cs;
 
 	bool								m_bLoaded;
-	bool								m_bConnected;
 	BOOL								m_bActLearnActive;
 	float								m_afMeter[32];	// room for largest possible interleave
 };

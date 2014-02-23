@@ -5,6 +5,10 @@
 /////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+
+#pragma warning(disable:4100)
+#pragma warning(disable:4189)
+
 #include "sfkMidi.h"
 #include "surface.h"
 
@@ -13,6 +17,16 @@
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+// Use MAYBE_TRACE() for items we'd like to switch off when not actively
+// working on this file.
+#if 0
+	#define MAYBE_TRACE TRACE
+#else
+	#define MAYBE_TRACE TRUE ? (void)0 : TRACE
+#endif
+
+#define ONLY_TRACE_VALUE_CHANGE	0
 
 /////////////////////////////////////////////////////////////////////////
 // CNrpnContext:
@@ -394,33 +408,40 @@ void CMidiInputRouter::addToIndex( CMidiMsg *pMsg, BYTE byHash )
 /////////////////////////////////////////////////////////////////////////
 // CMidiMsg:
 /////////////////////////////////////////////////////////////////////////
-CMidiMsg::CMidiMsg( CControlSurface *pSurface ) :
-	m_pSurface( pSurface ),
-	m_mtType(mtCC),
-	m_dwMaxValue(127),
-	m_wCC(0),
-	m_wNrpn(0),
-	m_wRpn(0),
-	m_pbySysXPre(0),
-	m_dwLenSysXPre(0),
-	m_pbySysXPost(0),
-	m_dwLenSysXPost(0),
-	m_dwSysXTextLen(0),
-	m_dwSysXPadLen(0),
-	m_cFill( ' ' ),
-	m_wChannel(0),
-	m_wPort(0),
-	m_wNote(0),
-	m_pbyLastSysXSent( NULL ),
-	m_dwSizeOfLastSysX( -1 ),
-	m_dwLastSentVal( -1 ),
-	m_bThinOutput( true ),
-	m_bIsTrigger( false ),
-	m_dwTrigValue( 0 ),
-	m_dwLastMsgCount( -1 ),
-	m_bUseTextCruncher( true )
+CMidiMsg::CMidiMsg( CControlSurface *pSurface, 
+						 LPCTSTR pszName, // = NULL
+						 DWORD dwID ) :	// = (DWORD)-1
+	m_pSurface( pSurface )
+	,m_mtType(mtCC)
+	,m_dwMaxValue(127)
+	,m_wCC(0)
+	,m_wNrpn(0)
+	,m_wRpn(0)
+	,m_pbySysXPre(0)
+	,m_dwLenSysXPre(0)
+	,m_pbySysXPost(0)
+	,m_dwLenSysXPost(0)
+	,m_dwSysXTextLen(0)
+	,m_dwSysXPadLen(0)
+	,m_cFill( ' ' )
+	,m_wChannel(0)
+	,m_wPort(0)
+	,m_wNote(0)
+	,m_pbyLastSysXSent( NULL )
+	,m_dwSizeOfLastSysX( DWORD(-1) )
+	,m_dwLastSentVal( DWORD(-1) )
+	,m_bThinOutput( true )
+	,m_bIsTrigger( false )
+	,m_dwTrigValue( 0 )
+	,m_dwLastMsgCount( DWORD(-1) )
+	,m_bUseTextCruncher( true )
 	,m_eValueMode(VM_ABS)
+	,m_dwID(dwID)
 {
+	if ( pszName )
+		m_strName = pszName;
+	else
+		m_strName = "unnamed";
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -603,6 +624,8 @@ DWORD CMidiMsg::MakeShortMsg( DWORD dwVal, int ix /* = 0*/)
 /////////////////////////////////////////////////////////////////////////
 void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 {
+	ValueChange vc = VC_None;
+
 	// Protect against multiple calls within the same input service
 	if (dwMsgCount == m_dwLastMsgCount)
 		return;
@@ -622,7 +645,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			if (GetCCNum() == ((dwShortMsg >> 8) & 0x7f))
 			{
 				// message matches
-				setCurrentVal((dwShortMsg >> 16) & 0x7f );
+				setCurrentVal((dwShortMsg >> 16) & 0x7f, &vc );
 				bSendValue = TRUE;
 			}
 		}
@@ -631,7 +654,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 	case mtChAft:
 		if (byKind == 0xD0)
 		{
-			setCurrentVal( ((dwShortMsg >> 8) & 0x7f) );
+			setCurrentVal( ((dwShortMsg >> 8) & 0x7f), &vc );
 			bSendValue = TRUE;
 		}
 		break;
@@ -640,7 +663,15 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 		{
 			DWORD dwCur = ((dwShortMsg >> 8) & 0x7f); // lsb
 			dwCur |= ((dwShortMsg >> 9) & 0x3f80); // msb
-			setCurrentVal( dwCur );
+			setCurrentVal( dwCur, &vc );
+			bSendValue = TRUE;
+		}
+		break;
+	case mtWheel7Bit:
+		if (byKind == 0xE0)
+		{
+			DWORD dwCur = ((dwShortMsg >> 16) & 0x7f); // msb
+			setCurrentVal( dwCur, &vc );
 			bSendValue = TRUE;
 		}
 		break;
@@ -650,7 +681,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			if (GetNoteNum() == ((dwShortMsg >> 8) & 0x7f))
 			{
 				// message matches
-				setCurrentVal( (dwShortMsg >> 16) & 0x7f );
+				setCurrentVal( (dwShortMsg >> 16) & 0x7f, &vc );
 				bSendValue = TRUE;
 			}
 		}
@@ -659,7 +690,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			if (GetNoteNum() == ((dwShortMsg >> 8) & 0x7f))
 			{
 				// message matches
-				setCurrentVal( 0 );
+				setCurrentVal( 0, &vc );
 				bSendValue = TRUE;
 			}
 		}
@@ -672,13 +703,15 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 	if (bSendValue)
 	{
 		m_dwLastMsgCount = dwMsgCount;
-		m_pSurface->OnMIDIMessageDelivered( this, m_dwCurValue/(float)m_dwMaxValue );
+		m_pSurface->OnMIDIMessageDelivered( this, m_dwCurValue/(float)m_dwMaxValue, vc );
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////
 void CMidiMsg::OnLongMsg( DWORD dwMsgCount, DWORD cbLongMsg, const BYTE *pbLongMsg )
 {
+	ValueChange vc = VC_None;
+
 	// Protect against multiple calls within the same input service
 	if (dwMsgCount == m_dwLastMsgCount)
 		return;
@@ -747,14 +780,14 @@ void CMidiMsg::OnLongMsg( DWORD dwMsgCount, DWORD cbLongMsg, const BYTE *pbLongM
 	case mtSysX7bit:
 
 		// the byte sitting exactly at m_dwLenSysXPre contains the value
-		setCurrentVal( pbLongMsg[dwPreLen] );
+		setCurrentVal( pbLongMsg[dwPreLen], &vc );
 
 		break; // falthrough returns true
 
 	case mtSysXHiLo:
 
 		// the byte sitting exactly at m_dwLenSysXPre contains the hi value,
-		setCurrentVal( pbLongMsg[dwPreLen] * 128 );
+		setCurrentVal( pbLongMsg[dwPreLen] * 128, &vc );
 
 		// the next one contains the lo value
 		m_dwCurValue += pbLongMsg[dwPreLen + 1];
@@ -764,7 +797,7 @@ void CMidiMsg::OnLongMsg( DWORD dwMsgCount, DWORD cbLongMsg, const BYTE *pbLongM
 	case mtSysXLoHi:
 
 		// the byte sitting exactly at m_dwLenSysXPre contains the lo value,
-		setCurrentVal( pbLongMsg[dwPreLen] );
+		setCurrentVal( pbLongMsg[dwPreLen], &vc );
 
 		// the next one contains the hi value
 		m_dwCurValue += pbLongMsg[dwPreLen + 1] * 128;
@@ -777,12 +810,14 @@ void CMidiMsg::OnLongMsg( DWORD dwMsgCount, DWORD cbLongMsg, const BYTE *pbLongM
 	}
 
 	m_dwLastMsgCount = dwMsgCount;
-	m_pSurface->OnMIDIMessageDelivered( this, m_dwCurValue/(float)m_dwMaxValue );
+	m_pSurface->OnMIDIMessageDelivered( this, m_dwCurValue/(float)m_dwMaxValue, vc );
 }
 
 /////////////////////////////////////////////////////////////////////////
 void CMidiMsg::OnNrpn( DWORD dwMsgCount, CNrpnContext::EPNType ePNType, DWORD dwParamNum, DWORD dwChan, DWORD dwVal, DWORD dwPort )
 {
+	ValueChange vc = VC_None;
+
 	// Protect against multiple calls within the same input service
 	if (dwMsgCount == m_dwLastMsgCount)
 		return;
@@ -799,14 +834,14 @@ void CMidiMsg::OnNrpn( DWORD dwMsgCount, CNrpnContext::EPNType ePNType, DWORD dw
 	case CNrpnContext::NonRegistered:
 		if (dwParamNum == GetNrpn() && GetMessageType() == mtNrpn)
 		{
-			setCurrentVal( dwVal );
+			setCurrentVal( dwVal, &vc );
 			bSendValue = TRUE;
 		}
 		break;
 	case CNrpnContext::Registered:
 		if (dwParamNum == GetRpn() && GetMessageType() == mtRpn)
 		{
-			setCurrentVal( dwVal );
+			setCurrentVal( dwVal, &vc );
 			bSendValue = TRUE;
 		}
 		break;
@@ -815,7 +850,7 @@ void CMidiMsg::OnNrpn( DWORD dwMsgCount, CNrpnContext::EPNType ePNType, DWORD dw
 	if (bSendValue)
 	{
 		m_dwLastMsgCount = dwMsgCount;
-		m_pSurface->OnMIDIMessageDelivered( this, m_dwCurValue/(float)m_dwMaxValue );
+		m_pSurface->OnMIDIMessageDelivered( this, m_dwCurValue/(float)m_dwMaxValue, vc );
 	}
 }
 
@@ -824,21 +859,33 @@ void CMidiMsg::OnNrpn( DWORD dwMsgCount, CNrpnContext::EPNType ePNType, DWORD dw
 // Use this to set m_dwCurVal internally instead of setting it 
 // directly from the MIDI message.  This will take the delta modes
 // into account
-void CMidiMsg::setCurrentVal( DWORD dwVal )
+void CMidiMsg::setCurrentVal( DWORD dwVal,ValueChange* pvc )
 {
+	*pvc = VC_None;
+
 	if( VM_ABS == m_eValueMode )
 	{
-		m_dwCurValue = dwVal;	// simple - just set
+		if ( m_dwCurValue != dwVal )
+		{
+			*pvc = m_dwCurValue < dwVal ? VC_Increase : VC_Decrease;
+			m_dwCurValue = dwVal;	// simple - just set
+		}
 	}
 	else
 	{
 		// a delta mode.  Determine if in the CCW or CW range
 
 		int nDelta = 0;
-		if ( m_rangeCCW.InRange( dwVal ) )		// ccw?
+		if ( m_rangeCCW.InRange( dwVal ) )		// cw?
+		{
 			nDelta = -1;
-		else if ( m_rangeCW.InRange( dwVal ) )	// cw?
+			*pvc = VC_Decrease;
+		}
+		else if ( m_rangeCW.InRange( dwVal ) )	// ccw?
+		{
 			nDelta = 1;
+			*pvc = VC_Increase;
+		}
 
 		// scale up to 1/127th of max value
 		nDelta *= (m_dwMaxValue / 127);
@@ -850,22 +897,45 @@ void CMidiMsg::setCurrentVal( DWORD dwVal )
 			ValueRange* prange = nDelta > 0 ? &m_rangeCW : &m_rangeCCW;
 			int nAcc = dwVal - prange->dwL;
 			if ( nDelta > 0 )
-				nDelta += nAcc;
+				nDelta += (int)(nAcc * 2);
 			else
-				nDelta -= nAcc;
+				nDelta -= (int)(nAcc * 2);
 		}
 		int nVal = (int)m_dwCurValue;
 		nVal += nDelta;
 		nVal = max( 0, nVal );
 		nVal = min( (int)m_dwMaxValue, nVal );
-		m_dwCurValue = (DWORD) nVal;
+
+		m_dwCurValue = (DWORD)nVal;
 	}
 }
 
+void CMidiMsg::SetVal( float fVal )
+{
+	m_dwCurValue = DWORD((fVal * m_dwMaxValue) + 0.5);
+}
+
+float CMidiMsg::GetVal() const
+{
+	return (float)m_dwCurValue / m_dwMaxValue;
+}
 
 /////////////////////////////////////////////////////////////////////////
 void CMidiMsg::Send( float fVal )
 {
+#if ONLY_TRACE_VALUE_CHANGE
+	const float fOld = GetVal();
+	if ( fOld != fVal )
+	{
+		MAYBE_TRACE( _T("CMidiMsg::Send() - old %.1f: "), fOld );
+#endif
+
+	MAYBE_TRACE( _T("Send %.1f on %s\n"), fVal, m_strName );
+
+#if ONLY_TRACE_VALUE_CHANGE
+	}
+#endif
+
 	_ASSERT( fVal >= 0.0 );
 	_ASSERT( fVal <= 1.0 );
 
@@ -1039,8 +1109,8 @@ void CMidiMsg::sendString( DWORD cbyString, LPCSTR pszString )
 /////////////////////////////////////////////////////////////////////////
 void CMidiMsg::Invalidate()
 {
-	m_dwSizeOfLastSysX = -1;
-	m_dwLastSentVal = -1;
+	m_dwSizeOfLastSysX = DWORD(-1);
+	m_dwLastSentVal = DWORD(-1);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1087,6 +1157,7 @@ WORD CMidiMsg::GetStatusWord()
 		break;
 
 	case mtWheel:
+	case mtWheel7Bit:
 		w |= 0xe0;
 		break;
 

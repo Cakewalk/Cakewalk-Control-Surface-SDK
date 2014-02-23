@@ -531,22 +531,22 @@ void CACTController::OnConnect()
 	{
 		for (n = 0; n < NUM_KNOBS; n++)
 		{
-			m_SwKnob[m][n].SetInterfaces(m_pMixer, m_pSonarMixer2, m_pTransport, m_dwSurfaceId);
+			m_SwKnob[m][n].SetInterfaces(m_pMixer, m_pTransport, m_dwSurfaceId);
 			m_SwKnob[m][n].SetCaptureType( CMixParam::CT_Match );
 		}
 		for (n = 0; n < NUM_SLIDERS; n++)
 		{
-			m_SwSlider[m][n].SetInterfaces(m_pMixer, m_pSonarMixer2, m_pTransport, m_dwSurfaceId);
+			m_SwSlider[m][n].SetInterfaces(m_pMixer, m_pTransport, m_dwSurfaceId);
 			m_SwSlider[m][n].SetCaptureType( CMixParam::CT_Match );
 		}
 		for (n = 0; n < NUM_VIRTUAL_BUTTONS; n++)
 		{
-			m_SwButton[m][n].SetInterfaces(m_pMixer, m_pSonarMixer2, m_pTransport, m_dwSurfaceId);
+			m_SwButton[m][n].SetInterfaces(m_pMixer, m_pTransport, m_dwSurfaceId);
 			m_SwButton[m][n].SetCaptureType( CMixParam::CT_Jump );	// switches should be absolute
 		}
 	}
 
-	m_cParamUtil.SetInterfaces(m_pMixer, m_pSonarMixer2, m_pTransport, m_dwSurfaceId);
+	m_cParamUtil.SetInterfaces(m_pMixer, m_pTransport, m_dwSurfaceId);
 
 	m_vKnobBindings.clear();
 	m_vSliderBindings.clear();
@@ -1066,7 +1066,7 @@ void CACTController::ToggleSelectedTrackParam(SONAR_MIXER_PARAM eMixerParam)
 {
 	CMixParam cParam;
 
-	cParam.SetInterfaces(m_pMixer, m_pSonarMixer2, m_pTransport, m_dwSurfaceId);
+	cParam.SetInterfaces(m_pMixer, m_pTransport, m_dwSurfaceId);
 	cParam.SetParams(m_eStripType, m_dwSelectedTrack[m_eStripType], eMixerParam, 0);
 	cParam.ToggleBooleanParam();
 }

@@ -6,15 +6,22 @@
 
 #include "stdafx.h"
 
+#pragma warning (disable:4100)
+
+#include "ControlSurface.h"
+#include "SfkMidi.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
 
+
 /////////////////////////////////////////////////////////////////////////
 // CNrpnContext:
 /////////////////////////////////////////////////////////////////////////
+
 void CNrpnContext::OnController( DWORD dwShortMsg, DWORD dwPort )
 {
 	_ASSERT( (dwShortMsg & 0x000000F0) == 0xB0 ); // it must be a controller
@@ -438,6 +445,7 @@ void CMidiInputRouter::addToIndex( CMidiMsg *pMsg, BYTE byHash )
 CMidiMsg::CMidiMsg( CControlSurface *pSurface ) :
 	m_pSurface( pSurface ),
 	m_mtType(mtCC),
+	m_dwMaxValue(127),
 	m_wCC(0),
 	m_wCC2(0),
 	m_wCCInvIdentity(0),
@@ -1055,6 +1063,8 @@ void CMidiMsg::Send( float fVal )
 	_ASSERT( fVal >= 0.0 );
 	_ASSERT( fVal <= 1.0 );
 
+	ASSERT( m_dwMaxValue <= 16383 );
+
 	// m_dwMaxValue contains either 127 or 16383 depending on message's resolution.
 	Send( DWORD((fVal * m_dwMaxValue) + 0.5) );
 }
@@ -1259,8 +1269,12 @@ HRESULT CMidiMsgListener::notifyValue( CMidiMsg *pMsg, DWORD dwVal, DWORD dwMaxV
 					return S_FALSE;
 				}
 
-				if ( ( m_dwLastValue > dwVal && m_dwLastValue > m_dwPrevVal ) ||
-					( m_dwLastValue < dwVal && m_dwLastValue < m_dwPrevVal ) )
+				// allow some deadband for nulling since some plugins seem to lag behind
+				DWORD dwDeadband = pMsg->GetMaxNotifyValue() / 16;
+
+				if ( 
+					( m_dwLastValue > dwVal + dwDeadband && m_dwLastValue > m_dwPrevVal + dwDeadband ) ||
+					( m_dwLastValue + dwDeadband < dwVal && m_dwLastValue + dwDeadband < m_dwPrevVal ) )
 				{
 					m_dwPrevVal = dwVal;
 					// if values have not crossed known last value
@@ -1402,6 +1416,8 @@ void CMidiMsgListener::setLastValue( float fVal, CMidiMsg* pMsg )
 /////////////////////////////////////////////////////////////////////////
 DWORD CMidiMsgListener::floatToMsgVal( float fVal, DWORD dwMaxValue )
 {
+	ASSERT( dwMaxValue <= 16383 );
+
 	return DWORD((fVal * dwMaxValue) + 0.5);
 }
 
