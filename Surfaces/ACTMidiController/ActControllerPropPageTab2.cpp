@@ -95,8 +95,8 @@ void CACTControllerPropPageTab2::LoadAllFields()
 {
 	TRACE("CACTControllerPropPageTab2::LoadAllFields()\n");
 
-	SelectByItemData(&m_cKnobsBinding, m_pSurface->GetKnobsBinding(m_iRotaryBank));
-	SelectByItemData(&m_cSlidersBinding, m_pSurface->GetSlidersBinding(m_iSliderBank));
+	SelectByItemData(&m_cKnobsBinding, m_pSurface->GetKnobsBinding(int(m_iRotaryBank)));
+	SelectByItemData(&m_cSlidersBinding, m_pSurface->GetSlidersBinding(int(m_iSliderBank)));
 
 	int idx = m_cButtonSelect.GetCurSel();
 	FillComboBox(&m_cButtonSelect, m_pSurface->GetButtonNames());
@@ -110,7 +110,7 @@ void CACTControllerPropPageTab2::LoadAllFields()
 
 	CString strComments;
 
-	CMixParam::CaptureType ct = m_pSurface->GetRotaryCaptureType(m_iRotaryBank);
+	CMixParam::CaptureType ct = m_pSurface->GetRotaryCaptureType(int(m_iRotaryBank));
 	for ( int ix = 0; ix < m_cKnobsCapture.GetCount(); ix++ )
 	{
 		if ( ct == (CMixParam::CaptureType)m_cKnobsCapture.GetItemData( ix ) )
@@ -119,7 +119,7 @@ void CACTControllerPropPageTab2::LoadAllFields()
 			break;
 		}
 	}
-	ct = m_pSurface->GetSliderCaptureType(m_iSliderBank);
+	ct = m_pSurface->GetSliderCaptureType(int(m_iSliderBank));
 	for ( int ix = 0; ix < m_cSlidersCapture.GetCount(); ix++ )
 	{
 		if ( ct == (CMixParam::CaptureType)m_cSlidersCapture.GetItemData( ix ) )
@@ -169,14 +169,14 @@ void CACTControllerPropPageTab2::UpdateACTStatus(bool bForce)
 		GreyACTFields();
 	}
 
-	bool bExcludeRotariesACT = m_pSurface->GetExcludeRotariesACT(m_iRotaryBank);
+	bool bExcludeRotariesACT = m_pSurface->GetExcludeRotariesACT(int(m_iRotaryBank));
 	if (bForce || m_bExcludeRotariesACT != bExcludeRotariesACT)
 	{
 		m_cExcludeRotariesACT.SetCheck(bExcludeRotariesACT ? 1 : 0);
 		m_bExcludeRotariesACT = bExcludeRotariesACT;
 	}
 
-	bool bExcludeSlidersACT = m_pSurface->GetExcludeSlidersACT(m_iSliderBank);
+	bool bExcludeSlidersACT = m_pSurface->GetExcludeSlidersACT(int(m_iSliderBank));
 	if (bForce || m_bExcludeSlidersACT != bExcludeSlidersACT)
 	{
 		m_cExcludeSlidersACT.SetCheck(bExcludeSlidersACT ? 1 : 0);
@@ -278,11 +278,11 @@ void CACTControllerPropPageTab2::OnSelchangeButtonSelect()
 	if (idx != CB_ERR)
 	{
 		DWORD_PTR dwButton = m_cButtonSelect.GetItemData(idx);
-		DWORD_PTR dwAction = m_pSurface->GetButtonAction(m_iButtonBank, (VirtualButton)dwButton);
+		DWORD_PTR dwAction = m_pSurface->GetButtonAction(int(m_iButtonBank), (VirtualButton)dwButton);
 
-		SelectByItemData(&m_cButtonAction, dwAction);
+		SelectByItemData(&m_cButtonAction, DWORD(dwAction));
 
-		bool bExcludeACT = m_pSurface->GetButtonExcludeACT(m_iButtonBank, (VirtualButton)dwButton);
+		bool bExcludeACT = m_pSurface->GetButtonExcludeACT(int(m_iButtonBank), (VirtualButton)dwButton);
 
 		m_cButtonExcludeACT.SetCheck(bExcludeACT ? 1 : 0);
 	}
@@ -302,7 +302,7 @@ void CACTControllerPropPageTab2::OnSelchangeButtonAction()
 		{
 			DWORD_PTR dwButton = m_cButtonSelect.GetItemData(idx);
 
-			m_pSurface->SetButtonAction(m_iButtonBank, (VirtualButton)dwButton, dwAction);
+			m_pSurface->SetButtonAction(int(m_iButtonBank), (VirtualButton)dwButton, DWORD(dwAction));
 		}
 	}
 }
@@ -318,7 +318,7 @@ void CACTControllerPropPageTab2::OnButtonExcludeACT()
 	{
 		DWORD_PTR dwButton = m_cButtonSelect.GetItemData(idx);
 
-		m_pSurface->SetButtonExcludeACT(m_iButtonBank, (VirtualButton)dwButton, bExclude);
+		m_pSurface->SetButtonExcludeACT(int(m_iButtonBank), (VirtualButton)dwButton, bExclude);
 	}
 }
 
@@ -328,7 +328,7 @@ void CACTControllerPropPageTab2::OnExcludeRotariesACT()
 {
 	m_bExcludeRotariesACT = (m_cExcludeRotariesACT.GetCheck() != 0);
 
-	m_pSurface->SetExcludeRotariesACT(m_iRotaryBank, m_bExcludeRotariesACT);
+	m_pSurface->SetExcludeRotariesACT(int(m_iRotaryBank), m_bExcludeRotariesACT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,7 +337,7 @@ void CACTControllerPropPageTab2::OnExcludeSlidersACT()
 {
 	m_bExcludeSlidersACT = (m_cExcludeSlidersACT.GetCheck() != 0);
 
-	m_pSurface->SetExcludeSlidersACT(m_iSliderBank, m_bExcludeSlidersACT);
+	m_pSurface->SetExcludeSlidersACT(int(m_iSliderBank), m_bExcludeSlidersACT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -349,7 +349,7 @@ void CACTControllerPropPageTab2::OnSelchangeKnobsBinding()
 	{
 		DWORD_PTR dwBinding = m_cKnobsBinding.GetItemData(idx);
 
-		m_pSurface->SetKnobsBinding(m_iRotaryBank, dwBinding);
+		m_pSurface->SetKnobsBinding(int(m_iRotaryBank), DWORD(dwBinding));
 	}
 }
 
@@ -362,7 +362,7 @@ void CACTControllerPropPageTab2::OnSelchangeSlidersBinding()
 	{
 		DWORD_PTR dwBinding = m_cSlidersBinding.GetItemData(idx);
 
-		m_pSurface->SetSlidersBinding(m_iSliderBank, dwBinding);
+		m_pSurface->SetSlidersBinding(int(m_iSliderBank), DWORD(dwBinding));
 	}
 }
 
@@ -456,13 +456,13 @@ void CACTControllerPropPageTab2::OnKillfocusCommets()
 void CACTControllerPropPageTab2::OnCbnSelchangeKnobsCaptmode()
 {
 	int ix = m_cKnobsCapture.GetCurSel();
-	m_pSurface->SetRotaryCaptureType( m_iRotaryBank, (CMixParam::CaptureType)m_cKnobsCapture.GetItemData(ix) );
+	m_pSurface->SetRotaryCaptureType( int(m_iRotaryBank), (CMixParam::CaptureType)m_cKnobsCapture.GetItemData(ix) );
 }
 
 void CACTControllerPropPageTab2::OnCbnSelchangeSlidersCaptmode()
 {
 	int ix = m_cSlidersCapture.GetCurSel();
-	m_pSurface->SetSliderCaptureType( m_iSliderBank, (CMixParam::CaptureType)m_cSlidersCapture.GetItemData(ix) );
+	m_pSurface->SetSliderCaptureType( int(m_iSliderBank), (CMixParam::CaptureType)m_cSlidersCapture.GetItemData(ix) );
 }
 
 void CACTControllerPropPageTab2::OnBnClickedSend()

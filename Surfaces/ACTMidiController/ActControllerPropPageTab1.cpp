@@ -712,7 +712,7 @@ void CACTControllerPropPageTab1::OnSelchangeActiveRotaryBank()
 	{
 		m_iRotaryBank = m_cActiveRotaryBank.GetItemData(idx);
 
-		m_pSurface->SetRotaryBank(m_iRotaryBank);
+		m_pSurface->SetRotaryBank(int(m_iRotaryBank));
 	}
 }
 
@@ -725,7 +725,7 @@ void CACTControllerPropPageTab1::OnSelchangeActiveSliderBank()
 	{
 		m_iSliderBank = m_cActiveSliderBank.GetItemData(idx);
 
-		m_pSurface->SetSliderBank(m_iSliderBank);
+		m_pSurface->SetSliderBank(int(m_iSliderBank));
 	}
 }
 
@@ -738,7 +738,7 @@ void CACTControllerPropPageTab1::OnSelchangeActiveButtonBank()
 	{
 		m_iButtonBank = m_cActiveButtonBank.GetItemData(idx);
 
-		m_pSurface->SetButtonBank(m_iButtonBank);
+		m_pSurface->SetButtonBank(int(m_iButtonBank));
 	}
 }
 
