@@ -3,7 +3,8 @@ Cakewalk-Control-Surface-SDK
 
 Cakewalk Control Surface SDK. You can use this framework to build control surface plugins for SONAR and its derivative products.
 
-Please read the "Cakewalk Control Surface SDK.htm" in the Docs folder for more details.
+Please read the Wiki for this project for more details. 
+http://github.com/Cakewalk/Cakewalk-Control-Surface-SDK/wiki
 
 This software is distributed in the spirit of open source sharing under the MIT license.
 To this purpose we request that any stable/useful modifications to the control surfaces be published back for the community to build upon. 
