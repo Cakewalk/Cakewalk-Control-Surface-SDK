@@ -180,7 +180,7 @@ HRESULT	CSampleSurface::buildBindings()
 HRESULT CSampleSurface::buildStripBindings()
 {
 	// mackie faders
-	for ( size_t i = 0; i < 8; i++ )
+	for ( int i = 0; i < 8; i++ )
 	{
 		PMBINDING pmb;
 		pmb.nRefreshMod = RM_EVERY;	// faders have motors - update them as often as possible
