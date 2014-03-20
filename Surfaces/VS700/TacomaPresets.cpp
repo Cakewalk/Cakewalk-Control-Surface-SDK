@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "TacomaSurface.h"
-#include "ttsutil.h"
+#include "ttsdbg.h"
 #include <filestream.h>
 
 
@@ -15,6 +15,33 @@ static LPCTSTR szOCDMExt =  _T("OCdirectmix");
 
 WORD CIOBoxInterface::CPreampPersist::m_wPersistChunkID = 1;
 WORD CIOBoxInterface::CDMPersist::m_wPersistChunkID = 2;
+
+////////////////////////////////////////////////////////////////////////////////
+// Attempts to create a directory, recursively.  Returns TRUE on success (declaration pulled from TTSUtil.h)
+
+HRESULT CreatePath( const TCHAR* pszPathName, int idsPrompt = -1 );
+
+// Moved from TTSUtil.h to obviate need for that LIB andf header
+/////////////////////////////////////////////////////////////////////////////
+
+inline BOOL FileExists( const TCHAR* pcszPathName )
+{
+	// One way to check for existence is to open the file, read-only:
+	//
+	//		HANDLE const hFile = CreateFile( pcszPathName, 0, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	//		if (INVALID_HANDLE_VALUE != hFile)
+	//		{
+	//			CloseHandle( hFile );
+	//			return TRUE;
+	//		}
+	//		else
+	//			return FALSE;
+	//
+	// A simpler/faster way is to use GetFileAttributes(), and check for error:
+	return 0xFFFFFFFF != ::GetFileAttributes( pcszPathName );
+}
+
+
 
 
 //---------------------------------------------------------------

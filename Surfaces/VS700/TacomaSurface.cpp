@@ -642,7 +642,7 @@ HRESULT CTacomaSurface::buildActSectionBindings()
 		   pmb.pParam = createMixParam();
 		   pmb.pParam->SetDisplayName( true );
 		   pmb.pParam->SetTriggerAction( CMixParam::TA_DEFAULT );
-		    pmb.pParam->SetTriggerAction( CMixParam::TA_DEFAULT );
+		   pmb.pParam->SetTriggerAction( CMixParam::TA_DEFAULT );
 		   pmb.pParam->SetTubeParams( MIX_STRIP_TRACK, 0, (WORD)(0 + s_dwSatIndex[8 + col]), .5f ); //  starts at 0
 		   m_mapPCSatControls[pmsg] = pmb;
 		   m_mapPCSatControls[pmsgP] = pmb;
@@ -676,14 +676,14 @@ HRESULT CTacomaSurface::buildActSectionBindings()
 		   // PC EQ
 		   pmb.pParam = createMixParam();
 		   pmb.pParam->SetDisplayName( true );
-		   pmb.pParam->SetEqParams( MIX_STRIP_TRACK, 0, (WORD)(s_dwEqIndex[12 + col]) );// Enable starts at index 12
+		   pmb.pParam->SetEqParams( MIX_STRIP_TRACK, 0, (WORD)(s_dwEqIndex[12 + col]) ); // Enable starts at index 12
 		   m_mapPCEQControls[pmsg] = pmb;
 			m_setGlossEQ.insert(pmb.pParam);
 
 		   // PC EQ P2
 		   pmb.pParam = createMixParam();
 		   pmb.pParam->SetDisplayName( true );
-		   pmb.pParam->SetEqParams( MIX_STRIP_TRACK, 0, (WORD)(s_dwEqIndex[28 + col]) );//High Pass Freq On/Off starts at 28
+		   pmb.pParam->SetEqParams( MIX_STRIP_TRACK, 0, (WORD)(s_dwEqIndex[28 + col]) ); //High Pass Freq On/Off starts at 28
 		   m_mapPCEQP2Controls[pmsg] = pmb;
 			m_setGlossEQ.insert(pmb.pParam);
 		
@@ -709,8 +709,7 @@ HRESULT CTacomaSurface::buildActSectionBindings()
 		   // type starts at 12
 		   pmb.pParam = createMixParam();
 		   pmb.pParam->SetTriggerAction( CMixParam::TA_DEFAULT );
-		   pmb.pParam->SetEqParams( MIX_STRIP_TRACK, 0, (WORD)(12 + col), // type starts at 12
-			   .5f );
+		   pmb.pParam->SetEqParams( MIX_STRIP_TRACK, 0, (WORD)(12 + col), .5f ); // type starts at 12
 		   m_pEqTypeParams[ col ] = pmb.pParam;
 
 	   }

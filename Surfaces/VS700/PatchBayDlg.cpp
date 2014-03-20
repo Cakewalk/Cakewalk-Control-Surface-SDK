@@ -3,8 +3,8 @@
 
 #include "stdafx.h"
 #include "PatchBayDlg.h"
-#include "CakeControls\OffscreenDC.h"
-#include "CakeControls\AutoDCRestorer.h"
+#include "..\..\CakeControls\OffscreenDC.h"
+#include "..\..\CakeControls\AutoDCRestorer.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
