@@ -558,7 +558,7 @@ static void setKeyAndValue( HKEY hKeyParent, const char* pcszKey, const char* pc
 	if (ERROR_SUCCESS == RegCreateKeyEx( hKeyParent, szKeyBuf,  0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL,  &hKey, NULL ))
 	{
 		if (pcszValue)
-			RegSetValueEx( hKey, pcszValueName, 0, REG_SZ, (BYTE*)pcszValue, strlen( pcszValue ) + 1 );
+			RegSetValueEx( hKey, pcszValueName, 0, REG_SZ, (BYTE*)pcszValue, DWORD(strlen( pcszValue ) + 1) );
 		RegCloseKey( hKey );
 	}
 }

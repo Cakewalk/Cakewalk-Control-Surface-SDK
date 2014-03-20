@@ -38,7 +38,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="..\framework2\ControlSurface.idl">
+    <Midl Include="..\..\Framework2\ControlSurface.idl">
       <Filter>Source Files</Filter>
     </Midl>
   </ItemGroup>
@@ -59,9 +59,6 @@
     <ClInclude Include="CapabilitiesDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\framework2\CommandIDs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ControlSurfaceProbe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="strlcpy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Framework2\CommandIDs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

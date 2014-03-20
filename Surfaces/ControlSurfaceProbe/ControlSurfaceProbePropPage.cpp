@@ -1155,7 +1155,7 @@ void CControlSurfaceProbePropPage::OnTsAutoPunchClear()
 
 void CControlSurfaceProbePropPage::OnDoCommand() 
 {
-	m_pSurface->DoCommand(m_cCommands.GetItemData((DWORD)m_cCommands.GetCurSel()));
+	m_pSurface->DoCommand( DWORD(m_cCommands.GetItemData(m_cCommands.GetCurSel())) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1313,7 +1313,7 @@ void CControlSurfaceProbePropPage::OnMixArm()
 
 void CControlSurfaceProbePropPage::OnBnClickedLearnEnable()
 {
-	m_pSurface->SetLearnEnabled( m_cEnableLearn.GetCheck() );
+	m_pSurface->SetLearnEnabled( m_cEnableLearn.GetCheck() ? true : false );
 }
 
 void CControlSurfaceProbePropPage::OnBnClickedWndZoomUp()
