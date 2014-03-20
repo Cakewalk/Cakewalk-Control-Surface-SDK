@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "resource.h"
-#include <CakeControls\NWControl.h>
+#include "..\..\CakeControls\NWControl.h"
 #include "vs100.h"
 
 

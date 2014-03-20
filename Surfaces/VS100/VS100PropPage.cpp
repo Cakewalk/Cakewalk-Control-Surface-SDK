@@ -13,12 +13,12 @@
 #include <algorithm>
 
 #include "HtmlHelp.h"
-#include "CakeControls\OffscreenDC.h"
-#include "CakeControls\NWControl.h"
-#include "CakeControls\NWBitmapButton.h"
-#include "CakeControls\NWDropDownCtrl.h"
-#include "CakeControls\NWBitmapKnob.h"
-#include "CakeControls\NWBitmapButton.h"
+#include "..\..\CakeControls\OffscreenDC.h"
+#include "..\..\CakeControls\NWControl.h"
+#include "..\..\CakeControls\NWBitmapButton.h"
+#include "..\..\CakeControls\NWDropDownCtrl.h"
+#include "..\..\CakeControls\NWBitmapKnob.h"
+#include "..\..\CakeControls\NWBitmapButton.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
