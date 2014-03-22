@@ -872,7 +872,6 @@ echo &gt;custom.bld
     <None Include="res\save_btn.bmp" />
     <None Include="res\small_btn.bmp" />
     <None Include="res\tact_btn.bmp" />
-    <None Include="ReadMe.txt" />
     <None Include="TacomaSurface.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -4,8 +4,8 @@
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,5,0
- PRODUCTVERSION 1,4,5,0
+ FILEVERSION 1,4,6,00
+ PRODUCTVERSION 1,4,6,00
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -22,12 +22,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Cakewalk, Inc.\0"
             VALUE "FileDescription", "VS-700 Controller control surface\0"
-            VALUE "FileVersion", "1.4.5.0\0"
+            VALUE "FileVersion", "1.4.6.00\0"
             VALUE "InternalName", "VS700\0"
-            VALUE "LegalCopyright", "Copyright (c) 2013 by Cakewalk, Inc. All rights reserved"
+            VALUE "LegalCopyright", "Copyright (c) 2014 by Cakewalk, Inc. All rights reserved"
             VALUE "OriginalFilename", "VS700.DLL\0"
             VALUE "ProductName", "VS-700 Controller control surface DLL\0"
-            VALUE "ProductVersion", "X3\0"
+            VALUE "ProductVersion", "X4\0"
         END
     END
     BLOCK "VarFileInfo"
