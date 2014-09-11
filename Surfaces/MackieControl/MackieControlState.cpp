@@ -518,8 +518,8 @@ void CMackieControlState::LoadPluginMappings()
 //	TRACE("CMackieControlState::LoadPluginMappings()\n");
 
 	// Figure out where the .ini file is
-	char szFile[_MAX_PATH];
-	if (::GetModuleFileName(theApp.m_hInstance, szFile, sizeof(szFile)) < 1)
+	char szFile[_MAX_PATH] = {0};
+	if (::GetModuleFileNameA(theApp.m_hInstance, szFile, _MAX_PATH) < 1)
 		return;
 
 	char *s = ::strrchr(szFile, '\\');
@@ -529,13 +529,13 @@ void CMackieControlState::LoadPluginMappings()
 	*++s = 0;
 	::strlcat(szFile, "MackieControl.ini", sizeof(szFile));
 
-#ifdef _DEBUG
+#if 0 // def _DEBUG
 	::strlcpy(szFile, "C:\\Home\\Chris\\Src\\MackieControl\\MackieControl.ini", sizeof(szFile));
 #endif
 
 	// Load some misc settings first
 	char szPeriod[32];
-	::GetPrivateProfileString("Meters", "UpdatePeriod", "1", szPeriod, sizeof(szPeriod), szFile);
+	::GetPrivateProfileStringA("Meters", "UpdatePeriod", "1", szPeriod, sizeof(szPeriod), szFile);
 	m_iMetersUpdatePeriod = atoi(szPeriod);
 	if (m_iMetersUpdatePeriod <= 0)
 		m_iMetersUpdatePeriod = 1;
@@ -552,16 +552,16 @@ void CMackieControlState::LoadPluginMappings()
 		snprintf(szNum, sizeof(szNum), "%d", i);
 
 		char szPluginName[128];
-		::GetPrivateProfileString("Plugins", szNum, "", szPluginName, sizeof(szPluginName), szFile);
+		::GetPrivateProfileStringA("Plugins", szNum, "", szPluginName, sizeof(szPluginName), szFile);
 
 		// Load the plugin information
 		if (*szPluginName)
 		{
-			int iPluginType = ::GetPrivateProfileInt(szPluginName, "PluginType", 0, szFile);
+			int iPluginType = ::GetPrivateProfileIntA(szPluginName, "PluginType", 0, szFile);
 			if (iPluginType < 0 || iPluginType >= 32)
 				continue;
 
-			int iNumVPots = ::GetPrivateProfileInt(szPluginName, "NumVPots", 0, szFile);
+			int iNumVPots = ::GetPrivateProfileIntA(szPluginName, "NumVPots", 0, szFile);
 			if (iNumVPots < 0 || iNumVPots >= 1024)
 				continue;
 
@@ -583,7 +583,7 @@ void CMackieControlState::LoadPluginMappings()
 			// EQ?
 			if (iPluginType == 1)
 			{
-				int iNumFreqBands = ::GetPrivateProfileInt(szPluginName, "NumFreqBands", 0, szFile);
+				int iNumFreqBands = ::GetPrivateProfileIntA(szPluginName, "NumFreqBands", 0, szFile);
 				if (iNumFreqBands < 0 || iNumFreqBands >= 128)
 					continue;
 
@@ -617,7 +617,7 @@ void CMackieControlState::LoadParameterProperties(const char *szFile, const char
 	snprintf(szTemp, sizeof(szTemp), "%s%d", szParamName, iIndex);
 
 	char szPropsLine[128];
-	::GetPrivateProfileString(szPluginName, szTemp, "", szPropsLine, sizeof(szPropsLine), szFile);
+	::GetPrivateProfileStringA(szPluginName, szTemp, "", szPropsLine, sizeof(szPropsLine), szFile);
 
 	CParameterProperties cParamProps;
 	if (ParseParameterPropertiesLine(szPropsLine, &cParamProps))

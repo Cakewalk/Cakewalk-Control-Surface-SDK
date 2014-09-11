@@ -115,7 +115,7 @@ HRESULT CMackieControlMaster::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 
 	if (0x00 == m_bDeviceType)
 	{
-		strStatus = "Connecting...";
+		strStatus = _T("Connecting...");
 	}
 	else
 	{
@@ -124,27 +124,27 @@ HRESULT CMackieControlMaster::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 		switch (m_cState.GetMixerStrip())
 		{
 			case MIX_STRIP_TRACK:
-				strStatus = "Trks";
+				strStatus = _T("Trks");
 				break;
 
 			case MIX_STRIP_AUX:
-				strStatus = "Auxs";
+				strStatus = _T("Auxs");
 				break;
 
 			case MIX_STRIP_MAIN:
-				strStatus = "VMns";
+				strStatus = _T("VMns");
 				break;
 
 			case MIX_STRIP_BUS:
-				strStatus = "Bus";
+				strStatus = _T("Bus");
 				break;
 
 			case MIX_STRIP_MASTER:
-				strStatus = "Mstr";
+				strStatus =_T( "Mstr");
 				break;
 
 			default:
-				strStatus = "Err0";
+				strStatus = _T("Err0");
 				break;
 		}
 
@@ -153,55 +153,55 @@ HRESULT CMackieControlMaster::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 		DWORD dwLast = m_cState.GetLastFaderNumber() + dwOffset + 1;
 
 		CString strBuf;
-		strBuf.Format(" %d-%d, ", dwFirst, dwLast);
+		strBuf.Format(_T(" %d-%d, "), dwFirst, dwLast);
 		strStatus += strBuf;
 
 		switch (m_SwMasterFader.GetMixerStrip())
 		{
 			case MIX_STRIP_TRACK:
-				strBuf.Format("Trk %d", m_SwMasterFader.GetStripNum() + 1);
+				strBuf.Format(_T("Trk %d"), m_SwMasterFader.GetStripNum() + 1);
 				break;
 
 			case MIX_STRIP_AUX:
-				strBuf.Format("Aux %d", m_SwMasterFader.GetStripNum() + 1);
+				strBuf.Format(_T("Aux %d"), m_SwMasterFader.GetStripNum() + 1);
 				break;
 
 			case MIX_STRIP_MAIN:
-				strBuf.Format("VMn %c", m_SwMasterFader.GetStripNum() + 'A');
+				strBuf.Format(_T("VMn %c"), m_SwMasterFader.GetStripNum() + 'A');
 				break;
 
 			case MIX_STRIP_BUS:
-				strBuf.Format("Bus %d", m_SwMasterFader.GetStripNum() + 1);
+				strBuf.Format(_T("Bus %d"), m_SwMasterFader.GetStripNum() + 1);
 				break;
 
 			case MIX_STRIP_MASTER:
-				strBuf.Format("Mstr %d", m_SwMasterFader.GetStripNum() + 1);
+				strBuf.Format(_T("Mstr %d"), m_SwMasterFader.GetStripNum() + 1);
 				break;
 
 			default:
-				strBuf = "Err1";
+				strBuf = _T("Err1");
 				break;
 		}
 		strStatus += strBuf;
 
-		strStatus += ", Jog: ";
+		strStatus += _T(", Jog: ");
 
 		switch (m_cState.GetJogResolution())
 		{
 			case JOG_MEASURES:
-				strStatus += "Meas.";
+				strStatus += _T("Meas.");
 				break;
 
 			case JOG_BEATS:
-				strStatus += "Beats";
+				strStatus += _T("Beats");
 				break;
 
 			case JOG_TICKS:
-				strStatus += "Ticks";
+				strStatus += _T("Ticks");
 				break;
 
 			default:
-				strStatus += "Err2";
+				strStatus += _T("Err2");
 				break;
 		}
 	}
@@ -209,11 +209,11 @@ HRESULT CMackieControlMaster::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 	// Return results to caller
 	if (NULL == pszStatus)
 	{
-		*pdwLen = (DWORD)::strlen(strStatus) + 1;
+		*pdwLen = DWORD(strStatus.GetLength() + 1);
 	}
 	else
 	{
-		::strlcpy(pszStatus, strStatus, *pdwLen);
+		TCHAR2Char(pszStatus, strStatus, *pdwLen);
 	}
 
 	return S_OK;

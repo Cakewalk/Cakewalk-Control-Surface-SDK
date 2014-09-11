@@ -197,7 +197,7 @@ HRESULT CMackieControlBase::MidiInLongMsg( DWORD cbLongMsg, const BYTE* pbLongMs
 						// 0xF7
 					};
 
-if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
+	if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
 	{
 		if (0x00 == m_bDeviceType)
 		{
@@ -216,8 +216,8 @@ if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
 			::memcpy(m_bSerialNumber, pbLongMsg + 6, LEN_SERIAL_NUMBER);
 
 			TRACE("CMackieControlBase::MidiInLongMsg(): Type: 0x%02X, Serial Number: %02X-%02X-%02X-%02X-%02X-%02X-%02X\n",
-					m_bDeviceType, m_bSerialNumber[0], m_bSerialNumber[1], m_bSerialNumber[2],
-					m_bSerialNumber[3], m_bSerialNumber[4], m_bSerialNumber[5], m_bSerialNumber[6]);
+				m_bDeviceType, m_bSerialNumber[0], m_bSerialNumber[1], m_bSerialNumber[2],
+				m_bSerialNumber[3], m_bSerialNumber[4], m_bSerialNumber[5], m_bSerialNumber[6]);
 
 			m_bHaveSerialNumber = true;
 
@@ -234,6 +234,7 @@ if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
 		OnMidiInLong(cbLongMsg, pbLongMsg);
 	}
 
+	return S_OK;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

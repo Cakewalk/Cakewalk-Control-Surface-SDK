@@ -137,7 +137,7 @@ HRESULT CMackieControlC4::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 
 	if (0x00 == m_bDeviceType)
 	{
-		strStatus = "Connecting...";
+		strStatus = _T("Connecting...");
 	}
 	else
 	{
@@ -155,18 +155,18 @@ HRESULT CMackieControlC4::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 		{
 			GetStatusText(C4_LOWER, &strLower);
 
-			strStatus.Format("U: %-12s L: %-12s", strUpper, strLower);
+			strStatus.Format(_T("U: %-12s L: %-12s"), strUpper, strLower);
 		}
 	}
 
 	// Return results to caller
 	if (NULL == pszStatus)
 	{
-		*pdwLen = (DWORD)::strlen(strStatus) + 1;
+		*pdwLen = DWORD(strStatus.GetLength() + 1);
 	}
 	else
 	{
-		::strlcpy(pszStatus, strStatus, *pdwLen);
+		TCHAR2Char(pszStatus, strStatus, *pdwLen);
 	}
 
 	return S_OK;
@@ -273,11 +273,10 @@ HRESULT CMackieControlC4::Save( IStream* pStm, BOOL bClearDirty )
 			return E_FAIL;
 		}
 
-		char szBuf[7];
-		::memset(szBuf, 0, sizeof(szBuf));
-		strlcpy(szBuf, GetFunctionKeyName(n), sizeof(szBuf));
-		szBuf[6] = 0;
+		char szBuf[16] = {0};
+		CString strNm = GetFunctionKeyName(n);
 
+		TCHAR2Char( szBuf, strNm, _countof( szBuf ) );
 		if (FAILED(SafeWrite(pStm, &szBuf, sizeof(szBuf))))
 		{
 			TRACE("CMackieControlC4::Save(): key szBuf %d failed\n", n);
@@ -486,30 +485,30 @@ void CMackieControlC4::GetStatusText(C4SplitSection eSplit, CString *str)
 	{
 		switch (GetMixerStrip(eSplit))
 		{
-			case MIX_STRIP_TRACK:	strStatus = "Trk";	break;
-			case MIX_STRIP_AUX:		strStatus = "Aux";	break;
-			case MIX_STRIP_MAIN:	strStatus = "VMn";	break;
-			case MIX_STRIP_BUS:		strStatus = "Bus";	break;
-			case MIX_STRIP_MASTER:	strStatus = "Mstr";	break;
-			default:				strStatus = "Err0";	break;
+			case MIX_STRIP_TRACK:	strStatus = _T("Trk");	break;
+			case MIX_STRIP_AUX:		strStatus = _T("Aux");	break;
+			case MIX_STRIP_MAIN:		strStatus = _T("VMn");	break;
+			case MIX_STRIP_BUS:		strStatus = _T("Bus");	break;
+			case MIX_STRIP_MASTER:	strStatus = _T("Mstr");	break;
+			default:						strStatus = _T("Err0");	break;
 		}
 
 		DWORD dwStripNum = GetSelectedStripNum(eSplit) + 1;
 
 		CString strBuf;
-		strBuf.Format(" %d", dwStripNum);
+		strBuf.Format(_T(" %d"), dwStripNum);
 		strStatus += strBuf;
 	}
 	else
 	{
 		switch (GetMixerStrip(eSplit))
 		{
-			case MIX_STRIP_TRACK:	strStatus = "Trks";	break;
-			case MIX_STRIP_AUX:		strStatus = "Auxs";	break;
-			case MIX_STRIP_MAIN:	strStatus = "VMns";	break;
-			case MIX_STRIP_BUS:		strStatus = "Bus";	break;
-			case MIX_STRIP_MASTER:	strStatus = "Mstr";	break;
-			default:				strStatus = "Err0";	break;
+			case MIX_STRIP_TRACK:	strStatus = _T("Trk");	break;
+			case MIX_STRIP_AUX:		strStatus = _T("Aux");	break;
+			case MIX_STRIP_MAIN:		strStatus = _T("VMns");	break;
+			case MIX_STRIP_BUS:		strStatus = _T("Bus");	break;
+			case MIX_STRIP_MASTER:	strStatus = _T("Mstr");	break;
+			default:						strStatus = _T("Err0");	break;
 		}
 
 		DWORD dwOffset = GetStripNumOffset(eSplit);
@@ -517,7 +516,7 @@ void CMackieControlC4::GetStatusText(C4SplitSection eSplit, CString *str)
 		DWORD dwLast = dwFirst + GetNumVPotsInSplit(eSplit) - 1;
 
 		CString strBuf;
-		strBuf.Format(" %d-%d", dwFirst, dwLast);
+		strBuf.Format( _T(" %d-%d"), dwFirst, dwLast);
 		strStatus += strBuf;
 	}
 

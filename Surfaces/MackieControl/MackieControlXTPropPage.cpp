@@ -230,15 +230,13 @@ HRESULT CMackieControlXTPropPage::Help( LPCWSTR lpszHelpDir )
 	// Returning E_NOTIMPL here should be enough to cause the help file
 	// specified by GetPageInfo to be used, but it doesn't seem to work
 
-	char szDLL[_MAX_PATH];
-
-	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, sizeof(szDLL));
-
+	TCHAR szDLL[_MAX_PATH] = {0};
+	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, _MAX_PATH);
 	if (dwLen < 3)
 	    return E_FAIL;
 
 	// OK not to use strlcpy here
-	::strcpy(szDLL + dwLen - 3, "chm");
+	_tcscpy(szDLL + dwLen - 3, _T("chm"));
 
 	::HtmlHelp(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
 

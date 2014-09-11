@@ -339,31 +339,41 @@ void CMackieControlC4::DisplayTrackSettings(C4SplitSection eSplit, BYTE row, boo
 
 	//              123456|123456|123456|123456|123456|123456|123456|123456
 
-	strTemp = (eSplit == C4_UPPER) ? "Upper" : "Lower";
-	strTemp += " Control Group";
+	strTemp = (eSplit == C4_UPPER) ? _T("Upper") : _T("Lower");
+	strTemp += _T(" Control Group");
 
-	strUpper.Format("%-27s ", strTemp);
-	strUpper += (m_cState.HaveMeters()) ? "Meters " : "       ";
-	strUpper += "Disply";
+	strUpper.Format(_T("%-27s "), strTemp);
+	strUpper += (m_cState.HaveMeters()) ? _T("Meters ") : _T("       ");
+	strUpper += _T("Disply");
 
-	strTemp = "Track   Bus   Main";
-	strLower.Format("%-27s ", strTemp);
+	strTemp = _T("Track   Bus   Main");
+	strLower.Format(_T("%-27s "), strTemp);
 	if (m_cState.HaveMeters())
-		strLower += GetDisplayLevelMeters(eSplit) ? "On     " : "Off    ";
+		strLower += GetDisplayLevelMeters(eSplit) ? _T("On     ") : _T("Off    ");
 	else
-		strLower += "       ";
-	strLower += GetDisplayValues(eSplit) ? "Values" : "Names ";
+		strLower += _T("       ");
+	
+	strLower += GetDisplayValues(eSplit) ? _T("Values") : _T("Names ");
 
-	m_HwLCDDisplay[row].WriteToEOL(0, strUpper, bForceSend);
-	m_HwLCDDisplay[row].WriteToEOL(1, strLower, bForceSend);
+	char szBuf[ 256 ] = {0};
+	int const cb = _countof( szBuf );
+
+	TCHAR2Char( szBuf, strUpper, cb );
+	m_HwLCDDisplay[row].WriteToEOL(0, szBuf, bForceSend);
+
+	TCHAR2Char( szBuf, strLower, cb );
+	m_HwLCDDisplay[row].WriteToEOL(1, szBuf, bForceSend);
 
 
-	strUpper = (eSplit == C4_UPPER) ? "Upper" : "Lower";
-	strUpper += " Assignment";
-	strLower = "Params Sends   Pan   Plugin   EQ    Dyn";
+	strUpper = (eSplit == C4_UPPER) ?_T("Upper") : _T("Lower");
+	strUpper += _T(" Assignment");
+	strLower = _T("Params Sends   Pan   Plugin   EQ    Dyn");
 
-	m_HwLCDDisplay[row + 1].WriteToEOL(0, strUpper, bForceSend);
-	m_HwLCDDisplay[row + 1].WriteToEOL(1, strLower, bForceSend);
+	TCHAR2Char( szBuf, strUpper, cb );
+	m_HwLCDDisplay[row + 1].WriteToEOL(0, szBuf, bForceSend);
+
+	TCHAR2Char( szBuf, strLower, cb );
+	m_HwLCDDisplay[row + 1].WriteToEOL(1, szBuf, bForceSend);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -312,7 +312,7 @@ HRESULT CMackieControlMasterPropPage::Help( LPCWSTR lpszHelpDir )
 	// Returning E_NOTIMPL here should be enough to cause the help file
 	// specified by GetPageInfo to be used, but it doesn't seem to work
 
-	char szDLL[_MAX_PATH];
+	TCHAR szDLL[_MAX_PATH];
 
 	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, sizeof(szDLL));
 
@@ -320,7 +320,7 @@ HRESULT CMackieControlMasterPropPage::Help( LPCWSTR lpszHelpDir )
 	    return E_FAIL;
 
 	// OK not to use strlcpy here
-	::strcpy(szDLL + dwLen - 3, "chm");
+	_tcscpy(szDLL + dwLen - 3, _T("chm"));
 
 	::HtmlHelp(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
 
@@ -576,9 +576,9 @@ void CMackieControlMasterPropPage::FillVirtualMainCombo()
 	DWORD dwN = m_pSurface->GetStripCount(m_pSurface->GetMasterFaderType());
 	for (BYTE n = 0; n < dwN; n++)
 	{
-		char buf[8];
+		TCHAR buf[8] = {0};
 
-		snprintf(buf, sizeof(buf), "%d", n + 1);
+		_sntprintf(buf, sizeof(buf), _T("%d"), n + 1);
 
 		m_cVirtualMain.AddString(buf);
 	}
@@ -613,44 +613,49 @@ BOOL CMackieControlMasterPropPage::OnInitDialog()
 
 			if (SUCCEEDED(pCommands->GetCommandInfo(n, &dwCmdId, pszName, &dwSize)))
 			{
+				LPTSTR szName = new TCHAR[dwSize];
+				Char2TCHAR( szName, pszName, dwSize );
+
 				int index;
 
 #if _DEBUG
-				char szTemp[256];
-				snprintf(szTemp, sizeof(szTemp), "%s [%d]", pszName, dwCmdId);
+				TCHAR szTemp[256];
+				_sntprintf(szTemp, sizeof(szTemp), _T("%s [%d]"), pszName, dwCmdId);
 
 				index = m_cFunction1.AddString(szTemp);
 #else
-				index = m_cFunction1.AddString(pszName);
+				index = m_cFunction1.AddString(szName);
 #endif
 				m_cFunction1.SetItemData(index, dwCmdId);
 
-				index = m_cFunction2.AddString(pszName);
+				index = m_cFunction2.AddString(szName);
 				m_cFunction2.SetItemData(index, dwCmdId);
 
-				index = m_cFunction3.AddString(pszName);
+				index = m_cFunction3.AddString(szName);
 				m_cFunction3.SetItemData(index, dwCmdId);
 
-				index = m_cFunction4.AddString(pszName);
+				index = m_cFunction4.AddString(szName);
 				m_cFunction4.SetItemData(index, dwCmdId);
 
-				index = m_cFunction5.AddString(pszName);
+				index = m_cFunction5.AddString(szName);
 				m_cFunction5.SetItemData(index, dwCmdId);
 
-				index = m_cFunction6.AddString(pszName);
+				index = m_cFunction6.AddString(szName);
 				m_cFunction6.SetItemData(index, dwCmdId);
 
-				index = m_cFunction7.AddString(pszName);
+				index = m_cFunction7.AddString(szName);
 				m_cFunction7.SetItemData(index, dwCmdId);
 
-				index = m_cFunction8.AddString(pszName);
+				index = m_cFunction8.AddString(szName);
 				m_cFunction8.SetItemData(index, dwCmdId);
 
-				index = m_cFootSwitchA.AddString(pszName);
+				index = m_cFootSwitchA.AddString(szName);
 				m_cFootSwitchA.SetItemData(index, dwCmdId);
 
-				index = m_cFootSwitchB.AddString(pszName);
+				index = m_cFootSwitchB.AddString(szName);
 				m_cFootSwitchB.SetItemData(index, dwCmdId);
+
+				delete[] szName;
 			}
 
 			delete[] pszName;
@@ -658,22 +663,22 @@ BOOL CMackieControlMasterPropPage::OnInitDialog()
 	}
 
 	// Fill in the master fader combo boxes
-	int index = m_cVirtualMainType.AddString("Bus");
+	int index = m_cVirtualMainType.AddString(_T("Bus"));
 	m_cVirtualMainType.SetItemData(index, MIX_STRIP_BUS);
 
-	index = m_cVirtualMainType.AddString("Master");
+	index = m_cVirtualMainType.AddString(_T("Master"));
 	m_cVirtualMainType.SetItemData(index, MIX_STRIP_MASTER);
 
 	FillVirtualMainCombo();
 
 	// Fill in the meters combo boxes
-	index = m_cMeters.AddString("Off");
+	index = m_cMeters.AddString(_T("Off"));
 	m_cMeters.SetItemData(index, METERS_OFF);
 
-	index = m_cMeters.AddString("Signal LEDs");
+	index = m_cMeters.AddString(_T("Signal LEDs"));
 	m_cMeters.SetItemData(index, METERS_LEDS);
 	
-	index = m_cMeters.AddString("Signal LEDs + Meters");
+	index = m_cMeters.AddString(_T("Signal LEDs + Meters"));
 	m_cMeters.SetItemData(index, METERS_BOTH);
 
 	// Disable the Meters combo if meters aren't available
@@ -903,13 +908,13 @@ void CMackieControlMasterPropPage::OnConfigureLayout()
 	if (bVal)
 	{
 		m_pSurface->SetConfigureLayoutMode(false);
-		m_cConfigureLayout.SetWindowText("Configure Layout");
+		m_cConfigureLayout.SetWindowText(_T("Configure Layout"));
 		UpdateData(TRUE);
 	}
 	else
 	{
 		m_pSurface->SetConfigureLayoutMode(true);
-		m_cConfigureLayout.SetWindowText("Press Again When Done");
+		m_cConfigureLayout.SetWindowText(_T("Press Again When Done"));
 	}
 }
 

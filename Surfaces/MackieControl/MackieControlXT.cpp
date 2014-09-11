@@ -91,11 +91,11 @@ HRESULT CMackieControlXT::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 	// Return results to caller
 	if (NULL == pszStatus)
 	{
-		*pdwLen = (DWORD)::strlen(strStatus) + 1;
+		*pdwLen = DWORD(strStatus.GetLength() + 1);
 	}
 	else
 	{
-		::strlcpy(pszStatus, strStatus, *pdwLen);
+		TCHAR2Char(pszStatus, strStatus, *pdwLen);
 	}
 
 	return S_OK;
