@@ -389,7 +389,7 @@ vectorDwordCStringPairs *CACTController::GetButtonNames()
 	m_vButtonNames.clear();
 
 	for (n = 0; n < NUM_VIRTUAL_BUTTONS; n++)
-		AddItem(&m_vButtonNames, m_strButtonLabel[n], n);
+		AddItem(&m_vButtonNames, m_strButtonLabel[n].GetBuffer(), n);
 
 	return &m_vButtonNames;
 }
@@ -555,12 +555,17 @@ void CACTController::GetButtonValue(VirtualButton bButton, CString *strText)
 	if (GetButtonACTMode(m_iButtonBank, bButton))
 	{
 		DWORD dwLen = 256;
+		char szTxt[256] = { NULL };
 
-		HRESULT hr = m_SwButton[m_iButtonBank][bButton].GetValueText(strText->GetBuffer(dwLen), &dwLen);
-		strText->ReleaseBuffer();
-
+		HRESULT hr = m_SwButton[m_iButtonBank][bButton].GetValueText(szTxt, &dwLen);
+		
 		if (FAILED(hr))
 			strText->Empty();
+		else
+		{
+			Char2TCHAR(strText->GetBufferSetLength(256), szTxt, 256);
+			strText->ReleaseBuffer();
+		}
 	}
 	else
 	{
@@ -693,14 +698,19 @@ void CACTController::GetRotaryValue(BYTE bKnob, CString *strText)
 		return;
 
 	DWORD dwLen = 256;
+	char szTxt[256] = { NULL };
 
-	HRESULT hr = m_SwKnob[m_iRotaryBank][bKnob].GetValueText(strText->GetBuffer(dwLen), &dwLen);
-
-	strText->ReleaseBuffer();
+	HRESULT hr = m_SwKnob[m_iRotaryBank][bKnob].GetValueText(szTxt, &dwLen);	
 
 	if (FAILED(hr))
 		strText->Empty();
+	else
+	{
+		Char2TCHAR(strText->GetBufferSetLength(256), szTxt, 256);
+		strText->ReleaseBuffer();
+	}
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -768,12 +778,17 @@ void CACTController::GetSliderValue(BYTE bSlider, CString *strText)
 		return;
 
 	DWORD dwLen = 256;
+	char szTxt[256] = { NULL };
 
-	HRESULT hr = m_SwSlider[m_iSliderBank][bSlider].GetValueText(strText->GetBuffer(dwLen), &dwLen);
-	strText->ReleaseBuffer();
+	HRESULT hr = m_SwSlider[m_iSliderBank][bSlider].GetValueText(szTxt, &dwLen);
 
 	if (FAILED(hr))
 		strText->Empty();
+	else
+	{
+		Char2TCHAR(strText->GetBufferSetLength(256), szTxt, 256);
+		strText->ReleaseBuffer();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -898,14 +913,19 @@ void CACTController::GetDynamicMappingName(CString *strName)
 	}
 
 	DWORD dwLen = 256;
+	char szTxt[256] = { NULL };
 
 	HRESULT hr = m_pSonarParamMapping->GetMapName(m_dwSurfaceId,
-													strName->GetBuffer(dwLen),
+													szTxt,
 													&dwLen);
-	strName->ReleaseBuffer();
-
+	
 	if (FAILED(hr))
 		strName->Empty();
+	else
+	{
+		Char2TCHAR(strName->GetBufferSetLength(256), szTxt, 256);
+		strName->ReleaseBuffer();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

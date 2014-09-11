@@ -385,7 +385,7 @@ void CLabel::OnPaint()
 
 		USES_CONVERSION;
 
-		WCHAR* wsz = T2OLE( strText );
+		WCHAR* wsz = T2OLE( strText.GetBuffer() );
 		::DrawTextExW( *pDCMem, wsz, (int)(::wcslen( wsz )), rc, dwFlags, NULL ); 
 		if (m_bFont3d)
 		{
@@ -1178,7 +1178,7 @@ void CLabel::PreSubclassWindow()
 //////////////////////////////////////////////////////////////////////////
 BOOL CLabel::PreCreateWindow(CREATESTRUCT& cs) 
 {	
-	SetWindowText("");
+	SetWindowText(_T(""));
 	return CStatic::PreCreateWindow(cs);
 }
 

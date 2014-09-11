@@ -393,6 +393,8 @@ void CACTControllerPropPageTab1::UpdateControllerTextBoxes(bool bForce)
 
 	CStringCruncher cruncher;
 	char szCrunched[255];
+	CString cszCrunch;
+	char szTxt[512];
 	int width = 16;
 
 	for (n = 0; n < NUM_KNOBS; n++)
@@ -400,24 +402,35 @@ void CACTControllerPropPageTab1::UpdateControllerTextBoxes(bool bForce)
 		m_pSurface->GetRotaryLabel(n, &strText);
 		if (bForce || m_strRotaryLabel[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pRotaryLabel[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
 			m_strRotaryLabel[n] = strText;
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pRotaryLabel[n]->SetText(cszCrunch);
+			
 		}
 
 		m_pSurface->GetRotaryName(n, &strText);
 		if (bForce || m_strRotaryName[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pRotaryName[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
 			m_strRotaryName[n] = strText;
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pRotaryName[n]->SetText(cszCrunch);
+
 		}
 
 		m_pSurface->GetRotaryValue(n, &strText);
 		if (bForce || m_strRotaryValue[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pRotaryValue[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pRotaryValue[n]->SetText(cszCrunch);
 			m_strRotaryValue[n] = strText;
 		}
 	}
@@ -427,24 +440,33 @@ void CACTControllerPropPageTab1::UpdateControllerTextBoxes(bool bForce)
 		m_pSurface->GetSliderLabel(n, &strText);
 		if (bForce || m_strSliderLabel[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pSliderLabel[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pSliderLabel[n]->SetText(cszCrunch);
 			m_strSliderLabel[n] = strText;
 		}
 
 		m_pSurface->GetSliderName(n, &strText);
 		if (bForce || m_strSliderName[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pSliderName[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pSliderName[n]->SetText(cszCrunch);
 			m_strSliderName[n] = strText;
 		}
 
 		m_pSurface->GetSliderValue(n, &strText);
 		if (bForce || m_strSliderValue[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pSliderValue[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pSliderValue[n]->SetText(cszCrunch);
 			m_strSliderValue[n] = strText;
 		}
 	}
@@ -454,24 +476,33 @@ void CACTControllerPropPageTab1::UpdateControllerTextBoxes(bool bForce)
 		m_pSurface->GetButtonLabel(m_eButtonIndex[n], &strText);
 		if (bForce || m_strButtonLabel[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pButtonLabel[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pButtonLabel[n]->SetText(cszCrunch);
 			m_strButtonLabel[n] = strText;
 		}
 
 		m_pSurface->GetButtonName(m_eButtonIndex[n], &strText);
 		if (bForce || m_strButtonName[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pButtonName[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pButtonName[n]->SetText(cszCrunch);
 			m_strButtonName[n] = strText;
 		}
 
 		m_pSurface->GetButtonValue(m_eButtonIndex[n], &strText);
 		if (bForce || m_strButtonValue[n] != strText)
 		{
-			cruncher.CrunchString(strText, szCrunched, width, 0);
-			m_pButtonValue[n]->SetText(szCrunched);
+			TCHAR2Char(szTxt, strText, 512);
+			cruncher.CrunchString(szTxt, szCrunched, width, 0);
+			Char2TCHAR(cszCrunch.GetBufferSetLength(255), szCrunched, 255);
+			cszCrunch.ReleaseBuffer();
+			m_pButtonValue[n]->SetText(cszCrunch);
 			m_strButtonValue[n] = strText;
 		}
 	}
@@ -546,7 +577,7 @@ BOOL CACTControllerPropPageTab1::OnInitDialog()
 		CString str;
 		int idx;
 
-		str.Format("%d", n + 1);
+		str.Format(_T("%d"), n + 1);
 
 		idx = m_cActiveRotaryBank.AddString(str);
 		m_cActiveRotaryBank.SetItemData(idx, n);

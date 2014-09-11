@@ -254,7 +254,7 @@ HRESULT CACTControllerPropPage::Help( LPCWSTR lpszHelpDir )
 
 	char szDLL[_MAX_PATH];
 
-	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, sizeof(szDLL));
+	DWORD dwLen = ::GetModuleFileNameA(theApp.m_hInstance, szDLL, sizeof(szDLL));
 
 	if (dwLen < 3)
 	    return E_FAIL;
@@ -262,7 +262,7 @@ HRESULT CACTControllerPropPage::Help( LPCWSTR lpszHelpDir )
 	// OK not to use strlcpy here
 	::strcpy(szDLL + dwLen - 3, "chm");
 
-	::HtmlHelp(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
+	::HtmlHelpA(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
 
 	return S_OK;
 }

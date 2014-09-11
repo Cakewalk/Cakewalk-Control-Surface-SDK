@@ -66,16 +66,16 @@ void CACTController::UpdateToolbarText()
 	}
 
 	CString strBuf;
-	strBuf.Format(" %u-%u", GetStripNum() + 1, GetStripNum() + NUM_SLIDERS);
+	strBuf.Format( _T(" %u-%u"), GetStripNum() + 1, GetStripNum() + NUM_SLIDERS);
 	strText += strBuf;
 
-	strBuf.Format(", Sel %u", GetSelectedTrack() + 1);
+	strBuf.Format(_T(", Sel %u"), GetSelectedTrack() + 1);
 	strText += strBuf;
 
-	strBuf.Format(", ACT %s", m_bUseDynamicMappings ? m_strOn : m_strOff);
+	strBuf.Format(_T(", ACT %s"), m_bUseDynamicMappings ? m_strOn : m_strOff);
 	strText += strBuf;
 
-	strBuf.Format(" %d%d%d", m_iRotaryBank + 1, m_iSliderBank + 1, m_iButtonBank + 1);
+	strBuf.Format(_T(" %d%d%d"), m_iRotaryBank + 1, m_iSliderBank + 1, m_iButtonBank + 1);
 	strText += strBuf;
 
 	if (m_strToolbarText != strText)

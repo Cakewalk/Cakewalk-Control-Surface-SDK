@@ -69,13 +69,13 @@ CACTController::CACTController() :
 	m_uiContext = UIC_TRACKVIEW;
 
 	for (n = 0; n < NUM_KNOBS; n++)
-		m_strRotaryLabel[n].Format("R%d", n + 1);
+		m_strRotaryLabel[n].Format(_T("R%d"), n + 1);
 
 	for (n = 0; n < NUM_SLIDERS; n++)
-		m_strSliderLabel[n].Format("S%d", n + 1);
+		m_strSliderLabel[n].Format(_T("S%d"), n + 1);
 
 	for (n = 0; n < NUM_VIRTUAL_BUTTONS; n++)
-		m_strButtonLabel[n].Format("%sB%d", (n >= NUM_BUTTONS) ? "Shift " :  "", (n % NUM_BUTTONS) + 1);
+		m_strButtonLabel[n].Format(_T("%sB%d"), (n >= NUM_BUTTONS) ? _T("Shift ") :  _T(""), (n % NUM_BUTTONS) + 1);
 
 	for ( n = 0; n < NUM_BANKS; n++ )
 	{
@@ -152,7 +152,7 @@ HRESULT CACTController::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 	}
 	else
 	{
-		::strlcpy(pszStatus, m_strToolbarText, *pdwLen);
+		TCHAR2Char(pszStatus, m_strToolbarText, int(*pdwLen));		
 	}
 
 	return S_OK;
@@ -633,11 +633,17 @@ void CACTController::OnConnect()
 			if (FAILED(m_pCommands->GetCommandInfo(n, &dwCmdId, NULL, &dwSize)))
 				continue;
 
-			LPSTR pszName = new char[dwSize];
+			LPSTR  pszChar = new char[dwSize];
+			TCHAR* pszName = new TCHAR[dwSize];
 
-			if (SUCCEEDED(m_pCommands->GetCommandInfo(n, &dwCmdId, pszName, &dwSize)))
+			if (SUCCEEDED(m_pCommands->GetCommandInfo(n, &dwCmdId, pszChar, &dwSize)))
 			{
-				AddItem(&m_vButtonActions, pszName, dwCmdId);
+				Char2TCHAR(pszName, pszChar, dwSize);
+				AddItem(&m_vButtonActions, pszName, dwCmdId); // internally AddItem in the list is using a CString, so operator = should copy the memory so we don't need to keep it allocated correct?
+				// in other words, if we do NOT free pszName, then we'll have a memory leak?
+				// this page says operator = reinitializes memory already existing in the object and resizes if necessary.  
+				delete[] pszChar;
+				delete[] pszName;
 			}
 		}
 	}
@@ -922,7 +928,7 @@ void CACTController::AddItem(vectorDwordCStringPairs *vPair, UINT nID, DWORD num
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CACTController::AddItem(vectorDwordCStringPairs *vPair, const char *str, DWORD num)
+void CACTController::AddItem(vectorDwordCStringPairs *vPair, LPCTSTR str, DWORD num)
 {
 	CDwordCStringPair data;
 
@@ -1161,12 +1167,14 @@ void CACTController::GetStripNameAndParamLabel(CMixParam *pParam, CString *strTe
 	if (pParam == NULL)
 		return;
 
-	CString strLabel;
+	CString strLabel;	
 	DWORD dwLen = 256;
 
-	HRESULT hr = pParam->GetParamLabel(strLabel.GetBuffer(dwLen), &dwLen);
-	strLabel.ReleaseBuffer();
 
+	char szLabel[256] = { NULL };
+
+	HRESULT hr = pParam->GetParamLabel(szLabel, &dwLen);
+	
 	if (SUCCEEDED(hr))
 	{
 		if (pParam->GetMixerStrip() != MIX_STRIP_ANY) // Not ACT
@@ -1183,8 +1191,12 @@ void CACTController::GetStripNameAndParamLabel(CMixParam *pParam, CString *strTe
 				default:					cType = 'E'; break; // Error
 			}
 
-			strText->Format("%c%d ", cType, pParam->GetStripNum() + 1);
+			strText->Format(_T("%c%d "), cType, pParam->GetStripNum() + 1);
 		}
+
+		// convert char to tchar for destination string.
+		Char2TCHAR(strLabel.GetBufferSetLength(256), szLabel, 256);
+		strLabel.ReleaseBuffer();
 
 		*strText += strLabel;
 	}
@@ -1324,7 +1336,7 @@ void FillComboBox(CComboBox *pBox, vectorDwordCStringPairs *pData)
 #ifdef _DEBUG
 		CString str;
 
-		str.Format("%s (0x%08X)", i->m_Str, i->m_Num);
+		str.Format(_T("%s (0x%08X)"), i->m_Str, i->m_Num);
 		int idx = pBox->AddString(str);
 #else
 		int idx = pBox->AddString(i->m_Str);

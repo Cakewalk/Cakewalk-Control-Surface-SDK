@@ -378,7 +378,7 @@ protected:
 	void				BindToACT(CMixParam *pParam, DWORD dwStripNum); 
 	void				BuildDynControlsList();
 	void				AddItem(vectorDwordCStringPairs *vPair, UINT nID, DWORD num);
-	void				AddItem(vectorDwordCStringPairs *vPair, const char *str, DWORD num);
+	void				AddItem(vectorDwordCStringPairs *vPair, LPCTSTR str, DWORD num);
 
 	void				ShiftStripNum(int iShift, bool bForce =false);
 	void				LimitAndSetStripNum(int iStripNum, bool bForce =false);
