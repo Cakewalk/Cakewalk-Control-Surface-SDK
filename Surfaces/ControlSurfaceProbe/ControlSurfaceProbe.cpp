@@ -116,7 +116,7 @@ HRESULT CControlSurfaceProbe::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 	}
 	else
 	{
-		::strlcpy(pszStatus, strStatus, *pdwLen);
+		TCHAR2Char(pszStatus, strStatus, *pdwLen);
 	}
 
 	return S_OK;
@@ -416,7 +416,7 @@ void CControlSurfaceProbe::GetUpdateCount(CString *str)
 {
 	CCriticalSectionAuto csa( &m_cs );
 
-	str->Format("%u", m_dwUpdateCount);
+	str->Format(_T("%u"), m_dwUpdateCount);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -427,7 +427,7 @@ void CControlSurfaceProbe::GetStripCount(SONAR_MIXER_STRIP eMixerStrip, CString 
 
 	if (!m_pMixer)
 	{
-		*str = "m_pMixer is NULL";
+		*str = _T("m_pMixer is NULL");
 		return;
 	}
 
@@ -437,11 +437,11 @@ void CControlSurfaceProbe::GetStripCount(SONAR_MIXER_STRIP eMixerStrip, CString 
 
 	if (FAILED(hr))
 	{
-		*str = "GetMixStripCount FAILED";
+		*str = _T("GetMixStripCount FAILED");
 		return;
 	}
 
-	str->Format("%u", dwCount);
+	str->Format(_T("%u"), dwCount);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -452,7 +452,7 @@ void CControlSurfaceProbe::GetStripName(CString *str)
 
 	if (!m_pMixer)
 	{
-		*str = "m_pMixer is NULL";
+		*str = _T("m_pMixer is NULL");
 		return;
 	}
 
@@ -463,7 +463,7 @@ void CControlSurfaceProbe::GetStripName(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMixStripName FAILED";
+		*str = _T("GetMixStripName FAILED");
 		return;
 	}
 
@@ -516,7 +516,7 @@ void CControlSurfaceProbe::GetValue(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStrip
 
 	if (!m_pMixer)
 	{
-		*str = "m_pMixer is NULL";
+		*str = _T("m_pMixer is NULL");
 		return;
 	}
 
@@ -524,11 +524,11 @@ void CControlSurfaceProbe::GetValue(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStrip
 
 	if (FAILED(hr))
 	{
-		*str = "GetMixParam FAILED";
+		*str = _T("GetMixParam FAILED");
 		return;
 	}
 
-	str->Format("%.2f", *pfValue);
+	str->Format(_T("%.2f"), *pfValue);
 }
 
 
@@ -686,7 +686,7 @@ void CControlSurfaceProbe::GetNumMeters(CString *str)
 
 	if (!m_pVUMeters)
 	{
-		*str = "m_pVUMeters is NULL";
+		*str = _T("m_pVUMeters is NULL");
 		return;
 	}
 
@@ -696,11 +696,11 @@ void CControlSurfaceProbe::GetNumMeters(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMeterChannelCount FAILED";
+		*str = _T("GetMeterChannelCount FAILED");
 		return;
 	}
 
-	str->Format("%u", dwCount);
+	str->Format(_T("%u"), dwCount);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -711,7 +711,7 @@ void CControlSurfaceProbe::GetMetersValues(CString *str)
 
 	if (!m_pVUMeters)
 	{
-		*str = "m_pVUMeters is NULL";
+		*str = _T("m_pVUMeters is NULL");
 		return;
 	}
 
@@ -721,7 +721,7 @@ void CControlSurfaceProbe::GetMetersValues(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMeterChannelCount FAILED";
+		*str = _T("GetMeterChannelCount FAILED");
 		return;
 	}
 
@@ -737,7 +737,7 @@ void CControlSurfaceProbe::GetMetersValues(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMeterValues FAILED";
+		*str = _T("GetMeterValues FAILED");
 	}
 	else
 	{
@@ -748,7 +748,7 @@ void CControlSurfaceProbe::GetMetersValues(CString *str)
 		for (DWORD n = 0; n < dwCount; n++)
 		{
 			double dB = -60 + 60 * fVals[n];
-			tmp.Format("%.2fdB\r\n", dB );
+			tmp.Format(_T("%.2fdB\r\n"), dB );
 			*str += tmp;
 		}
 	}
@@ -896,11 +896,11 @@ void CControlSurfaceProbe::GetUniqueID(CString *str)
 {
 	if (!m_pIdentity)
 	{
-		*str = "m_pIdentity is NULL";
+		*str = _T("m_pIdentity is NULL");
 		return;
 	}
 
-	str->Format("0x%08X", m_dwSurfaceID);
+	str->Format(_T("0x%08X"), m_dwSurfaceID);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -909,7 +909,7 @@ void CControlSurfaceProbe::GetHostVersion(CString *str)
 {
 	if (!m_pIdentity)
 	{
-		*str = "m_pIdentity is NULL";
+		*str = _T("m_pIdentity is NULL");
 		return;
 	}
 
@@ -919,11 +919,11 @@ void CControlSurfaceProbe::GetHostVersion(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetHostVersion FAILED";
+		*str = _T("GetHostVersion FAILED");
 		return;
 	}
 
-	str->Format("%d.%d.%d.%d", pnMajor, pnMinor, pnRevision, pnBuild);
+	str->Format( _T( "%d.%d.%d.%d" ), pnMajor, pnMinor, pnRevision, pnBuild );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -971,7 +971,7 @@ void CControlSurfaceProbe::GetMarkerCount(CString *str)
 {
 	if (!m_pProject2)
 	{
-		*str = "m_pProject2 is NULL";
+		*str = _T( "m_pProject2 is NULL" );
 		return;
 	}
 
@@ -981,11 +981,11 @@ void CControlSurfaceProbe::GetMarkerCount(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMarkerCount FAILED";
+		*str = _T( "GetMarkerCount FAILED" );
 		return;
 	}
 
-	str->Format("%u", dwCount);
+	str->Format( _T( "%u" ), dwCount );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -994,7 +994,7 @@ void CControlSurfaceProbe::GetMarkerList(CString *str)
 {
 	if (!m_pProject2)
 	{
-		*str = "m_pProject2 is NULL";
+		*str = _T("m_pProject2 is NULL");
 		return;
 	}
 
@@ -1004,7 +1004,7 @@ void CControlSurfaceProbe::GetMarkerList(CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMarkerCount FAILED";
+		*str = _T("GetMarkerCount FAILED");
 		return;
 	}
 
@@ -1017,7 +1017,7 @@ void CControlSurfaceProbe::GetMarkerList(CString *str)
 		GetMarkerByIndex(n, &tmp);
 
 		*str += tmp;
-		*str += "\r\n";
+		*str += _T("\r\n");
 	}
 }
 
@@ -1027,7 +1027,7 @@ void CControlSurfaceProbe::GetMarkerIndexForTime(MFX_TIME *pTime, CString *str)
 {
 	if (!m_pProject2)
 	{
-		*str = "m_pProject2 is NULL";
+		*str = _T("m_pProject2 is NULL");
 		return;
 	}
 
@@ -1037,7 +1037,7 @@ void CControlSurfaceProbe::GetMarkerIndexForTime(MFX_TIME *pTime, CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMarkerIndexForTime FAILED";
+		*str = _T("GetMarkerIndexForTime FAILED");
 		return;
 	}
 
@@ -1050,7 +1050,7 @@ void CControlSurfaceProbe::GetMarkerByIndex(DWORD dwIndex, CString *str)
 {
 	if (!m_pProject2)
 	{
-		*str = "m_pProject2 is NULL";
+		*str = _T("m_pProject2 is NULL");
 		return;
 	}
 
@@ -1061,7 +1061,7 @@ void CControlSurfaceProbe::GetMarkerByIndex(DWORD dwIndex, CString *str)
 
 	if (FAILED(hr))
 	{
-		*str = "GetMarkerTime FAILED";
+		*str = _T("GetMarkerTime FAILED");
 	}
 	else
 	{
@@ -1071,7 +1071,7 @@ void CControlSurfaceProbe::GetMarkerByIndex(DWORD dwIndex, CString *str)
 
 		if (FAILED(hr))
 		{
-			*str = "GetMarkerName(NULL) FAILED";
+			*str = _T("GetMarkerName(NULL) FAILED");
 		}
 		else
 		{
@@ -1081,11 +1081,11 @@ void CControlSurfaceProbe::GetMarkerByIndex(DWORD dwIndex, CString *str)
 
 			if (FAILED(hr))
 			{
-				*str = "GetMarkerName FAILED";
+				*str = _T("GetMarkerName FAILED");
 			}
 			else
 			{
-				str->Format("[%d:%02d:%03d] %s",
+				str->Format(_T("[%d:%02d:%03d] %s"),
 							mfxTime.mbt.nMeas,
 							mfxTime.mbt.nBeat,
 							mfxTime.mbt.nTick,

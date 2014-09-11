@@ -554,11 +554,11 @@ BOOL CControlSurfaceProbePropPage::OnInitDialog()
 	m_cMarkerBeatSpin.SetBuddy(&m_cMarkerBeats);
 	m_cMarkerTickSpin.SetBuddy(&m_cMarkerTicks);
 
-	m_cMarkerMeasures.SetWindowText("1");
-	m_cMarkerBeats.SetWindowText("1");
-	m_cMarkerTicks.SetWindowText("0");
+	m_cMarkerMeasures.SetWindowText( _T( "1" ) );
+	m_cMarkerBeats.SetWindowText( _T( "1" ) );
+	m_cMarkerTicks.SetWindowText( _T( "0" ) );
 
-	m_cMarkerTheNearest.SetWindowText("");
+	m_cMarkerTheNearest.SetWindowText( _T( "" ) );
 
 	m_bInitDone = true;
 
@@ -817,19 +817,19 @@ void CControlSurfaceProbePropPage::TransferSettings(bool bSave)
       switch (ws)
       {
       case WST_OPEN:
-         m_cWindowState.SetWindowText("Window is open");
+			m_cWindowState.SetWindowText( _T( "Window is open" ) );
          break;
 
       case WST_CLOSE:
-         m_cWindowState.SetWindowText("Window is closed");
+			m_cWindowState.SetWindowText( _T( "Window is closed" ) );
          break;
 
       case WST_MINIMIZE:
-         m_cWindowState.SetWindowText("Window is minimized");
+			m_cWindowState.SetWindowText( _T( "Window is minimized" ) );
          break;
 
       default:
-         m_cWindowState.SetWindowText("Window state unknown");
+			m_cWindowState.SetWindowText( _T( "Window state unknown" ) );
       }
 	}
 }
@@ -838,8 +838,10 @@ void CControlSurfaceProbePropPage::TransferSettings(bool bSave)
 
 void CControlSurfaceProbePropPage::ComboAddEntry(CComboBox *pCBox, const char *str, DWORD dwData)
 {
-	int index = pCBox->AddString(str);
-	pCBox->SetItemData(index, dwData);
+	CString strBuf = str;
+
+	int index = pCBox->AddString( strBuf );
+	pCBox->SetItemData( index, dwData );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -876,21 +878,21 @@ DWORD CControlSurfaceProbePropPage::ComboGetSelectedData(CComboBox *pCBox)
 
 DWORD CControlSurfaceProbePropPage::GetEditAsDword(CEdit *pCEdit)
 {
-	char buf[128];
+	TCHAR buf[128];
 
-	pCEdit->GetWindowText(buf, sizeof(buf));
-	return strtoul(buf, NULL, 0);
+	pCEdit->GetWindowText( buf, _countof( buf ) );
+	return _tcstoul( buf, NULL, 0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CControlSurfaceProbePropPage::SetEditToDword(CEdit *pCEdit, DWORD dwVal)
 {
-	char buf[128];
+	TCHAR buf[128];
 
-	snprintf(buf, sizeof(buf), "%u", dwVal);
+	_sntprintf( buf, _countof( buf ), _T( "%u" ), dwVal );
 
-	pCEdit->SetWindowText(buf);
+	pCEdit->SetWindowText( buf );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -970,11 +972,11 @@ void CControlSurfaceProbePropPage::OnChangeParamNumLow()
 
 void CControlSurfaceProbePropPage::OnMixSend() 
 {
-	char buf[128];
+	TCHAR buf[128];
 
 	m_cNewVal.GetWindowText(buf, sizeof(buf));
 
-	m_pSurface->SetValue((float)atof(buf));
+	m_pSurface->SetValue( (float)_tstof( buf ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

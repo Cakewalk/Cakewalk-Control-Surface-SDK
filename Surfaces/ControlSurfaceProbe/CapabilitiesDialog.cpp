@@ -80,15 +80,15 @@ void CCapabilitiesDialog::CheckCap(const char *pszName, HOST_CAPABILITY eCap)
 
 	CString strResult;
 
-	strResult.Format("%s: ", pszName);
+	strResult.Format(_T("%s: "), pszName);
 
 	if (FAILED(hr))
-		strResult += "HasCapability FAILED";
+		strResult += _T("HasCapability FAILED");
 	else
-		strResult += (hr == S_OK) ? "Yes" : "No";
+		strResult += (hr == S_OK) ? _T("Yes") : _T("No");
 
 	m_strText += strResult;
-	m_strText += "\r\n";
+	m_strText += _T("\r\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////

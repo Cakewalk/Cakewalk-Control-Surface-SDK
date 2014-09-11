@@ -233,15 +233,14 @@ HRESULT CSampleSurfacePropPage::Help( LPCWSTR lpszHelpDir )
 	// Returning E_NOTIMPL here should be enough to cause the help file
 	// specified by GetPageInfo to be used, but it doesn't seem to work
 
-	char szDLL[_MAX_PATH];
+	TCHAR szDLL[_MAX_PATH];
 
-	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, sizeof(szDLL));
-
+	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, _countof(szDLL));
 	if (dwLen < 3)
 	    return E_FAIL;
 
 	// OK not to use strlcpy here
-	::strcpy(szDLL + dwLen - 3, "chm");
+	_tcscpy(szDLL + dwLen - 3, _T("chm"));
 
 	::HtmlHelp(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
 

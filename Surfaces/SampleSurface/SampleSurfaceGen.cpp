@@ -340,13 +340,13 @@ static void recursiveDeleteKey( HKEY hKeyParent, const char* pcszKeyChild )
 {
 	// Open the child.
 	HKEY hKeyChild;
-	if (ERROR_SUCCESS == RegOpenKeyEx( hKeyParent, pcszKeyChild, 0, KEY_ALL_ACCESS, &hKeyChild ))
+	if (ERROR_SUCCESS == RegOpenKeyExA( hKeyParent, pcszKeyChild, 0, KEY_ALL_ACCESS, &hKeyChild ))
 	{
 		// Enumerate all of the decendents of this child.
 		FILETIME time;
 		char szBuffer[ 256 ];
 		DWORD dwSize = sizeof szBuffer;
-		while (S_OK == RegEnumKeyEx( hKeyChild, 0, szBuffer, &dwSize, NULL, NULL, NULL, &time ))
+		while (S_OK == RegEnumKeyExA( hKeyChild, 0, szBuffer, &dwSize, NULL, NULL, NULL, &time ))
 		{
 			// Delete the decendents of this child.
 			recursiveDeleteKey( hKeyChild, szBuffer );
@@ -358,7 +358,7 @@ static void recursiveDeleteKey( HKEY hKeyParent, const char* pcszKeyChild )
 	}
 
 	// Delete this child.
-	RegDeleteKey( hKeyParent, pcszKeyChild );
+	RegDeleteKeyA( hKeyParent, pcszKeyChild );
 }
 
 
@@ -379,10 +379,10 @@ static void setKeyAndValue( HKEY hKeyParent, const char* pcszKey, const char* pc
 
 	// Create and open key and subkey.
 	HKEY hKey;
-	if (ERROR_SUCCESS == RegCreateKeyEx( hKeyParent, szKeyBuf,  0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL,  &hKey, NULL ))
+	if (ERROR_SUCCESS == RegCreateKeyExA( hKeyParent, szKeyBuf,  0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL,  &hKey, NULL ))
 	{
 		if (pcszValue)
-			RegSetValueEx( hKey, pcszValueName, 0, REG_SZ, (BYTE*)pcszValue, (DWORD)strlen( pcszValue ) + 1 );
+			RegSetValueExA( hKey, pcszValueName, 0, REG_SZ, (BYTE*)pcszValue, (DWORD)strlen( pcszValue ) + 1 );
 		RegCloseKey( hKey );
 	}
 }
@@ -393,7 +393,7 @@ static void registerFactory( const CLSID& clsid, const char* pcszFriendlyName )
 {
 	// Get server location.
 	char szModule[ _MAX_PATH ];
-	::GetModuleFileName( theApp.m_hInstance, szModule, sizeof szModule );
+	::GetModuleFileNameA( theApp.m_hInstance, szModule, sizeof szModule );
 
 	// Convert the CLSID into a char.
 	char szCLSID[ 128 ];
@@ -415,7 +415,7 @@ static void unregisterFactory( const CLSID& clsid )
 {
 	// Get server location.
 	char szModule[ _MAX_PATH ];
-	::GetModuleFileName( theApp.m_hInstance, szModule, sizeof szModule );
+	::GetModuleFileNameA( theApp.m_hInstance, szModule, sizeof szModule );
 
 	// Convert the CLSID into a char.
 	char szCLSID[ 128 ];

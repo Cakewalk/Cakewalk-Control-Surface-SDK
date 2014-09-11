@@ -1,5 +1,5 @@
-LIBRARY      "EuconController"
-DESCRIPTION  'Eucon Controller'
+LIBRARY      "SampleSurface"
+DESCRIPTION  'Sample Surface'
 
 EXPORTS
 	DllGetClassObject PRIVATE
