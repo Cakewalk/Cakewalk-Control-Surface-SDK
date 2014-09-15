@@ -615,6 +615,14 @@ DWORD CMidiMsg::MakeShortMsg( DWORD dwVal, int ix /* = 0*/)
 		{
 			dwRet = 0xD0 | ((dwVal & 0x7f) << 8);
 		}
+		break;
+	case mtKeyAft:
+		if ( ix == 0 )
+		{
+			dwRet = 0xA0 | ( ( GetNoteNum() & 0x7f ) << 8 ) | ( ( dwVal & 0x7f ) << 16 );
+		}
+		break;
+
 	}
 
 	dwRet |= (0x0000000f & GetChannel());
@@ -658,6 +666,19 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			bSendValue = TRUE;
 		}
 		break;
+
+	case mtKeyAft:
+		if ( byKind == 0xA0 )
+		{
+			if ( GetNoteNum() == ( ( dwShortMsg >> 8 ) & 0x7f ) )
+			{
+				// message matches
+				m_dwCurValue = ( dwShortMsg >> 16 ) & 0x7f;
+				bSendValue = TRUE;
+			}
+		}
+		break;
+
 	case mtWheel:
 		if (byKind == 0xE0)
 		{

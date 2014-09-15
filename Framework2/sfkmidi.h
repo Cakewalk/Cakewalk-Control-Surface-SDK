@@ -178,6 +178,7 @@ public:
 		mtWheel,      // message consists of the 14 bit value of the pitch wheel
 		mtNote,       // message consists of the 7 bit value in the note's velocity
 		mtChAft,      // message consists of the 7 bit value of a Channel Aftertouch
+		mtKeyAft,     // message consists of the 7 bit value in the note's pressure
 		mtWheel7Bit   // message consists of the 7 bit value of the pitch wheel. Not common, use to support operation of t-bar, LFE-send and joystick on VS-700.
 	};
 
@@ -212,6 +213,7 @@ public:
 		case mtSysX7bit:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel7Bit:
 			m_dwMaxValue = 0x7F; // 7 bits, 127
 			break;
@@ -337,6 +339,7 @@ public:
 		case mtRpn:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel:
 		case mtWheel7Bit:
 			return true;
@@ -351,6 +354,7 @@ public:
 		case mtCC:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel:
 		case mtWheel7Bit:
 			return 1;
@@ -370,6 +374,7 @@ public:
 		case mtCC:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel:
 		case mtWheel7Bit:
 			m_bIsTrigger = bIsTrigger;

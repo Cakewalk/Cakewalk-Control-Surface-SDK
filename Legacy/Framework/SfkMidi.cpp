@@ -17,11 +17,20 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+#define	INDETERMINATE_DIRECTION 0
+#define NEGATIVE_DIRECTION 1
+#define POSITIVE_DIRECTION 2
+
+static DWORD dwLastTimePanIncreased = 0;
+static DWORD dwLastTimePanDecreased = 0;
+
+static DWORD dwTimeMotionStarted = 0;
+static DWORD dwCurrentMotionDirection = INDETERMINATE_DIRECTION;
+
 
 /////////////////////////////////////////////////////////////////////////
 // CNrpnContext:
 /////////////////////////////////////////////////////////////////////////
-
 void CNrpnContext::OnController( DWORD dwShortMsg, DWORD dwPort )
 {
 	_ASSERT( (dwShortMsg & 0x000000F0) == 0xB0 ); // it must be a controller
@@ -445,8 +454,8 @@ void CMidiInputRouter::addToIndex( CMidiMsg *pMsg, BYTE byHash )
 CMidiMsg::CMidiMsg( CControlSurface *pSurface ) :
 	m_pSurface( pSurface ),
 	m_mtType(mtCC),
-	m_dwMaxValue(127),
-	m_wCC(0),
+	m_dwMaxValue( 127 ),
+	m_wCC( 0 ),
 	m_wCC2(0),
 	m_wCCInvIdentity(0),
 	m_wCCSelVal(0),
@@ -683,6 +692,14 @@ DWORD CMidiMsg::MakeShortMsg( DWORD dwVal, int ix /* = 0*/)
 		{
 			dwRet = 0xD0 | ((dwVal & 0x7f) << 8);
 		}
+		break;
+	case mtKeyAft:
+		if (ix == 0)
+		{
+			dwRet = 0xA0 | ((GetNoteNum() & 0x7f) << 8) | ((dwVal & 0x7f) << 16);
+		}
+		break;
+
 	}
 
 	dwRet |= (0x0000000f & GetChannel());
@@ -747,6 +764,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 		}
 		m_dwLastCC = dwShortMsg;// remember the last CC
 		break;
+
 	case mtCCHiLo:
 		if (byKind == 0xB0)
 		{
@@ -772,6 +790,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			m_dwLastCC = dwShortMsg;// remember the last CC
 		}
 		break;
+
 	case mtCCLoHi:
 		if (byKind == 0xB0)
 		{
@@ -796,6 +815,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			m_dwLastCC = dwShortMsg;// remember the last CC
 		}
 		break;
+
 	case mtChAft:
 		if (byKind == 0xD0)
 		{
@@ -803,6 +823,19 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			bSendValue = TRUE;
 		}
 		break;
+
+	case mtKeyAft:
+		if (byKind == 0xA0)
+		{
+			if (GetNoteNum() == ((dwShortMsg >> 8) & 0x7f))
+			{
+				// message matches
+				m_dwCurValue = (dwShortMsg >> 16) & 0x7f;
+				bSendValue = TRUE;
+			}
+		}
+		break;
+
 	case mtWheel:
 		if (byKind == 0xE0)
 		{
@@ -811,6 +844,7 @@ void CMidiMsg::OnShortMsg( DWORD dwMsgCount, DWORD dwShortMsg )
 			bSendValue = TRUE;
 		}
 		break;
+
 	case mtNote:
 		if (byKind == 0x90)
 		{
@@ -1272,7 +1306,7 @@ HRESULT CMidiMsgListener::notifyValue( CMidiMsg *pMsg, DWORD dwVal, DWORD dwMaxV
 				// allow some deadband for nulling since some plugins seem to lag behind
 				DWORD dwDeadband = pMsg->GetMaxNotifyValue() / 16;
 
-				if ( 
+				if (
 					( m_dwLastValue > dwVal + dwDeadband && m_dwLastValue > m_dwPrevVal + dwDeadband ) ||
 					( m_dwLastValue + dwDeadband < dwVal && m_dwLastValue + dwDeadband < m_dwPrevVal ) )
 				{
@@ -1336,6 +1370,75 @@ HRESULT CMidiMsgListener::notifyValue( CMidiMsg *pMsg, DWORD dwVal, DWORD dwMaxV
 			m_dwLastValue = min( (int/*force into signed*/)m_dwLastValue, nMax );
 		}
 		break;
+	case mdIncrementalWheelDelta:
+		{
+			// make sure dwMax is a power of two minus one (127, 16383, etc.) 
+			// this is not supposed to be an exhaustive test but is cheap and sufficient.
+			_ASSERT( ( ( ( dwMaxValue << 1 ) + 1 ) & dwMaxValue ) == dwMaxValue ); 
+
+			int nInc; // value
+			DWORD dwSign = dwVal & ( ( dwMaxValue >> 1 ) + 1 ); // top bit, or sign
+			if (dwSign == 0)
+			{
+				if( GetTickCount() - dwTimeMotionStarted < 50 && NEGATIVE_DIRECTION == dwCurrentMotionDirection )
+				{
+					break;
+				}
+				else
+				{
+					dwTimeMotionStarted = GetTickCount();
+					dwCurrentMotionDirection = POSITIVE_DIRECTION;
+				}
+
+				if( GetTickCount() - dwLastTimePanIncreased < 10 )
+				{
+					nInc = 4;
+				}
+				else if( GetTickCount() - dwLastTimePanIncreased < 20 )
+				{
+					nInc = 2;
+				}
+				else
+				{ 
+					nInc = 1;
+				}
+				
+				dwLastTimePanIncreased = GetTickCount();
+			}
+			else
+			{
+				if( GetTickCount() - dwTimeMotionStarted < 50 && POSITIVE_DIRECTION == dwCurrentMotionDirection )
+				{
+					break;
+				}
+				else
+				{
+					dwTimeMotionStarted = GetTickCount();
+					dwCurrentMotionDirection = NEGATIVE_DIRECTION;
+				}
+
+
+				if( GetTickCount() - dwLastTimePanDecreased < 10 )
+				{
+					nInc = -4;
+				}
+				else if( GetTickCount() - dwLastTimePanDecreased < 20 )
+				{
+					nInc = -2;
+				}
+				else
+				{
+					nInc = -1;
+				}
+
+				dwLastTimePanDecreased = GetTickCount();
+			}
+			int nMin = (int)getMin();
+			int nMax = (int)getMax();
+			m_dwLastValue = max( nInc + (int /*force into signed*/)m_dwLastValue, nMin );
+			m_dwLastValue = min( (int/*force into signed*/)m_dwLastValue, nMax );
+		}
+		break;
 	case mdToggle:
 		if (m_dwToggleValue == dwVal)
 		{
@@ -1364,7 +1467,11 @@ HRESULT CMidiMsgListener::notifyValue( CMidiMsg *pMsg, DWORD dwVal, DWORD dwMaxV
 	switch (eType)
 	{
 	case TypeFloat:
-		if (m_eCurrentEffect == mdDelta || m_eCurrentEffect == mdContinuousDelta || m_eCurrentEffect == mdSignedDelta)
+		if (m_eCurrentEffect == mdDelta || m_eCurrentEffect == mdContinuousDelta || m_eCurrentEffect == mdSignedDelta )
+		{
+			hr = setValue( pMsg, float(m_dwLastValue - getMin()) / float(getMax() - getMin()) );
+		}
+		else if( m_eCurrentEffect == mdIncrementalWheelDelta )
 		{
 			hr = setValue( pMsg, float(m_dwLastValue - getMin()) / float(getMax() - getMin()) );
 		}
@@ -1403,10 +1510,19 @@ void CMidiMsgListener::setLastValue( float fVal, CMidiMsg* pMsg )
 
 	if (pMsg)
 	{
-		if (m_eCurrentEffect == mdDelta || m_eCurrentEffect == mdContinuousDelta || m_eCurrentEffect == mdSignedDelta)
+		if (m_eCurrentEffect == mdDelta || m_eCurrentEffect == mdContinuousDelta || m_eCurrentEffect == mdSignedDelta )
+		{
 			m_dwLastValue = floatToMsgVal( fVal, getMax() - getMin() ) + getMin();
+		}
+		else if( m_eCurrentEffect == mdIncrementalWheelDelta )
+		{
+			m_dwLastValue = floatToMsgVal( fVal, getMax() - getMin() ) + getMin();
+
+		}
 		else
+		{
 			m_dwLastValue = floatToMsgVal( fVal, pMsg->GetMaxNotifyValue() );
+		}
 	}
 
 	if (m_dwPrevVal != m_dwLastValue)
@@ -1418,7 +1534,7 @@ DWORD CMidiMsgListener::floatToMsgVal( float fVal, DWORD dwMaxValue )
 {
 	ASSERT( dwMaxValue <= 16383 );
 
-	return DWORD((fVal * dwMaxValue) + 0.5);
+	return DWORD( ( fVal * dwMaxValue ) + 0.5 );
 }
 
 /////////////////////////////////////////////////////////////////////////

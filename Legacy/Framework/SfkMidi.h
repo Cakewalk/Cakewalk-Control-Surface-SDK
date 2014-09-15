@@ -190,7 +190,8 @@ public:
 		mtSysXString,	// message consists of a fixed length forward ordered ASCII string sandwiched between the specified SYSX Pre and Post strings
 		mtWheel,		// message consists of the 14 bit value of the pitch wheel
 		mtNote,		// message consists of the 7 bit value in the note's velocity
-		mtChAft		// message consists of the 7 bit value of a Channel Aftertouch
+		mtChAft,		// message consists of the 7 bit value of a Channel Aftertouch
+		mtKeyAft	// message consists of the 7 bit value in the note's pressure
 	};
 
 
@@ -208,6 +209,7 @@ public:
 		case mtSysX7bit:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 			m_dwMaxValue = 127;
 			break;
 		case mtCCHiLo:
@@ -368,6 +370,7 @@ public:
 		case mtRpn:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel:
 			return TRUE;
 		}
@@ -382,6 +385,7 @@ public:
 		case mtCCInverted:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel:
 			return 1;
 		case mtCCSel:
@@ -405,6 +409,7 @@ public:
 		case mtCCInverted:
 		case mtNote:
 		case mtChAft:
+		case mtKeyAft:
 		case mtWheel:
 		case mtCCSel:
 		case mtCCHiLo:
@@ -554,6 +559,7 @@ public:
 
 		mdSignedDelta, // value is added with the input value, which is interpreted as a signed binary number.
 							// in the number of bits occupied by the known max value.
+		mdIncrementalWheelDelta, // inc or dec based on the sign of the 14 bit value from the controller
 		mdToggle,// alternate between two states (max and min) on each event
 		mdOnOff, // a given midi value for the message means ON and another value for the same message means OFF.
 	};
