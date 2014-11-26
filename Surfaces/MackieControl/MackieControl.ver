@@ -5,8 +5,8 @@
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 17,5,3,00
- PRODUCTVERSION 17,5,3,00
+ FILEVERSION 17,5,4,00
+ PRODUCTVERSION 17,5,4,00
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Cakewalk, Inc.\0"		  
             VALUE "FileDescription", "Mackie Control Surface\0"
-            VALUE "FileVersion", "17.5.3.00\0"
+            VALUE "FileVersion", "17.5.4.00\0"
             VALUE "InternalName", "\0"
-            VALUE "LegalCopyright", "Copyright (c) 2013 by Cakewalk Inc.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2014 by Cakewalk Inc.\0"
             VALUE "OriginalFilename", "\0"
             VALUE "ProductName", "Mackie Control Surface\0"
-            VALUE "ProductVersion", "X3\0"
+            VALUE "ProductVersion", "\0"
         END
     END
     BLOCK "VarFileInfo"

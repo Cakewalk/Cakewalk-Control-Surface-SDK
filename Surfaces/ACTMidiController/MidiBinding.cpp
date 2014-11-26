@@ -95,7 +95,7 @@ bool CMidiBinding::IsMatch(MatchType mt, BYTE bStatus, BYTE bD1, BYTE bD2)
 		return m_bStatus == bStatus && m_bD1 == bD1 && (!m_bD2 == !bD2);
 	else
 	{
-		ASSERT(0);
+		// ASSERT(0);
 		return false;
 	}
 }

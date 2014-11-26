@@ -35,6 +35,11 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave)
 	{
 		if (FAILED(Persist(pStm, bSave, &m_strRotaryLabel[n])))
 			return E_FAIL;
+		if (!bSave)
+		{
+			LPSTR psz = (char*)m_strRotaryLabel[n].GetBuffer();
+			TRACE( _T( "%s\n" ), psz );
+		}
 	}
 	for (n = 0; n < NUM_SLIDERS; n++)
 	{
@@ -114,6 +119,8 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave)
 	// Comments
 	if (FAILED(Persist(pStm, bSave, &m_strComments)))
 		return E_FAIL;
+
+	TRACE( _T( "Comments: %s\n" ), (LPSTR)m_strComments.GetBuffer() );
 
 	if (dwVersion <= 5)
 		return S_OK;
