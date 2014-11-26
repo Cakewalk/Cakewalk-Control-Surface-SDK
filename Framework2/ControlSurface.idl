@@ -224,6 +224,26 @@ interface ISonarCommands : IUnknown
 [
 	object,
 	local,
+	uuid( E1137604-0CD9-4A19-AEB2-FB71ACEF4C77 ),
+	helpstring("ISonarCommands2 interface"),
+	pointer_default(unique)
+]
+interface ISonarCommands2 : ISonarCommands
+{
+	// Cash in a command index for a unique ID and displayable text
+	HRESULT GetCommandInfoW(
+		[ in ] DWORD dwIndex,
+		[ out ] DWORD *pdwCmdID,
+		[ out ] LPTSTR pszName,
+		[ in, out ] DWORD* pcch
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+[
+	object,
+	local,
 	uuid( E141CA65-0D23-4251-91E1-46D2E13322E1 ),
 	helpstring( "ISonarProject interface" ),
 	pointer_default( unique )
@@ -1427,6 +1447,7 @@ library ControlSurface
 	interface ISonarMidiOut;
 	interface ISonarKeyboard;
 	interface ISonarCommands;
+	interface ISonarCommands2;
 	interface ISonarProject;
 	interface ISonarProject2;
 	interface ISonarProject3;

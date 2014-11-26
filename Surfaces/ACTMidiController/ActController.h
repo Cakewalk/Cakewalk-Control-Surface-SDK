@@ -351,7 +351,7 @@ protected:
 
 	ISonarMidiOut*			m_pMidiOut;
 	ISonarKeyboard*		m_pKeyboard;
-	ISonarCommands*		m_pCommands;
+	ISonarCommands2*		m_pCommands;
 	ISonarProject*			m_pProject;
 	ISonarMixer*			m_pMixer;
 	ISonarTransport*		m_pTransport;

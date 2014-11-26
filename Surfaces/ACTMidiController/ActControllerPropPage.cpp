@@ -252,17 +252,17 @@ HRESULT CACTControllerPropPage::Help( LPCWSTR lpszHelpDir )
 	// Returning E_NOTIMPL here should be enough to cause the help file
 	// specified by GetPageInfo to be used, but it doesn't seem to work
 
-	char szDLL[_MAX_PATH];
+	TCHAR szDLL[_MAX_PATH];
 
-	DWORD dwLen = ::GetModuleFileNameA(theApp.m_hInstance, szDLL, sizeof(szDLL));
+	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, sizeof(szDLL));
 
 	if (dwLen < 3)
 	    return E_FAIL;
 
 	// OK not to use strlcpy here
-	::strcpy(szDLL + dwLen - 3, "chm");
+	::_tcscpy(szDLL + dwLen - 3, _T("chm"));
 
-	::HtmlHelpA(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
+	::HtmlHelp(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
 
 	return S_OK;
 }
@@ -289,11 +289,11 @@ HRESULT CACTControllerPropPage::GetPageInfo( LPPROPPAGEINFO pPageInfo )
 	if (!pPageInfo->pszTitle)
 		return E_OUTOFMEMORY;
 
-	static const char szTitle[] = "ACT MIDI Controller";
-	mbstowcs( pPageInfo->pszTitle, szTitle, strlen( szTitle ) );
+	static const TCHAR szTitle[] = _T("ACT MIDI Controller");
+	_tcsncpy( pPageInfo->pszTitle, szTitle, _countof(szTitle) );
 
 	// Populate the page info structure
-	pPageInfo->cb					= sizeof(PROPPAGEINFO);
+	pPageInfo->cb				= sizeof(PROPPAGEINFO);
 	pPageInfo->size.cx      = 100;
 	pPageInfo->size.cy      = 100;
 	pPageInfo->pszDocString = NULL;

@@ -630,19 +630,16 @@ void CACTController::OnConnect()
 			DWORD dwCmdId;
 			DWORD dwSize;
 
-			if (FAILED(m_pCommands->GetCommandInfo(n, &dwCmdId, NULL, &dwSize)))
+			if (FAILED(m_pCommands->GetCommandInfoW(n, &dwCmdId, NULL, &dwSize)))
 				continue;
 
-			LPSTR  pszChar = new char[dwSize];
 			TCHAR* pszName = new TCHAR[dwSize];
 
-			if (SUCCEEDED(m_pCommands->GetCommandInfo(n, &dwCmdId, pszChar, &dwSize)))
+			if (SUCCEEDED( m_pCommands->GetCommandInfoW( n, &dwCmdId, pszName, &dwSize ) ))
 			{
-				Char2TCHAR(pszName, pszChar, dwSize);
-				AddItem(&m_vButtonActions, pszName, dwCmdId); // internally AddItem in the list is using a CString, so operator = should copy the memory so we don't need to keep it allocated correct?
+					AddItem(&m_vButtonActions, pszName, dwCmdId); // internally AddItem in the list is using a CString, so operator = should copy the memory so we don't need to keep it allocated correct?
 				// in other words, if we do NOT free pszName, then we'll have a memory leak?
 				// this page says operator = reinitializes memory already existing in the object and resizes if necessary.  
-				delete[] pszChar;
 				delete[] pszName;
 			}
 		}
@@ -1171,34 +1168,33 @@ void CACTController::GetStripNameAndParamLabel(CMixParam *pParam, CString *strTe
 	DWORD dwLen = 256;
 
 
-	char szLabel[256] = { NULL };
-
+	TCHAR szUniLabel[256] = { 0 };
+	char  szLabel[ 256 ] = { 0 };
 	HRESULT hr = pParam->GetParamLabel(szLabel, &dwLen);
-	
+
+	// convert char to tchar for destination string.
+	Char2TCHAR( szUniLabel, szLabel, _countof( szUniLabel ) );
+
 	if (SUCCEEDED(hr))
 	{
 		if (pParam->GetMixerStrip() != MIX_STRIP_ANY) // Not ACT
 		{
-			char cType;
+			TCHAR cType;
 
 			switch (pParam->GetMixerStrip())
 			{
-				case MIX_STRIP_TRACK:		cType = 'T'; break;
+				case MIX_STRIP_TRACK:		cType = _T('T'); break;
 				case MIX_STRIP_AUX:
-				case MIX_STRIP_BUS:			cType = 'B'; break;
+				case MIX_STRIP_BUS:			cType = _T('B'); break;
 				case MIX_STRIP_MAIN:
-				case MIX_STRIP_MASTER:		cType = 'M'; break;
-				default:					cType = 'E'; break; // Error
+				case MIX_STRIP_MASTER:		cType = _T('M'); break;
+				default:					cType = _T('E'); break; // Error
 			}
 
 			strText->Format(_T("%c%d "), cType, pParam->GetStripNum() + 1);
 		}
 
-		// convert char to tchar for destination string.
-		Char2TCHAR(strLabel.GetBufferSetLength(256), szLabel, 256);
-		strLabel.ReleaseBuffer();
-
-		*strText += strLabel;
+		*strText += szUniLabel;
 	}
 }
 

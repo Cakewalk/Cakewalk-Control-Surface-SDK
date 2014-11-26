@@ -36,7 +36,7 @@ HRESULT CACTController::Connect( IUnknown* pUnk, HWND hwndApp )
 		return hr;
 	if (FAILED( hr = pUnk->QueryInterface( IID_ISonarKeyboard, (void**)&m_pKeyboard ) ))
 		return hr;
-	if (FAILED( hr = pUnk->QueryInterface( IID_ISonarCommands, (void**)&m_pCommands ) ))
+	if (FAILED( hr = pUnk->QueryInterface( IID_ISonarCommands2, (void**)&m_pCommands ) ))
 		return hr;
 	if (FAILED( hr = pUnk->QueryInterface( IID_ISonarProject, (void**)&m_pProject ) ))
 		return hr;
