@@ -58,9 +58,9 @@ CMackieControlBase::CMackieControlBase() :
 
 	m_bConnected = false;
 	m_dwRefreshCount = 0;
-	m_bExpectedDeviceType = 0x14;
-	m_bDeviceType = 0x14;
-	m_bHaveSerialNumber = true;
+	m_bExpectedDeviceType = 0x00;
+	m_bDeviceType = 0x00;
+	m_bHaveSerialNumber = false;
 	::memset(m_bSerialNumber, 0, LEN_SERIAL_NUMBER);
 	m_dwUnitStripNumOffset = 0;
 	m_bBindMuteSoloArm = false;
@@ -197,8 +197,19 @@ HRESULT CMackieControlBase::MidiInLongMsg( DWORD cbLongMsg, const BYTE* pbLongMs
 						// 0xF7
 					};
 
-	if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
+	if (::memcmp(pbLongMsg, pbWUM, sizeof(pbWUM)) == 0 && 0x01 == pbLongMsg[5])
 	{
+		TRACE("CMackieControlBase::MidiInLongMsg(): Mackie Wake-up: 0x%02X\n", pbLongMsg[4]);
+
+		// Wakeup message - reset things and reacquire the information
+		m_bDeviceType = 0x00;
+		m_bHaveSerialNumber = false;
+
+		m_bRefreshWhenDone = true;
+
+	}
+	else if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
+		{
 		if (0x00 == m_bDeviceType)
 		{
 			m_bDeviceType = pbLongMsg[10];
@@ -208,7 +219,7 @@ HRESULT CMackieControlBase::MidiInLongMsg( DWORD cbLongMsg, const BYTE* pbLongMs
 			m_bRefreshWhenDone = true;
 		}
 	}
-	else if ((::memcmp(pbLongMsg, pbRSNR, sizeof(pbRSNR)) == 0 && 0x1B == pbLongMsg[5]) || (::memcmp(pbLongMsg, pbWUM, sizeof(pbWUM)) == 0 && 0x01 == pbLongMsg[5]))
+	else if (::memcmp(pbLongMsg, pbRSNR, sizeof(pbRSNR)) == 0 && 0x1B == pbLongMsg[5])
 	{
 		if (!m_bHaveSerialNumber)
 		{
@@ -233,6 +244,8 @@ HRESULT CMackieControlBase::MidiInLongMsg( DWORD cbLongMsg, const BYTE* pbLongMs
 	{
 		OnMidiInLong(cbLongMsg, pbLongMsg);
 	}
+
+	DispatchRefreshRequest();
 
 	return S_OK;
 }
@@ -259,7 +272,7 @@ HRESULT CMackieControlBase::RefreshSurface( DWORD fdwRefresh, DWORD dwCookie )
 		// Detected the surface yet?
 		if (!m_bHaveSerialNumber)
 		{
-			if (m_bExpectedDeviceType != 0x14)
+			if (m_bExpectedDeviceType != 0x00)
 				QuerySerialNumber(m_bExpectedDeviceType);
 		}
 		else
@@ -462,7 +475,7 @@ void CMackieControlBase::QuerySerialNumber(BYTE bDeviceType)
 	if ( m_pProject && !SUCCEEDED( m_pProject->GetProjectModified() ) )
 		return;
 
-	BYTE pbSNR[] = { 0xF0, 0x00, 0x00, 0x66, bDeviceType, 0x00, 0xF7 };
+	BYTE pbSNR[] = { 0xF0, 0x00, 0x00, 0x66, bDeviceType, 0x1A, 0x00, 0xF7 };
 
 	SendMidiLong(sizeof(pbSNR), pbSNR);
 }
