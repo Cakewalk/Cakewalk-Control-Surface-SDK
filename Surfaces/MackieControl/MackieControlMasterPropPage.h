@@ -22,6 +22,7 @@ public:
 	CComboBox	m_cMeters;
 	CComboBox	m_cVirtualMainType;
 	CButton	m_cSelectHighlightsTrack;
+	CButton m_cSelectDoubleClick;
 	CButton	m_cFaderSelectsChannel;
 	CButton	m_cDisableRelayClick;
 	CButton	m_cDisableLCD;
@@ -124,6 +125,7 @@ private:
 	afx_msg void OnSelectHighlights();
 	afx_msg void OnSelchangeVirtualMainType();
 	afx_msg void OnSelchangeMeters();
+	afx_msg void OnSelectDoubleClicks();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -56,6 +56,7 @@ CMackieControlBase::CMackieControlBase() :
 	::InterlockedIncrement( &g_lComponents );
 	::InitializeCriticalSection( &m_cs );
 
+	m_lastMidiOnNote = 0x00;
 	m_bConnected = false;
 	m_dwRefreshCount = 0;
 	m_bExpectedDeviceType = 0x00;
@@ -141,11 +142,29 @@ HRESULT CMackieControlBase::MidiInShortMsg( DWORD dwShortMsg )
 	if (!m_bHaveSerialNumber)
 		return S_OK;
 
-	ClearRefreshFlags();
 
 	BYTE bStatus = (BYTE)(dwShortMsg & 0xFF);
 	BYTE bD1 = (BYTE)((dwShortMsg >> 8) & 0xFF);
 	BYTE bD2 = (BYTE)((dwShortMsg >> 16) & 0xFF);
+
+	if (m_cState.GetSelectDoubleClick())
+	{
+
+		if ((bStatus == 0x90) && (bD1 >= 0x18) && (bD1 <= 0x1F) && (bD2 > 0))
+		{
+			if (bD1 != m_lastMidiOnNote)
+			{
+				m_lastMidiOnNote = bD1;
+				return S_OK;
+			}
+		}
+		else if ((bStatus != 0x90) || ((bStatus == 0x90) && ((bD1 < 0x18) || (bD1 > 0x1F))))
+		{
+			m_lastMidiOnNote = 0x00;
+		}
+	}
+
+	ClearRefreshFlags();
 
 	OnMidiInShort(bStatus, bD1, bD2);
 

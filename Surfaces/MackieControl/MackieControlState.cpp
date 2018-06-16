@@ -83,6 +83,7 @@ CMackieControlState::CMackieControlState()
 	m_bJogParamMode = false;
 	m_bSoloSelectsChannel = false;
 	m_bSelectHighlightsTrack = false;
+	m_bSelectDoubleClick = false;
 	m_bFaderTouchSelectsChannel = false;
 
 	m_eJogResolution = JOG_MEASURES;
@@ -453,6 +454,15 @@ void CMackieControlState::SetSoloSelectsChannel(bool bSoloSelectsChannel)
 void CMackieControlState::SetSelectHighlightsTrack(bool bSelectHighlightsTrack)
 {
 	m_bSelectHighlightsTrack = bSelectHighlightsTrack;
+	if (!bSelectHighlightsTrack)
+		m_bSelectDoubleClick = false;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlState::SetSelectDoubleClick(bool bSelectDoubleClick)
+{
+	m_bSelectDoubleClick = bSelectDoubleClick;
 }
 
 /////////////////////////////////////////////////////////////////////////////

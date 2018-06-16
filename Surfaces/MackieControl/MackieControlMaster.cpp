@@ -32,7 +32,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 // Version informatin for save/load
-#define PERSISTENCE_VERSION				5
+#define PERSISTENCE_VERSION				6
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -440,6 +440,17 @@ HRESULT CMackieControlMaster::Save( IStream* pStm, BOOL bClearDirty )
 		return E_FAIL;
 	}
 
+	// Added in PERSISTENCE_VERSION = 6
+
+	// Double click for select
+	bool bSelectDoubleClick = m_cState.GetSelectDoubleClick();
+	if (FAILED(SafeWrite(pStm, &bSelectDoubleClick, sizeof(bSelectDoubleClick))))
+	{
+		TRACE("CMackieControlMaster::Save(): bSelectDoubleClick failed\n");
+		return E_FAIL;
+	}
+
+
 	if (bClearDirty)
 		m_bDirty = FALSE;
 
@@ -644,6 +655,17 @@ HRESULT CMackieControlMaster::Load( IStream* pStm )
 		m_cState.SetDisplayLevelMeters(eLevelMeters);
 	}
 
+	if (dwVer >= 6)
+	{
+		// Double click select
+		bool bSelectDoubleClick;
+		if (FAILED(SafeRead(pStm, &bSelectDoubleClick, sizeof(bSelectDoubleClick))))
+		{
+			TRACE("CMackieControlMaster::Load(): bSelectDoubleClick failed\n");
+			return E_FAIL;
+		}
+		m_cState.SetSelectDoubleClick(bSelectDoubleClick);
+	}
 	m_bDirty = FALSE;
 
 	return S_OK;

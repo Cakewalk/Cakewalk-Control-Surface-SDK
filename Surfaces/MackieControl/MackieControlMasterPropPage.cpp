@@ -68,6 +68,7 @@ void CMackieControlMasterPropPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_METERS, m_cMeters);
 	DDX_Control(pDX, IDC_VIRTUAL_MAIN_TYPE, m_cVirtualMainType);
 	DDX_Control(pDX, IDC_SELECT_HIGHLIGHTS, m_cSelectHighlightsTrack);
+	DDX_Control(pDX, IDC_SELECT_DOUBLECLICK, m_cSelectDoubleClick);
 	DDX_Control(pDX, IDC_FADER_SELECTS, m_cFaderSelectsChannel);
 	DDX_Control(pDX, IDC_DISABLE_RELAY_CLICK, m_cDisableRelayClick);
 	DDX_Control(pDX, IDC_DISABLE_LCD_UPDATES, m_cDisableLCD);
@@ -121,6 +122,7 @@ BEGIN_MESSAGE_MAP(CMackieControlMasterPropPage, CDialog)
 	ON_BN_CLICKED(IDC_DISABLE_RELAY_CLICK, OnDisableRelayClick)
 	ON_BN_CLICKED(IDC_FADER_SELECTS, OnFaderSelects)
 	ON_BN_CLICKED(IDC_SELECT_HIGHLIGHTS, OnSelectHighlights)
+	ON_BN_CLICKED(IDC_SELECT_DOUBLECLICK, OnSelectDoubleClicks)
 	ON_CBN_SELCHANGE(IDC_VIRTUAL_MAIN_TYPE, OnSelchangeVirtualMainType)
 	ON_CBN_SELCHANGE(IDC_METERS, OnSelchangeMeters)
 	//}}AFX_MSG_MAP
@@ -447,6 +449,17 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 		// Select highlights track
 		m_pSurface->SetSelectHighlightsTrack(m_cSelectHighlightsTrack.GetCheck() != 0);
 
+		// Double click select
+		if (m_pSurface->GetSelectHighlightsTrack())
+		{
+			m_cSelectDoubleClick.EnableWindow(1);
+			m_pSurface->SetSelectDoubleClick(m_cSelectDoubleClick.GetCheck() != 0);
+		}
+		else
+		{
+			m_pSurface->SetSelectDoubleClick(false);
+			m_cSelectDoubleClick.EnableWindow(0);
+		}
 		// Meters
 		m_pSurface->SetDisplayLevelMeters((LevelMeters)m_cMeters.GetItemData(m_cMeters.GetCurSel()));
 	}
@@ -538,6 +551,18 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 
 		// Select highlights track
 		m_cSelectHighlightsTrack.SetCheck(m_pSurface->GetSelectHighlightsTrack() ? 1 : 0);
+
+		// Double click select
+		if (m_pSurface->GetSelectHighlightsTrack())
+		{
+			m_cSelectDoubleClick.EnableWindow(1);
+			m_cSelectDoubleClick.SetCheck(m_pSurface->GetSelectDoubleClick() ? 1 : 0);
+		}
+		else
+		{
+			m_cSelectDoubleClick.SetCheck(0);
+			m_cSelectDoubleClick.EnableWindow(0);
+		}
 
 		// Meters
 		SelectItemData(&m_cMeters, m_pSurface->GetDisplayLevelMeters());
@@ -876,6 +901,9 @@ void CMackieControlMasterPropPage::OnFaderSelects()
 
 void CMackieControlMasterPropPage::OnSelectHighlights() 
 {
+	if (m_cSelectHighlightsTrack.GetCheck() == 0)
+		m_cSelectDoubleClick.SetCheck(0);
+
 	UpdateData(TRUE);
 }
 
@@ -926,3 +954,9 @@ void CMackieControlMasterPropPage::OnSelchangeMeters()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+void CMackieControlMasterPropPage::OnSelectDoubleClicks()
+{
+	UpdateData(TRUE);
+}

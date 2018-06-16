@@ -268,6 +268,7 @@ protected:
 	static bool m_bMsgForceRefreshAll;
 	static bool m_bMsgSetAllFadersToDefault;
 	static bool m_bMsgSetAllVPotsToDefault;
+	BYTE m_lastMidiOnNote;
 };
 
 /////////////////////////////////////////////////////////////////////////////

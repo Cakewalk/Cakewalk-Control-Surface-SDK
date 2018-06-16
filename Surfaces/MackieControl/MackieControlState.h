@@ -216,6 +216,7 @@ public:
 	bool GetJogParamMode()				{ return m_bJogParamMode; };
 	bool GetSoloSelectsChannel()		{ return m_bSoloSelectsChannel; };
 	bool GetSelectHighlightsTrack()		{ return m_bSelectHighlightsTrack; };
+	bool GetSelectDoubleClick()			{ return m_bSelectDoubleClick; }
 	bool GetFaderTouchSelectsChannel()	{ return m_bFaderTouchSelectsChannel; };
 	DWORD GetUserFunctionKey(BYTE bN)
 	{
@@ -264,6 +265,7 @@ public:
 	void SetJogParamMode(bool bJogParamMode);
 	void SetSoloSelectsChannel(bool bSoloSelectsChannel);
 	void SetSelectHighlightsTrack(bool bSelectHighlightsTrack);
+	void SetSelectDoubleClick(bool bSelectDoubleClick);
 	void SetFaderTouchSelectsChannel(bool bFaderTouchSelectsChannel);
 	void SetUserFunctionKey(BYTE bN, DWORD dwCmdId);
 	void SetUserFootSwitch(BYTE bN, DWORD dwCmdId);
@@ -332,6 +334,7 @@ protected:
 	bool m_bJogParamMode;
 	bool m_bSoloSelectsChannel;
 	bool m_bSelectHighlightsTrack;
+	bool m_bSelectDoubleClick;
 	bool m_bFaderTouchSelectsChannel;
 	CKeyBinding m_cUserFunctionKeys[NUM_USER_FUNCTION_KEYS];
 	CKeyBinding m_cUserFootSwitch[NUM_USER_FOOT_SWITCHES];

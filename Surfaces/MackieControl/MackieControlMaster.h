@@ -103,6 +103,8 @@ public:
 	void SetFaderTouchSelectsChannel(bool bVal);
 	bool GetSelectHighlightsTrack();
 	void SetSelectHighlightsTrack(bool bVal);
+	bool GetSelectDoubleClick();
+	void SetSelectDoubleClick(bool bVal);
 	bool HaveLevelMeters();
 	LevelMeters GetDisplayLevelMeters();
 	void SetDisplayLevelMeters(LevelMeters eDisplayLevelMeters);

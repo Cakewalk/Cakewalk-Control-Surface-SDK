@@ -299,6 +299,24 @@ void CMackieControlMaster::SetSelectHighlightsTrack(bool bVal)
 
 /////////////////////////////////////////////////////////////////////////////
 
+bool CMackieControlMaster::GetSelectDoubleClick()
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	return m_cState.GetSelectDoubleClick();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetSelectDoubleClick(bool bVal)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	m_cState.SetSelectDoubleClick(bVal);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 bool CMackieControlMaster::HaveLevelMeters()
 {
 	CCriticalSectionAuto csa(m_cState.GetCS());
