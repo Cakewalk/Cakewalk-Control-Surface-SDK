@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -340,6 +341,38 @@ void CMackieControlMaster::SetDisplayLevelMeters(LevelMeters eDisplayLevelMeters
 	CCriticalSectionAuto csa(m_cState.GetCS());
 
 	m_cState.SetDisplayLevelMeters(eDisplayLevelMeters);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::GetDisableHandshake()
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	return m_cState.GetDisableHandshake();
+}
+
+void CMackieControlMaster::SetExcludeFiltersFromPlugins(bool bVal)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	m_cState.SetExcludeFiltersFromPlugins(bVal);
+}
+
+bool CMackieControlMaster::GetExcludeFiltersFromPlugins()
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	return m_cState.GetExcludeFiletersFromPlugins();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetDisableHandshake(bool bVal)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	m_cState.SetDisableHandshake(bVal);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 

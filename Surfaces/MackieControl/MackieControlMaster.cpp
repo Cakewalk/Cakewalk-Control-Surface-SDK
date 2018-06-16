@@ -6,6 +6,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -32,7 +33,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 // Version informatin for save/load
-#define PERSISTENCE_VERSION				6
+#define PERSISTENCE_VERSION				8
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -440,8 +441,23 @@ HRESULT CMackieControlMaster::Save( IStream* pStm, BOOL bClearDirty )
 		return E_FAIL;
 	}
 
-	// Added in PERSISTENCE_VERSION = 6
+	// Disable handshake PERSISTENcE_VERSION = 6
+	bool bDisableHandshake = m_cState.GetDisableHandshake();
+	if (FAILED(SafeWrite(pStm, &bDisableHandshake, sizeof(bDisableHandshake))))
+	{
+		TRACE("CMackieControlMaster::Save(): bDisableHandshake failed\n");
+		return E_FAIL;
+	}
 
+	//  PERSISTENcE_VERSION = 7
+	bool bExcludeFiltersFromPlugins = m_cState.GetExcludeFiletersFromPlugins();
+	if (FAILED(SafeWrite(pStm, &bExcludeFiltersFromPlugins, sizeof(bExcludeFiltersFromPlugins))))
+	{
+		TRACE("CMackieControlMaster::Save(): bExcludeFiltersFromPlugins failed\n");
+		return E_FAIL;
+	}
+
+	//  PERSISTENcE_VERSION = 8
 	// Double click for select
 	bool bSelectDoubleClick = m_cState.GetSelectDoubleClick();
 	if (FAILED(SafeWrite(pStm, &bSelectDoubleClick, sizeof(bSelectDoubleClick))))
@@ -449,7 +465,6 @@ HRESULT CMackieControlMaster::Save( IStream* pStm, BOOL bClearDirty )
 		TRACE("CMackieControlMaster::Save(): bSelectDoubleClick failed\n");
 		return E_FAIL;
 	}
-
 
 	if (bClearDirty)
 		m_bDirty = FALSE;
@@ -657,6 +672,28 @@ HRESULT CMackieControlMaster::Load( IStream* pStm )
 
 	if (dwVer >= 6)
 	{
+		// Disable handshake
+		bool bDisableHandshake;
+		if (FAILED(SafeRead(pStm, &bDisableHandshake, sizeof(bDisableHandshake))))
+		{
+			TRACE("CMackieControlMaster::Load(): bDisableHandshake failed\n");
+			return E_FAIL;
+		}
+		m_cState.SetDisableHandshake(bDisableHandshake);
+	}
+	if (dwVer >= 7)
+	{
+		// Disable handshake
+		bool bExcludeFiletersFromPlugins;
+		if (FAILED(SafeRead(pStm, &bExcludeFiletersFromPlugins, sizeof(bExcludeFiletersFromPlugins))))
+		{
+			TRACE("CMackieControlMaster::Load(): bExcludeFiltersFromPlugins failed\n");
+			return E_FAIL;
+		}
+		m_cState.SetExcludeFiltersFromPlugins(bExcludeFiletersFromPlugins);
+	}
+	if (dwVer >= 8)
+	{
 		// Double click select
 		bool bSelectDoubleClick;
 		if (FAILED(SafeRead(pStm, &bSelectDoubleClick, sizeof(bSelectDoubleClick))))
@@ -718,8 +755,8 @@ HRESULT CMackieControlMaster::SafeRead(IStream *pStm, void *pv, ULONG cb)
 /////////////////////////////////////////////////////////////////////////////
 
 void CALLBACK EXPORT CMackieControlMaster::_TransportTimerCallback(UINT uID, UINT uMsg,
-																	DWORD dwUser, DWORD dw1,
-																	DWORD dw2)
+																	DWORD_PTR dwUser, DWORD_PTR dw1,
+																	DWORD_PTR dw2)
 {
 	CMackieControlMaster *pMC = (CMackieControlMaster *)dwUser;
 
@@ -752,7 +789,7 @@ void CMackieControlMaster::SetTransportCallbackTimer(float fAlpha, UINT uMax, UI
 	m_uiTransportTimerID = timeSetEvent(uElapse,
 										m_wTransportTimerPeriod,
 										(LPTIMECALLBACK)_TransportTimerCallback,
-										(DWORD)this,
+										(DWORD_PTR)this,
 										TIME_ONESHOT | TIME_CALLBACK_FUNCTION);
 
 	if (!m_uiTransportTimerID)
@@ -787,11 +824,11 @@ void CMackieControlMaster::KillTransportCallbackTimer()
 /////////////////////////////////////////////////////////////////////////////
 
 void CALLBACK EXPORT CMackieControlMaster::_KeyRepeatTimerCallback(UINT uID, UINT uMsg,
-																	DWORD dwUser, DWORD dw1,
-																	DWORD dw2)
+																	DWORD_PTR dwUser, DWORD_PTR dw1,
+																	DWORD_PTR dw2)
 {
 	CMackieControlMaster *pMC = (CMackieControlMaster *)dwUser;
-
+	
 	if (pMC)
 	{
 		pMC->KillKeyRepeatCallbackTimer();
@@ -821,7 +858,7 @@ void CMackieControlMaster::SetKeyRepeatCallbackTimer(float fAlpha, UINT uMax, UI
 	m_uiKeyRepeatTimerID = timeSetEvent(uElapse,
 										m_wKeyRepeatTimerPeriod,
 										(LPTIMECALLBACK)_KeyRepeatTimerCallback,
-										(DWORD)this,
+										(DWORD_PTR)this,
 										TIME_ONESHOT | TIME_CALLBACK_FUNCTION);
 
 	if (!m_uiKeyRepeatTimerID)
@@ -863,8 +900,8 @@ void CMackieControlMaster::OnConnect()
 	CMackieControlXT::OnConnect();
 
 	// Wire these up now that we have a valid m_pMixer
-	m_SwMasterFader.Setup(m_pMixer, m_pTransport);
-	m_SwMasterFaderPan.Setup(m_pMixer, m_pTransport);
+	m_SwMasterFader.Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+	m_SwMasterFaderPan.Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 
 	CCriticalSectionAuto csa(m_cState.GetCS());
 	ReconfigureMaster(true);
@@ -940,6 +977,34 @@ void CMackieControlMaster::OnReceivedSerialNumber()
 	CMackieControlXT::OnReceivedSerialNumber();
 
 	SetRelayClick(!m_cState.GetDisableRelayClick());
+}
+
+void CMackieControlMaster::QuerySerialNumber(BYTE bDeviceType)
+{
+	TRACE("CMackieControlMaster::QuerySerialNumber(): 0x%02X\n", bDeviceType);
+
+	if (!GetDisableHandshake()) {
+		CMackieControlBase::QuerySerialNumber(bDeviceType);
+		return;
+	}
+	// don't start till project is loaded.  The ISonarProject
+	// APIs return E_FAIL if no project is loaded.
+	if (m_pProject && !SUCCEEDED(m_pProject->GetProjectModified()))
+		return;
+
+	if (!m_bHaveSerialNumber)
+	{
+		m_bDeviceType = m_bExpectedDeviceType;
+
+		m_bHaveSerialNumber = true;
+
+		m_bForceRefreshWhenDone = true;
+
+		CCriticalSectionAuto csa(m_cState.GetCS());
+		m_cState.RestoreUnitOffset(this);
+
+		OnReceivedSerialNumber();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

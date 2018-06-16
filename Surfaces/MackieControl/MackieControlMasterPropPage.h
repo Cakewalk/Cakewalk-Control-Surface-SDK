@@ -40,6 +40,8 @@ public:
 	CComboBox	m_cFunction3;
 	CComboBox	m_cFunction2;
 	CComboBox	m_cFunction1;
+	CButton m_cDisableHandshake;
+	CButton m_cExcludeFiltersFromPlugins;
 	//}}AFX_DATA
 
 	// *** IPropertyPage methods ***
@@ -126,8 +128,11 @@ private:
 	afx_msg void OnSelchangeVirtualMainType();
 	afx_msg void OnSelchangeMeters();
 	afx_msg void OnSelectDoubleClicks();
+	afx_msg void OnDisableHandshake();
+	afx_msg void OnExcludeFiltersFromPlugins();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
 };
 
 /////////////////////////////////////////////////////////////////////////////

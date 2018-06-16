@@ -6,6 +6,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -398,8 +399,8 @@ void CMackieControlC4::OnConnect()
 	{
 		for (int n = 0; n < NUM_COLS; n++)
 		{
-			m_SwStrip[m][n].Setup(m_pMixer, m_pTransport, m_dwUniqueId);
-			m_SwVPot[m][n].Setup(m_pMixer, m_pTransport);
+			m_SwStrip[m][n].Setup(m_pMixer, m_pTransport, &m_FilterLocator, m_dwUniqueId);
+			m_SwVPot[m][n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 		}
 	}
 }

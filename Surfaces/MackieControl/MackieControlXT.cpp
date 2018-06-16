@@ -6,6 +6,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -207,14 +208,14 @@ void CMackieControlXT::OnConnect()
 	// Wire these up now that we have a valid m_pMixer
 	for (int n = 0; n < NUM_MAIN_CHANNELS; n++)
 	{
-		m_SwStrip[n].Setup(m_pMixer, m_pTransport, m_dwUniqueId);
-		m_SwVPot[n].Setup(m_pMixer, m_pTransport);
-		m_SwRec[n].Setup(m_pMixer, m_pTransport);
-		m_SwSolo[n].Setup(m_pMixer, m_pTransport);
-		m_SwMute[n].Setup(m_pMixer, m_pTransport);
-		m_SwArchive[n].Setup(m_pMixer, m_pTransport);
-		m_SwInputEcho[n].Setup(m_pMixer, m_pTransport);
-		m_SwFader[n].Setup(m_pMixer, m_pTransport);
+		m_SwStrip[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator, m_dwUniqueId);
+		m_SwVPot[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwRec[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwSolo[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwMute[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwArchive[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwInputEcho[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwFader[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 	}
 
 	CCriticalSectionAuto csa(m_cState.GetCS());

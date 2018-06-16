@@ -6,6 +6,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 

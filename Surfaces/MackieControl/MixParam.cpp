@@ -3,6 +3,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "StringCruncher.h"
 
@@ -13,6 +14,8 @@ CMixParam::CMixParam()
 	m_pMixer = NULL;
 	m_pTransport = NULL;
 	m_dwUniqueId = ILLEGAL_UNIQUE_ID;
+
+	m_pFilterLocator = NULL;
 
 	m_bHasBinding = false;
 	m_bTouched = false;
@@ -41,11 +44,12 @@ CMixParam::~CMixParam()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMixParam::Setup(ISonarMixer *pMixer, ISonarTransport *pTransport, DWORD dwUniqueId)
+void CMixParam::Setup(ISonarMixer *pMixer, ISonarTransport *pTransport, FilterLocator *pFilterLocator, DWORD dwUniqueId)
 {
 	m_pMixer = pMixer;
 	m_pTransport = pTransport;
 	m_dwUniqueId = dwUniqueId;
+	m_pFilterLocator = pFilterLocator;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -277,6 +281,25 @@ HRESULT CMixParam::SetNormalizedVal(float fVal, SONAR_MIXER_TOUCH eMixerTouch)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+DWORD	CMixParam::GetParamNum()
+{
+	if (!m_pFilterLocator)
+		return m_dwParamNum;
+
+	if (m_eMixerParam == MIX_PARAM_FILTER)
+		return m_pFilterLocator->GetFilterNum(m_eMixerStrip, m_dwStripNum, (SONAR_MIXER_FILTER)m_dwParamNum);
+
+	if (m_eMixerParam == MIX_PARAM_FILTER_PARAM)
+	{
+		SONAR_MIXER_FILTER eFilter = (SONAR_MIXER_FILTER)LOWORD(m_dwParamNum);
+		DWORD dwFilterNum = m_pFilterLocator->GetFilterNum(m_eMixerStrip, m_dwStripNum, eFilter);
+		return MAKELONG(dwFilterNum, HIWORD(m_dwParamNum));
+	}
+
+	return m_dwParamNum;
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 HRESULT CMixParam::GetStripName(LPSTR pszText, DWORD *pdwLen)
 {
@@ -316,8 +339,15 @@ HRESULT CMixParam::GetParamLabel(LPSTR pszText, DWORD *pdwLen)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	// AZ: A workaround for Sonar crashing when accessing ProChannel compressor's "Type" label
+	if ((m_eMixerParam == MIX_PARAM_FILTER_PARAM) && (m_dwParamNum == MAKELONG(MIX_FILTER_COMP, 0)))
+	{
+		::strlcpy(pszText, "Type", *pdwLen);
+		return S_OK;
+	}
+
 	return m_pMixer->GetMixParamLabel(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									pszText, pdwLen);
 }
 
@@ -329,7 +359,7 @@ HRESULT CMixParam::GetVal(float *fVal)
 		return E_FAIL;
 
 	return m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									fVal);
 }
 
@@ -344,7 +374,7 @@ HRESULT CMixParam::SetVal(float fVal, SONAR_MIXER_TOUCH eMixerTouch)
 		return E_FAIL;
 
 	return m_pMixer->SetMixParam(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									fVal, eMixerTouch);
 }
 
@@ -372,7 +402,7 @@ HRESULT CMixParam::GetValueText(float fVal, LPSTR pszText, DWORD *pdwLen)
 		return E_FAIL;
 
 	return m_pMixer->GetMixParamValueText(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									fVal, pszText, pdwLen);
 }
 
@@ -388,7 +418,7 @@ HRESULT CMixParam::Touch(bool bTouchState)
 		return E_FAIL;
 
 	return m_pMixer->TouchMixParam(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									bTouchState ? TRUE : FALSE);
 }
 
@@ -402,7 +432,7 @@ HRESULT CMixParam::GetArm(bool *pbArm)
 	BOOL bArm;
 
 	HRESULT hr = m_pMixer->GetArmMixParam(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									&bArm);
 
 	*pbArm = (FALSE != bArm);
@@ -421,7 +451,7 @@ HRESULT CMixParam::SetArm(bool bArm)
 		return E_FAIL;
 
 	return m_pMixer->SetArmMixParam(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum,
+									m_eMixerParam, GetParamNum(),
 									bArm ? TRUE : FALSE);
 }
 
@@ -466,7 +496,7 @@ HRESULT CMixParam::Snapshot()
 		return E_FAIL;
 
 	return m_pMixer->SnapshotMixParam(m_eMixerStrip, m_dwStripNum,
-									m_eMixerParam, m_dwParamNum);
+									m_eMixerParam, GetParamNum());
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -593,7 +623,7 @@ bool CMixParam::IsMIDITrack()
 
 	if (FAILED(hr))
 		return false;
-	
+
 	return (fVal >= 0.5f);
 }
 

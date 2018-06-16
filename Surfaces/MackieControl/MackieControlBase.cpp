@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -49,8 +50,9 @@ CMackieControlBase::CMackieControlBase() :
 	m_pSonarIdentity( NULL ),
 	m_pSonarIdentity2( NULL ),
 	m_dwSupportedRefreshFlags( 0 ),
-	m_hwndApp( NULL )
-{ 
+	m_hwndApp( NULL ),
+	m_FilterLocator()
+{
 //	TRACE("CMackieControlBase::CMackieControlBase()\n");
 
 	::InterlockedIncrement( &g_lComponents );
@@ -116,7 +118,7 @@ void CMackieControlBase::releaseSonarInterfaces()
 
 /////////////////////////////////////////////////////////////////////////////
 
-CMackieControlBase::~CMackieControlBase() 
+CMackieControlBase::~CMackieControlBase()
 {
 //	TRACE("CMackieControlBase::~CMackieControlBase()\n");
 
@@ -142,6 +144,7 @@ HRESULT CMackieControlBase::MidiInShortMsg( DWORD dwShortMsg )
 	if (!m_bHaveSerialNumber)
 		return S_OK;
 
+	ClearRefreshFlags();
 
 	BYTE bStatus = (BYTE)(dwShortMsg & 0xFF);
 	BYTE bD1 = (BYTE)((dwShortMsg >> 8) & 0xFF);
@@ -228,7 +231,7 @@ HRESULT CMackieControlBase::MidiInLongMsg( DWORD cbLongMsg, const BYTE* pbLongMs
 
 	}
 	else if (::memcmp(pbLongMsg, pbRUDI, sizeof(pbRUDI)) == 0)
-		{
+	{
 		if (0x00 == m_bDeviceType)
 		{
 			m_bDeviceType = pbLongMsg[10];
@@ -246,8 +249,8 @@ HRESULT CMackieControlBase::MidiInLongMsg( DWORD cbLongMsg, const BYTE* pbLongMs
 			::memcpy(m_bSerialNumber, pbLongMsg + 6, LEN_SERIAL_NUMBER);
 
 			TRACE("CMackieControlBase::MidiInLongMsg(): Type: 0x%02X, Serial Number: %02X-%02X-%02X-%02X-%02X-%02X-%02X\n",
-				m_bDeviceType, m_bSerialNumber[0], m_bSerialNumber[1], m_bSerialNumber[2],
-				m_bSerialNumber[3], m_bSerialNumber[4], m_bSerialNumber[5], m_bSerialNumber[6]);
+					m_bDeviceType, m_bSerialNumber[0], m_bSerialNumber[1], m_bSerialNumber[2],
+					m_bSerialNumber[3], m_bSerialNumber[4], m_bSerialNumber[5], m_bSerialNumber[6]);
 
 			m_bHaveSerialNumber = true;
 
@@ -324,7 +327,7 @@ HRESULT CMackieControlBase::GetNoEchoMask( WORD* pwMask, BOOL* pbNoEchoSysx )
 
 	// since the Mackie is a dedicated Mixer Control Surface, we'll just grab
 	// the whole port...  All channels and Sysex
-	
+
 	*pwMask = 0xFFFF;
 	*pbNoEchoSysx = TRUE;
 

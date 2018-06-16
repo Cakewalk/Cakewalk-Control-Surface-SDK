@@ -131,9 +131,9 @@ protected:
 	virtual void SetAllVPotsToDefault() =0;
 
 	void DoCommand(DWORD dwCmdId)				{ m_pCommands->DoCommand(dwCmdId); };
-	
+
 	bool GetHaveSerialNumber()					{ return m_bHaveSerialNumber; };
-	bool GetSerialNumber(BYTE *pSerialNumber);	
+	bool GetSerialNumber(BYTE *pSerialNumber);
 	bool IsSerialNumber(BYTE *pSerialNumber);
 
 	void ClearRefreshFlags();
@@ -145,7 +145,7 @@ protected:
 
 	void SendUniversalDeviceQuery();
 	void SendWakeUp(BYTE bDeviceType);
-	void QuerySerialNumber(BYTE bDeviceType);
+	virtual void QuerySerialNumber(BYTE bDeviceType);
 
 	void SetLED(BYTE bID, BYTE bVal, bool bForceSend);
 	void UpdateToolbarDisplay(bool bForce);
@@ -229,6 +229,8 @@ protected:
 	ISonarIdentity*		m_pSonarIdentity;
 	ISonarIdentity2*	m_pSonarIdentity2;
 	ISonarParamMapping*	m_pParamMapping;
+
+	FilterLocator		m_FilterLocator;
 
 	DWORD				m_dwSupportedRefreshFlags;
 	HWND				m_hwndApp;

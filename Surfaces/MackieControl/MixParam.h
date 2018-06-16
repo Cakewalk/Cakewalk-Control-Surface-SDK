@@ -34,7 +34,7 @@ public:
 	CMixParam();
 	virtual ~CMixParam();
 
-	void Setup(ISonarMixer *pMixer, ISonarTransport *pTransport, DWORD dwUniqueId =ILLEGAL_UNIQUE_ID);
+	void Setup(ISonarMixer *pMixer, ISonarTransport *pTransport, FilterLocator *pFilterLocator, DWORD dwUniqueId =ILLEGAL_UNIQUE_ID);
 
 	void SetParams(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 					SONAR_MIXER_PARAM eMixerParam, DWORD dwParamNum);
@@ -54,7 +54,7 @@ public:
 	SONAR_MIXER_STRIP GetMixerStrip()	{ return m_eMixerStrip; };
 	DWORD GetStripNum()					{ return m_dwStripNum; };
 	SONAR_MIXER_PARAM GetMixerParam()	{ return m_eMixerParam; };
-	DWORD GetParamNum()					{ return m_dwParamNum; };
+	DWORD GetParamNum();
 	DataType GetDataType()				{ return m_eDataType; };
 	float GetDefaultValue()				{ return m_fDefaultValue; };
 	float GetStepSize()					{ return m_fStepSize; };
@@ -106,6 +106,8 @@ protected:
 	ISonarMixer *m_pMixer;
 	ISonarTransport *m_pTransport;
 	DWORD m_dwUniqueId;
+
+	FilterLocator *m_pFilterLocator;
 
 	bool m_bHasBinding;
 	bool m_bTouched;

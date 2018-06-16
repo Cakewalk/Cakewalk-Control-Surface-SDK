@@ -3,6 +3,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -62,7 +63,7 @@ void CMackieControlC4::UpdateLCDDisplays(bool bForceSend)
 			{
 				char szBuf[32];
 
-				snprintf(szBuf, sizeof(szBuf), "%- 6s", GetFunctionKeyName(n));
+				snprintf(szBuf, sizeof(szBuf), "%- 6s", (LPCSTR)CStringA(GetFunctionKeyName(n)));
 				szBuf[6] = ' ';
 				szBuf[7] = 0;
 

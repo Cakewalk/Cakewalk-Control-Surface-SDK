@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -86,6 +87,8 @@ void CMackieControlMasterPropPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FUNCTION3, m_cFunction3);
 	DDX_Control(pDX, IDC_FUNCTION2, m_cFunction2);
 	DDX_Control(pDX, IDC_FUNCTION1, m_cFunction1);
+	DDX_Control(pDX, IDC_DISABLE_HANDSHAKE, m_cDisableHandshake);
+	DDX_Control(pDX, IDC_EXCLUDE_FILTERS_FROM_PLUGINS, m_cExcludeFiltersFromPlugins);
 	//}}AFX_DATA_MAP
 
 	if (pDX->m_bSaveAndValidate == TRUE)
@@ -125,6 +128,8 @@ BEGIN_MESSAGE_MAP(CMackieControlMasterPropPage, CDialog)
 	ON_BN_CLICKED(IDC_SELECT_DOUBLECLICK, OnSelectDoubleClicks)
 	ON_CBN_SELCHANGE(IDC_VIRTUAL_MAIN_TYPE, OnSelchangeVirtualMainType)
 	ON_CBN_SELCHANGE(IDC_METERS, OnSelchangeMeters)
+	ON_BN_CLICKED(IDC_DISABLE_HANDSHAKE, OnDisableHandshake)
+	ON_BN_CLICKED(IDC_EXCLUDE_FILTERS_FROM_PLUGINS, OnExcludeFiltersFromPlugins)
 	//}}AFX_MSG_MAP
 
 END_MESSAGE_MAP()
@@ -462,6 +467,12 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 		}
 		// Meters
 		m_pSurface->SetDisplayLevelMeters((LevelMeters)m_cMeters.GetItemData(m_cMeters.GetCurSel()));
+
+		// Disable handshake
+		m_pSurface->SetDisableHandshake(m_cDisableHandshake.GetCheck() != 0);
+
+		// Exclude filsters from plugin list
+		m_pSurface->SetExcludeFiltersFromPlugins(m_cExcludeFiltersFromPlugins.GetCheck() != 0);
 	}
 	else
 	{
@@ -566,6 +577,11 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 
 		// Meters
 		SelectItemData(&m_cMeters, m_pSurface->GetDisplayLevelMeters());
+
+		// Disable handshake
+		m_cDisableHandshake.SetCheck(m_pSurface->GetDisableHandshake() ? 1 : 0);
+
+		m_cExcludeFiltersFromPlugins.SetCheck(m_pSurface->GetExcludeFiltersFromPlugins() ? 1 : 0);
 	}
 }
 
@@ -957,6 +973,18 @@ void CMackieControlMasterPropPage::OnSelchangeMeters()
 
 
 void CMackieControlMasterPropPage::OnSelectDoubleClicks()
+{
+	UpdateData(TRUE);
+}
+
+void CMackieControlMasterPropPage::OnDisableHandshake()
+{
+	UpdateData(TRUE);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMasterPropPage::OnExcludeFiltersFromPlugins()
 {
 	UpdateData(TRUE);
 }

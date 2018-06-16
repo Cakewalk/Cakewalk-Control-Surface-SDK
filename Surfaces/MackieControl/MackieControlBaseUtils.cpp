@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -9,6 +10,8 @@
 #include "MackieControlBase.h"
 
 #include <math.h>		// For floor()
+
+#include "strlcpy.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -100,9 +103,16 @@ bool CMackieControlBase::GetFilterExists(SONAR_MIXER_STRIP eMixerStrip, DWORD dw
 
 	float fVal;
 
+/* In case focused strip is MIDI track, that call will return 0
+ *	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
+ *					   MIX_PARAM_FILTER_COUNT,
+ *					   mFilterLocator.GetFilterNum(eMixerStrip, dwStripNum, (SONAR_MIXER_FILTER)dwFilterNum),
+ *					   &fVal);
+ */
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
-										MIX_PARAM_FILTER_COUNT, dwFilterNum,
-										&fVal);
+					    MIX_PARAM_FILTER_PARAM_COUNT,
+					    m_FilterLocator.GetFilterNum(eMixerStrip, dwStripNum, (SONAR_MIXER_FILTER)dwFilterNum),
+					    &fVal);
 
 	if (FAILED(hr))
 		return false;
@@ -117,12 +127,28 @@ bool CMackieControlBase::GetFilterName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwSt
 {
 	pszText[0] = 0;
 
-	HRESULT hr = m_pMixer->GetMixParamLabel(eMixerStrip, dwStripNum,
-										MIX_PARAM_FILTER, dwFilterNum,
-										pszText, pwdLen);
-	if (FAILED(hr))
-		return false;
+	// Force ProChannel EQ name to avoid clash with old EQ
+	if ((dwFilterNum == MIX_FILTER_EQ) && m_FilterLocator.IsFlexiblePC())
+	{
+		*pwdLen = static_cast<DWORD>(strlcpy(pszText, "ProChannel EQ", *pwdLen));
+		return true;
+	}
 
+	HRESULT hr = m_pMixer->GetMixParamLabel(eMixerStrip, dwStripNum,
+						MIX_PARAM_FILTER,
+						m_FilterLocator.GetFilterNum(eMixerStrip, dwStripNum, (SONAR_MIXER_FILTER)dwFilterNum),
+						pszText, pwdLen);
+	if (FAILED(hr) || !pszText[0])
+	{
+		if (!m_FilterLocator.IsFlexiblePC() || (dwFilterNum != MIX_FILTER_COMP))
+			return false;
+		// Can happened if focused strip is MIDI track
+		// There can be one from 2 types, on any strip type
+		if (GetFilterParamCount(eMixerStrip, dwStripNum, dwFilterNum) == 11)
+			*pwdLen = static_cast<DWORD>(strlcpy(pszText, "Bus Comp", *pwdLen));
+		else
+			*pwdLen = static_cast<DWORD>(strlcpy(pszText, "Track Comp", *pwdLen));
+	}
 	return true;
 }
 
@@ -134,8 +160,9 @@ DWORD CMackieControlBase::GetFilterParamCount(SONAR_MIXER_STRIP eMixerStrip, DWO
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
-										MIX_PARAM_FILTER_PARAM_COUNT, dwFilterNum,
-										&fVal);
+					    MIX_PARAM_FILTER_PARAM_COUNT,
+					    m_FilterLocator.GetFilterNum(eMixerStrip, dwStripNum, (SONAR_MIXER_FILTER)dwFilterNum),
+					    &fVal);
 
 	if (FAILED(hr))
 		return 0;
@@ -189,7 +216,7 @@ DWORD CMackieControlBase::GetNumOutputs(SONAR_MIXER_STRIP eMixerStrip, DWORD dwS
 DWORD CMackieControlBase::GetNumSends(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
 //	return GetStripCount(m_cState.BusType());
-	
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -559,7 +586,7 @@ void CMackieControlBase::SetRelayClick(bool bOn)
 		return;
 
 	BYTE pbRelayClick[] = { 0xF0, 0x00, 0x00, 0x66, m_bDeviceType, 0x0A,
-							bOn ? 0x01 : 0x00, 0xF7 };
+							static_cast<BYTE>(bOn ? 0x01 : 0x00), 0xF7 };
 
 	SendMidiLong(sizeof(pbRelayClick), pbRelayClick);
 }

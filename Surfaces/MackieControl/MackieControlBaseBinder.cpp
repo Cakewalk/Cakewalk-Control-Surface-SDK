@@ -3,6 +3,7 @@
 #include "strlcpy.h"
 #include "strlcat.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -787,7 +788,7 @@ bool CMackieControlBase::GetPluginProperties(SONAR_MIXER_STRIP eMixerStrip, DWOR
 											  char *pszText, DWORD *pdwLen)
 {
 	// Prepend the Track/Bus Eq (filter) to the list, if it exists
-	if (GetFilterExists(eMixerStrip, dwStripNum, 0) && (dwFilterMask & PT_EQ))
+	if (GetFilterExists(eMixerStrip, dwStripNum, 0) && (dwFilterMask & PT_EQ) && !m_cState.GetExcludeFiletersFromPlugins())
 	{
 		// Want to get the details for the filter?
 		if (*dwPluginNum == 0)
@@ -811,6 +812,41 @@ bool CMackieControlBase::GetPluginProperties(SONAR_MIXER_STRIP eMixerStrip, DWOR
 
 			// Filter "plugins" have the top bit set
 			*dwPluginNum |= FILTER_FLAG;
+
+			return true;
+		}
+
+		// The filter does exist, but we want to look at another plugin.
+		// Decrement the plugin number we want to find to compensate
+		// for the filter that's been prepended to the list
+		(*dwPluginNum)--;
+	}
+
+	// Prepend the Track/Bus Compressor (filter) to the list, if it exists
+	if (GetFilterExists(eMixerStrip, dwStripNum, 1) && (dwFilterMask & PT_DYNAMICS) && !m_cState.GetExcludeFiletersFromPlugins())
+	{
+		// Want to get the details for the filter?
+		if (*dwPluginNum == 0)
+		{
+			char szFilterName[64];
+			DWORD dwLen = sizeof(szFilterName);
+
+			GetFilterName(eMixerStrip, dwStripNum, 1, szFilterName, &dwLen);
+
+			// Lookup the plugin
+			mapPluginProperties *mapPluginProps = m_cState.GetMapPluginProperties();
+			mapPluginProperties::iterator i = mapPluginProps->find(szFilterName);
+
+			// Found it?
+			if (i != mapPluginProps->end() && pProps)
+				*pProps = i->second;
+
+			// Return the name
+			if (pszText && pdwLen)
+				::strlcpy(pszText, szFilterName, *pdwLen);
+
+			// Filter "plugins" have the top bit set
+			*dwPluginNum = MIX_FILTER_COMP | FILTER_FLAG;
 
 			return true;
 		}

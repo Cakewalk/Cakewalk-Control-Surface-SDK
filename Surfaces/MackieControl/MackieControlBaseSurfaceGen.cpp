@@ -7,6 +7,7 @@
 
 #include "stdafx.h"
 
+#include "FilterLocator.h"
 #include "MixParam.h"
 #include "KeyBinding.h"
 
@@ -59,14 +60,17 @@ HRESULT CMackieControlBase::Connect( IUnknown* pUnk, HWND hwndApp )
 
 	if ( FAILED( pUnk->QueryInterface( IID_ISonarMixer2, (void**)&m_pMixer2) ) )
 		m_pMixer2 = NULL;
-	
+
 	if ( FAILED( pUnk->QueryInterface( IID_ISonarParamMapping, (void**)&m_pParamMapping ) ) )
 		m_pParamMapping = NULL;
-	
+
 	if ( FAILED( pUnk->QueryInterface( IID_ISonarIdentity2, (void**)&m_pSonarIdentity2 ) ) )
 		m_pSonarIdentity2 = NULL;
 	else if ( FAILED ( hr = m_pSonarIdentity2->GetSupportedRefreshFlags( &m_dwSupportedRefreshFlags ) ) )
 		return hr;
+
+	// Initialize filter locator
+	m_FilterLocator.OnConnect(m_pSonarIdentity, m_pMixer);
 
 	// Call the child class OnConnect()...
 	OnConnect();
@@ -115,7 +119,7 @@ HRESULT CMackieControlBase::IsDirty( void )
 // IUnknown
 
 HRESULT CMackieControlBase::QueryInterface( REFIID riid, void** ppv )
-{    
+{
 	if (IID_IUnknown == riid)
 		*ppv = static_cast<IControlSurface*>(this);
 	else if (IID_IControlSurface == riid)
@@ -147,7 +151,7 @@ ULONG CMackieControlBase::AddRef()
 
 /////////////////////////////////////////////////////////////////////////////
 
-ULONG CMackieControlBase::Release() 
+ULONG CMackieControlBase::Release()
 {
 	ULONG const ulRef = ::InterlockedDecrement( &m_cRef );
 	if (0 == ulRef)

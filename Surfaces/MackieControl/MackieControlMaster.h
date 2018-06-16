@@ -108,7 +108,11 @@ public:
 	bool HaveLevelMeters();
 	LevelMeters GetDisplayLevelMeters();
 	void SetDisplayLevelMeters(LevelMeters eDisplayLevelMeters);
-	
+	void SetDisableHandshake(bool bVal);
+	bool GetDisableHandshake();
+	void SetExcludeFiltersFromPlugins(bool bVal);
+	bool GetExcludeFiltersFromPlugins();
+
 protected:
 	enum MASTER_IDs
 	{
@@ -159,11 +163,11 @@ protected:
 
 	HRESULT SafeWrite(IStream *pStm, void const *pv, ULONG cb);
 	HRESULT SafeRead(IStream *pStm, void *pv, ULONG cb);
-	static void CALLBACK EXPORT _TransportTimerCallback(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+	static void CALLBACK EXPORT _TransportTimerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 	void SetTransportCallbackTimer(float fAlpha, UINT uMax, UINT uMin);
 	void ClearTransportCallbackTimer();
 	void KillTransportCallbackTimer();
-	static void CALLBACK EXPORT _KeyRepeatTimerCallback(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
+	static void CALLBACK EXPORT _KeyRepeatTimerCallback(UINT uID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 	void SetKeyRepeatCallbackTimer(float fAlpha, UINT uMax, UINT uMin);
 	void ClearKeyRepeatCallbackTimer();
 	void KillKeyRepeatCallbackTimer();
@@ -172,6 +176,7 @@ protected:
 	virtual bool OnMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2);
 	virtual bool OnMidiInLong(DWORD cbLongMsg, const BYTE* pbLongMsg);
 	virtual void OnReceivedSerialNumber();
+	virtual void QuerySerialNumber(BYTE bDeviceType);
 	void ReconfigureMaster(bool bForce);
 	void ShiftStripNumOffset(int iAmount);
 	void ShiftPluginNumOffset(int iAmount);
