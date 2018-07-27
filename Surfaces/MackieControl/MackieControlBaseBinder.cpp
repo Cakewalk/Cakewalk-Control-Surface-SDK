@@ -649,6 +649,8 @@ void CMackieControlBase::ConfigurePlugins(SONAR_MIXER_STRIP eMixerStrip, DWORD d
 		return;
 	}
 
+	pParam->SetCurrentPluginIsTrackCompressor(m_currentPluginIsTrackCompressor);
+
 	mapParameterProperties *pParamProps;
 	bool bAllowFineResolution = true;
 
@@ -1076,6 +1078,8 @@ bool CMackieControlBase::GetCurrentPluginName(Assignment eAssignment, SONAR_MIXE
 
 	DWORD dwFilterMask;
 
+	bool result;
+
 	switch (eAssignment)
 	{
 		case MCS_ASSIGNMENT_PARAMETER:
@@ -1100,8 +1104,12 @@ bool CMackieControlBase::GetCurrentPluginName(Assignment eAssignment, SONAR_MIXE
 			return false;
 	}
 
-	return GetPluginProperties(eMixerStrip, dwStripNum, &dwPluginNum,
+	result = GetPluginProperties(eMixerStrip, dwStripNum, &dwPluginNum,
 								dwFilterMask, NULL, pszText, pdwLen);
+
+	m_currentPluginIsTrackCompressor = ((pszText != NULL) && (0 == _strnicmp(pszText, "Track Compressor", 16)));
+	
+	return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////

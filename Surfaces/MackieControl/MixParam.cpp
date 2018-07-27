@@ -36,6 +36,7 @@ CMixParam::CMixParam()
 	m_szAlternateLabel[0] = 0;
 	m_bDisableWhilePlaying = false;
 	m_bAllowFineResolution = true;
+	m_currentPluginIsTrackCompressor = false;
 }
 
 CMixParam::~CMixParam()
@@ -142,6 +143,7 @@ void CMixParam::ClearBinding()
 	m_bHasBinding = false;
 	m_szAlternateLabel[0] = 0;
 	m_bWasMIDI = false;
+	m_currentPluginIsTrackCompressor = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -340,7 +342,10 @@ HRESULT CMixParam::GetParamLabel(LPSTR pszText, DWORD *pdwLen)
 		return E_FAIL;
 
 	// AZ: A workaround for Sonar crashing when accessing ProChannel compressor's "Type" label
-	if ((m_eMixerParam == MIX_PARAM_FILTER_PARAM) && (m_dwParamNum == MAKELONG(MIX_FILTER_COMP, 0)))
+	// if ((m_eMixerParam == MIX_PARAM_FILTER_PARAM) && (m_dwParamNum == MAKELONG(MIX_FILTER_COMP, 0)))
+
+	// MMcL: Now checks m_currentPluginIsTrackCompressor in case filter is set to all plugins
+	if ((m_currentPluginIsTrackCompressor) && (m_dwParamNum == MAKELONG(MIX_FILTER_COMP, 0)))
 	{
 		::strlcpy(pszText, "Type", *pdwLen);
 		return S_OK;
@@ -783,6 +788,15 @@ bool CMixParam::CheckBinding()
 
 	// Mismatch -> problem
 	return false;
+}
+
+// Part of workaround for retriving text of "Type" parameter causing crash
+// This method is called to indicate the current plugin is the "Track Compressor"
+// Used in GetParamLabel 
+//
+void CMixParam::SetCurrentPluginIsTrackCompressor(bool bIsTrackCompressor)
+{
+	m_currentPluginIsTrackCompressor = bIsTrackCompressor; 
 }
 
 /////////////////////////////////////////////////////////////////////////////

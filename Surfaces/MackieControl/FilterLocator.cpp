@@ -36,7 +36,12 @@ void FilterLocator::OnConnect(ISonarIdentity *pSonarIdentity, ISonarMixer *pSona
 			ULONG	nBuild = 0;
 
 			m_pSonarIdentity->GetHostVersion( &nMajor, &nMinor, &nRevision, &nBuild );
-			if (0 == _strnicmp( szHostName, "SONAR X1 Producer", 17 ))      // Producer or Producer Expanded
+			if (0 == _strnicmp(szHostName, "Cakewalk", 8))      // Cakewalk by BandLab
+			{
+				if (nMajor >= 24)
+					m_bFlexiblePC = true;
+			}
+			else if (0 == _strnicmp( szHostName, "SONAR X1 Producer", 17 ))      // Producer or Producer Expanded
 			{
 				if (nMajor == 18 && nRevision >= 4)
 					m_bFlexiblePC = true;

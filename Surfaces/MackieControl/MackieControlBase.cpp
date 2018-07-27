@@ -58,6 +58,7 @@ CMackieControlBase::CMackieControlBase() :
 	::InterlockedIncrement( &g_lComponents );
 	::InitializeCriticalSection( &m_cs );
 
+	m_currentPluginIsTrackCompressor = false;
 	m_lastMidiOnNote = 0x00;
 	m_bConnected = false;
 	m_dwRefreshCount = 0;

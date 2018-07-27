@@ -102,6 +102,7 @@ public:
 	HRESULT ReadMeter(float *fVal);
 	bool CheckBinding();
 
+	void SetCurrentPluginIsTrackCompressor(bool bIsTrackCompressor);
 protected:
 	ISonarMixer *m_pMixer;
 	ISonarTransport *m_pTransport;
@@ -128,6 +129,7 @@ protected:
 	char m_szAlternateLabel[64];
 	bool m_bDisableWhilePlaying;
 	bool m_bAllowFineResolution;
+	bool m_currentPluginIsTrackCompressor;
 };
 
 /////////////////////////////////////////////////////////////////////////////

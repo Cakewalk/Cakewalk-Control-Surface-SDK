@@ -271,6 +271,7 @@ protected:
 	static bool m_bMsgSetAllFadersToDefault;
 	static bool m_bMsgSetAllVPotsToDefault;
 	BYTE m_lastMidiOnNote;
+	bool m_currentPluginIsTrackCompressor;
 };
 
 /////////////////////////////////////////////////////////////////////////////
