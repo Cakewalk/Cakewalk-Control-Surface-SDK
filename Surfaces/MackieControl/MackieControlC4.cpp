@@ -326,7 +326,7 @@ HRESULT CMackieControlC4::Load( IStream* pStm )
 
 		SetFunctionKey(n, dwCmdId);
 
-		char szBuf[7];
+		char szBuf[16];
 		::memset(szBuf, 0, sizeof(szBuf));
 
 		if (FAILED(SafeRead(pStm, &szBuf, sizeof(szBuf))))
