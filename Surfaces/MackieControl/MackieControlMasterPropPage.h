@@ -42,6 +42,7 @@ public:
 	CComboBox	m_cFunction1;
 	CButton m_cDisableHandshake;
 	CButton m_cExcludeFiltersFromPlugins;
+	CButton m_cScrubBankSelectsTrackBus;
 	//}}AFX_DATA
 
 	// *** IPropertyPage methods ***
@@ -130,6 +131,7 @@ private:
 	afx_msg void OnSelectDoubleClicks();
 	afx_msg void OnDisableHandshake();
 	afx_msg void OnExcludeFiltersFromPlugins();
+	afx_msg void OnScrubBankSelectsTrackBus();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

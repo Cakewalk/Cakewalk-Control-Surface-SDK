@@ -89,6 +89,7 @@ void CMackieControlMasterPropPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_FUNCTION1, m_cFunction1);
 	DDX_Control(pDX, IDC_DISABLE_HANDSHAKE, m_cDisableHandshake);
 	DDX_Control(pDX, IDC_EXCLUDE_FILTERS_FROM_PLUGINS, m_cExcludeFiltersFromPlugins);
+	DDX_Control(pDX, IDC_SCRUB_BANK_SELECTS_TRACK_BUS, m_cScrubBankSelectsTrackBus);
 	//}}AFX_DATA_MAP
 
 	if (pDX->m_bSaveAndValidate == TRUE)
@@ -130,6 +131,7 @@ BEGIN_MESSAGE_MAP(CMackieControlMasterPropPage, CDialog)
 	ON_CBN_SELCHANGE(IDC_METERS, OnSelchangeMeters)
 	ON_BN_CLICKED(IDC_DISABLE_HANDSHAKE, OnDisableHandshake)
 	ON_BN_CLICKED(IDC_EXCLUDE_FILTERS_FROM_PLUGINS, OnExcludeFiltersFromPlugins)
+	ON_BN_CLICKED(IDC_SCRUB_BANK_SELECTS_TRACK_BUS, OnScrubBankSelectsTrackBus)
 	//}}AFX_MSG_MAP
 
 END_MESSAGE_MAP()
@@ -473,6 +475,9 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 
 		// Exclude filsters from plugin list
 		m_pSurface->SetExcludeFiltersFromPlugins(m_cExcludeFiltersFromPlugins.GetCheck() != 0);
+
+		// Scrub + Bank Down/Up buttons switch between Tracks & Buses
+		m_pSurface->SetScrubBankSelectsTrackBus(m_cScrubBankSelectsTrackBus.GetCheck() != 0);
 	}
 	else
 	{
@@ -582,6 +587,8 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 		m_cDisableHandshake.SetCheck(m_pSurface->GetDisableHandshake() ? 1 : 0);
 
 		m_cExcludeFiltersFromPlugins.SetCheck(m_pSurface->GetExcludeFiltersFromPlugins() ? 1 : 0);
+
+		m_cScrubBankSelectsTrackBus.SetCheck(m_pSurface->GetScrubBankSelectsTrackBus() ? 1 : 0);
 	}
 }
 
@@ -985,6 +992,13 @@ void CMackieControlMasterPropPage::OnDisableHandshake()
 ////////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlMasterPropPage::OnExcludeFiltersFromPlugins()
+{
+	UpdateData(TRUE);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMasterPropPage::OnScrubBankSelectsTrackBus()
 {
 	UpdateData(TRUE);
 }

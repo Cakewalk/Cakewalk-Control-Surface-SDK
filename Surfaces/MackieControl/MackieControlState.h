@@ -239,6 +239,7 @@ public:
 	DWORD GetLastFaderNumber()			{ return m_dwLastFaderNumber; };
 	bool GetDisableHandshake()			{ return m_bDisableHandshake; };
 	bool GetExcludeFiletersFromPlugins(){ return m_bExcludeFiltersFromPlugins; }
+	bool GetScrubBankSelectsTrackBus()	{ return m_bScrubBankSelectsTrackBus; }
 
 	// Setters
 	void SetConfigureLayoutMode(bool bConfigureLayoutMode);
@@ -276,6 +277,7 @@ public:
 	void SetLastDisplayTime(double dLastDisplayTime);
 	void SetDisableHandshake(bool bDisableHandshake);
 	void SetExcludeFiltersFromPlugins(bool bExcludeFiltersFromPlugins);
+	void SetScrubBankSelectsTrackBus(bool bScrubBankSelectsTrackBus);
 
 	void SetTempDisplayText(const char *szText);
 
@@ -342,6 +344,7 @@ protected:
 	bool m_bFaderTouchSelectsChannel;
 	bool m_bDisableHandshake;
 	bool m_bExcludeFiltersFromPlugins;
+	bool m_bScrubBankSelectsTrackBus;
 	CKeyBinding m_cUserFunctionKeys[NUM_USER_FUNCTION_KEYS];
 	CKeyBinding m_cUserFootSwitch[NUM_USER_FOOT_SWITCHES];
 	JogResolution m_eJogResolution;

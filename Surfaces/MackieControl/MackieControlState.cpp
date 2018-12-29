@@ -87,6 +87,7 @@ CMackieControlState::CMackieControlState()
 	m_bSelectDoubleClick = false;
 	m_bFaderTouchSelectsChannel = false;
 	m_bDisableHandshake = false;
+	m_bScrubBankSelectsTrackBus = false;
 
 	m_eJogResolution = JOG_MEASURES;
 	m_eTransportResolution = JOG_MEASURES;
@@ -465,6 +466,13 @@ void CMackieControlState::SetSelectHighlightsTrack(bool bSelectHighlightsTrack)
 void CMackieControlState::SetSelectDoubleClick(bool bSelectDoubleClick)
 {
 	m_bSelectDoubleClick = bSelectDoubleClick;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlState::SetScrubBankSelectsTrackBus(bool bScrubBankSelectsTrackBus)
+{
+	m_bScrubBankSelectsTrackBus = bScrubBankSelectsTrackBus;
 }
 
 /////////////////////////////////////////////////////////////////////////////

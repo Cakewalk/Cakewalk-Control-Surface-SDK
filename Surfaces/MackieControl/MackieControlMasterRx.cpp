@@ -140,8 +140,8 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_PLUG_INS:		if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_PLUGIN);		break;
 		case MC_EQ:				if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_EQ);			break;
 		case MC_DYNAMICS:		if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_DYNAMICS);		break;
-		case MC_BANK_DOWN:		if (bDown) OnSwitchBankDown();								break;
-		case MC_BANK_UP:		if (bDown) OnSwitchBankUp();								break;
+		case MC_BANK_DOWN:		if (bDown) OnHandleBankDownButton();						break;
+		case MC_BANK_UP:		if (bDown) OnHandleBankUpButton();							break;
 		case MC_CHANNEL_DOWN:	if (bDown) OnSwitchChannelDown();							break;
 		case MC_CHANNEL_UP:		if (bDown) OnSwitchChannelUp();								break;
 		case MC_FLIP:			if (bDown) OnSwitchFlip();									break;
@@ -195,7 +195,7 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_CURSOR_LEFT:	OnSwitchCursorLeft(bDown);									break;
 		case MC_CURSOR_RIGHT:	OnSwitchCursorRight(bDown);									break;
 		case MC_CURSOR_ZOOM:	if (bDown) OnSwitchCursorZoom();							break;
-		case MC_SCRUB:			if (bDown) OnSwitchScrub();									break;
+		case MC_SCRUB:			OnHandleScrubButton(bDown);									break;
 		case MC_USER_A:			if (bDown) OnSwitchUserA();									break;
 		case MC_USER_B:			if (bDown) OnSwitchUserB();									break;
 		case MC_FADER_MASTER:	OnSwitchMasterFader(bDown);									break;
@@ -206,6 +206,9 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 
 	// It's one of ours, so record if it's currently pressed
 	m_bSwitches[bD1] = bDown;
+
+	// Keep a note of the last button pressed
+	m_bLastButtonPressed = bD1;
 
 	return true;
 }
@@ -1731,3 +1734,38 @@ void CMackieControlMaster::DoCursorKeyRight()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnHandleScrubButton(bool bDown)
+{
+	// If ScrubBankSelectsTrackBus is checked, then the scrub button is used as a shift key in conjunction with
+	// the Bank up/down buttons, so wait until the key is "up" to switch scrub mode.
+	if (m_cState.GetScrubBankSelectsTrackBus())
+	{
+		// Only switch scrub mode if this is a scrub button "up", and 
+		// the last "down" button pressed was also the scrub button
+		if ((!bDown) && (m_bLastButtonPressed == MC_SCRUB))
+			OnSwitchScrub();
+	}
+	else if (bDown)
+		OnSwitchScrub();
+
+	m_bScrubKeyDown = bDown;
+}
+
+void CMackieControlMaster::OnHandleBankDownButton()
+{
+	// If the scrub button is down, switch to controlling tracks
+	if ((m_cState.GetScrubBankSelectsTrackBus()) && (m_bScrubKeyDown))
+		OnSelectMixerStrip(MIX_STRIP_TRACK);
+	else
+		OnSwitchBankDown();
+}
+
+void CMackieControlMaster::OnHandleBankUpButton()
+{
+	// If the scrub button is down, switch to controlling buses
+	if ((m_cState.GetScrubBankSelectsTrackBus()) && (m_bScrubKeyDown))
+		OnSelectMixerStrip(m_cState.BusType());
+	else
+		OnSwitchBankUp();
+}

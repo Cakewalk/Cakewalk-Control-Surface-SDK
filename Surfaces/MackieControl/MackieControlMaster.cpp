@@ -33,7 +33,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 // Version informatin for save/load
-#define PERSISTENCE_VERSION				8
+#define PERSISTENCE_VERSION				9
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -89,6 +89,8 @@ CMackieControlMaster::CMackieControlMaster()
 	m_wKeyRepeatTimerPeriod = max(timeDevCaps.wPeriodMin, 10);
 	m_bTransportTimerActive = false;
 	m_bKeyRepeatTimerActive = false;
+	m_bLastButtonPressed = 0;
+	m_bScrubKeyDown = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -466,6 +468,16 @@ HRESULT CMackieControlMaster::Save( IStream* pStm, BOOL bClearDirty )
 		return E_FAIL;
 	}
 
+	// PERSISTENcE_VERSION = 9
+	// Scrub+Bank Down/Up selects Tracks / Buses
+	bool bScrubBankSelectsTrackBus = m_cState.GetScrubBankSelectsTrackBus();
+	if (FAILED(SafeWrite(pStm, &bScrubBankSelectsTrackBus, sizeof(bScrubBankSelectsTrackBus))))
+	{
+		TRACE("CMackieControlMaster::Save(): bScrubBankSelectsTrackBus failed\n");
+		return E_FAIL;
+	}
+
+
 	if (bClearDirty)
 		m_bDirty = FALSE;
 
@@ -703,6 +715,18 @@ HRESULT CMackieControlMaster::Load( IStream* pStm )
 		}
 		m_cState.SetSelectDoubleClick(bSelectDoubleClick);
 	}
+	if (dwVer >= 9)
+	{
+		// Scrub + Bank Down/Up selects Tracks / Buses
+		bool bScrubBankSelectsTrackBus;
+		if (FAILED(SafeRead(pStm, &bScrubBankSelectsTrackBus, sizeof(bScrubBankSelectsTrackBus))))
+		{
+			TRACE("CMackieControlMaster::Load(): bScrubBankSelectsTrackBus failed\n");
+			return E_FAIL;
+		}
+		m_cState.SetScrubBankSelectsTrackBus(bScrubBankSelectsTrackBus);
+	}
+
 	m_bDirty = FALSE;
 
 	return S_OK;

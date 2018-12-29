@@ -46,6 +46,8 @@
 #define IDC_DISABLE_HANDSHAKE2          1029
 #define IDC_EXCLUDE_FILTERS_FROM_PLUGINS 1029
 #define IDC_SELECT_DOUBLECLICK          1030
+#define IDC_EXCLUDE_FILTERS_FROM_PLUGINS2 1031
+#define IDC_SCRUB_BANK_SELECTS_TRACK_BUS 1032
 
 // Next default values for new objects
 // 
@@ -53,7 +55,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_CONTROL_VALUE         1033
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

@@ -376,3 +376,19 @@ void CMackieControlMaster::SetDisableHandshake(bool bVal)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::GetScrubBankSelectsTrackBus()
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	return m_cState.GetScrubBankSelectsTrackBus();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetScrubBankSelectsTrackBus(bool bVal)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	m_cState.SetScrubBankSelectsTrackBus(bVal);
+}

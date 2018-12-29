@@ -112,6 +112,8 @@ public:
 	bool GetDisableHandshake();
 	void SetExcludeFiltersFromPlugins(bool bVal);
 	bool GetExcludeFiltersFromPlugins();
+	bool GetScrubBankSelectsTrackBus();
+	void SetScrubBankSelectsTrackBus(bool bVal);
 
 protected:
 	enum MASTER_IDs
@@ -256,6 +258,9 @@ protected:
 	void DoCursorKeyDown();
 	void DoCursorKeyLeft();
 	void DoCursorKeyRight();
+	void OnHandleScrubButton(bool bDown);
+	void OnHandleBankDownButton();
+	void OnHandleBankUpButton();
 
 	// MackieControlMasterTx.cpp
 	virtual void OnRefreshSurface(DWORD fdwRefresh, bool bForceSend);
@@ -290,6 +295,8 @@ protected:
 	WORD				m_wKeyRepeatTimerPeriod;
 	UINT				m_uiKeyRepeatTimerID;
 	bool				m_bKeyRepeatTimerActive;
+	bool				m_bScrubKeyDown;
+	BYTE				m_bLastButtonPressed;
 };
 
 /////////////////////////////////////////////////////////////////////////////
