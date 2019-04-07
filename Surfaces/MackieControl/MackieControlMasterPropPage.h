@@ -91,6 +91,8 @@ private:
 	void TransferSettings(bool bSave);
 	void SelectItemData(CComboBox *pBox, DWORD dwData);
 	void FillVirtualMainCombo();
+	void AddCommandToCombos(LPTSTR szName, DWORD dwCmdId);
+	void AddKeyPressesToCombos(bool bShift, bool bCtrl, bool bAlt);
 
 	bool m_bInitDone;
 	JogResolution m_eJogResolution;

@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MackieControl", "MackieControl_vs2017.vcxproj", "{2896EA99-5C78-4582-A7B0-EBC92328C32F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		Unicode Debug|x64 = Unicode Debug|x64
+		Unicode Debug|x86 = Unicode Debug|x86
+		Unicode Release 1|x64 = Unicode Release 1|x64
+		Unicode Release 1|x86 = Unicode Release 1|x86
+		Unicode Release 2|x64 = Unicode Release 2|x64
+		Unicode Release 2|x86 = Unicode Release 2|x86
+		Unicode Release 3|x64 = Unicode Release 3|x64
+		Unicode Release 3|x86 = Unicode Release 3|x86
+		Unicode Release|x64 = Unicode Release|x64
+		Unicode Release|x86 = Unicode Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Debug|x64.ActiveCfg = Debug|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Debug|x64.Build.0 = Debug|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Debug|x86.ActiveCfg = Debug|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Debug|x86.Build.0 = Debug|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Release|x64.ActiveCfg = Release|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Release|x64.Build.0 = Release|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Release|x86.ActiveCfg = Release|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Release|x86.Build.0 = Release|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Debug|x64.ActiveCfg = Unicode Debug|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Debug|x64.Build.0 = Unicode Debug|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Debug|x86.ActiveCfg = Unicode Debug|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Debug|x86.Build.0 = Unicode Debug|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 1|x64.ActiveCfg = Unicode Release 1|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 1|x64.Build.0 = Unicode Release 1|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 1|x86.ActiveCfg = Unicode Release 1|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 1|x86.Build.0 = Unicode Release 1|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 2|x64.ActiveCfg = Unicode Release 2|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 2|x64.Build.0 = Unicode Release 2|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 2|x86.ActiveCfg = Unicode Release 2|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 2|x86.Build.0 = Unicode Release 2|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 3|x64.ActiveCfg = Unicode Release 3|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 3|x64.Build.0 = Unicode Release 3|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 3|x86.ActiveCfg = Unicode Release 3|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release 3|x86.Build.0 = Unicode Release 3|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release|x64.ActiveCfg = Unicode Release|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release|x64.Build.0 = Unicode Release|x64
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release|x86.ActiveCfg = Unicode Release|Win32
+		{2896EA99-5C78-4582-A7B0-EBC92328C32F}.Unicode Release|x86.Build.0 = Unicode Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45ABDE88-A81F-45DD-AD0B-3623EFEA8D32}
+	EndGlobalSection
+EndGlobal

@@ -18,6 +18,8 @@
 #include "MackieControlMaster.h"
 #include "MackieControlMasterPropPage.h"
 
+#include "VirtualKeys.h"
+
 /////////////////////////////////////////////////////////////////////////////
 
 #define ONE_OVER_127		0.037037037037037035f
@@ -170,7 +172,7 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_M4:				OnSwitchModifier(bD1 - MC_M1, bDown);						break;
 		case MC_READ_OFF:		if (bDown) OnSwitchReadOff();								break;
 		case MC_SNAPSHOT:		if (bDown) OnSwitchSnapshot();								break;
-		case MC_TRACK:			if (bDown) OnSelectMixerStrip(MIX_STRIP_TRACK);				break;
+		case MC_TRACK:			if (bDown) OnSwitchTrack();									break;
 		case MC_DISARM:			if (bDown) OnSwitchDisarm();								break;
 		case MC_OFFSET:			if (bDown) OnSwitchOffset();								break;
 		case MC_SAVE:			if (bDown) OnSwitchSave();									break;
@@ -497,11 +499,27 @@ void CMackieControlMaster::OnSwitchF1()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F1
-			DoCommand(m_cState.GetUserFunctionKey(0));
+			if ((m_cState.GetUserFunctionKey(0) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(0), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(0));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Cut
 			DoCommand(CMD_EDIT_CUT);
+			break;
+
+		case MCS_MODIFIER_M2:							// Cut Special
+			DoCommand(CMD_EDIT_CUT_WITH_DLG);
 			break;
 
 		case MCS_MODIFIER_M4:							// Reload the plug-in mappings
@@ -524,11 +542,36 @@ void CMackieControlMaster::OnSwitchF2()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F2
-			DoCommand(m_cState.GetUserFunctionKey(1));
+			if ((m_cState.GetUserFunctionKey(1) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(1), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(1));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Copy
 			DoCommand(CMD_EDIT_COPY);
+			break;
+
+		case MCS_MODIFIER_M2:							// Copy Special
+			DoCommand(CMD_EDIT_COPY_WITH_DLG);
+			break;
+
+		case MCS_MODIFIER_M3:							// Export Track Template
+			DoExportTrackTemplate();
+			break;
+
+		case MCS_MODIFIER_M4:							// Copy Special
+			DoCommand(CMD_EDIT_COPY_WITH_DLG);
+			FakeKeyPress(false, false, false, VK_RETURN);
 			break;
 
 		case MCS_MODIFIER_NUMERIC:						// Fake '2'
@@ -547,11 +590,36 @@ void CMackieControlMaster::OnSwitchF3()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F3
-			DoCommand(m_cState.GetUserFunctionKey(2));
+			if ((m_cState.GetUserFunctionKey(2) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(2), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(2));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Paste
 			DoCommand(CMD_EDIT_PASTE);
+			break;
+
+		case MCS_MODIFIER_M2:							// Paste Special
+			DoCommand(CMD_EDIT_PASTE_SPECIAL);
+			break;
+
+		case MCS_MODIFIER_M3:							// Import Track Template
+			DoImportTrackTemplate();
+			break;
+
+		case MCS_MODIFIER_M4:							// Paste Special & Press OK
+			DoCommand(CMD_EDIT_PASTE_SPECIAL);
+			FakeKeyPress(false, false, false, VK_RETURN);
 			break;
 
 		case MCS_MODIFIER_NUMERIC:						// Fake '3'
@@ -570,7 +638,19 @@ void CMackieControlMaster::OnSwitchF4()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F4
-			DoCommand(m_cState.GetUserFunctionKey(3));
+			if ((m_cState.GetUserFunctionKey(3) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(3), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(3));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Delete
@@ -593,7 +673,19 @@ void CMackieControlMaster::OnSwitchF5()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F5
-			DoCommand(m_cState.GetUserFunctionKey(4));
+			if ((m_cState.GetUserFunctionKey(4) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(4), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(4));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Spacebar
@@ -616,7 +708,19 @@ void CMackieControlMaster::OnSwitchF6()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F6
-			DoCommand(m_cState.GetUserFunctionKey(5));
+			if ((m_cState.GetUserFunctionKey(5) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(5), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(5));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Alt
@@ -639,7 +743,19 @@ void CMackieControlMaster::OnSwitchF7()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F7
-			DoCommand(m_cState.GetUserFunctionKey(6));
+			if ((m_cState.GetUserFunctionKey(6) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(6), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(6));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Tab
@@ -666,7 +782,19 @@ void CMackieControlMaster::OnSwitchF8()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// User key F8
-			DoCommand(m_cState.GetUserFunctionKey(7));
+			if ((m_cState.GetUserFunctionKey(7) & KEYBINDING_KEYPRESS) > 0)
+			{
+				bool bShift;
+				bool bAlt;
+				bool bCtrl;
+				int nVirtKey;
+				VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFunctionKey(7), nVirtKey, bShift, bCtrl, bAlt);
+				FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+			}
+			else
+			{
+				DoCommand(m_cState.GetUserFunctionKey(7));
+			}
 			break;
 
 		case MCS_MODIFIER_M1:							// Backspace
@@ -1015,6 +1143,14 @@ void CMackieControlMaster::OnSwitchSave()
 
 		case MCS_MODIFIER_M1:							// File | Save As...
 			DoCommand(CMD_FILE_SAVE_AS);
+			break;
+
+		case MCS_MODIFIER_M2:
+			DoCommand(CMD_SAVE_COPY_AS);
+			break;
+
+		case MCS_MODIFIER_M3:
+			DoCommand(CMD_AUDIO_MIXDOWN_EXPORT);
 			break;
 
 		default:
@@ -1442,14 +1578,38 @@ void CMackieControlMaster::OnSwitchScrub()
 
 void CMackieControlMaster::OnSwitchUserA()
 {
-	DoCommand(m_cState.GetUserFootSwitch(0));			// User foot switch A
+	if ((m_cState.GetUserFootSwitch(0) & KEYBINDING_KEYPRESS) > 0)
+	{
+		bool bShift;
+		bool bAlt;
+		bool bCtrl;
+		int nVirtKey;
+		VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFootSwitch(0), nVirtKey, bShift, bCtrl, bAlt);
+		FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+	}
+	else
+	{
+		DoCommand(m_cState.GetUserFootSwitch(0));			// User foot switch A
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlMaster::OnSwitchUserB()
 {
-	DoCommand(m_cState.GetUserFootSwitch(1));			// User foot switch B
+	if ((m_cState.GetUserFootSwitch(1) & KEYBINDING_KEYPRESS) > 0)
+	{
+		bool bShift;
+		bool bAlt;
+		bool bCtrl;
+		int nVirtKey;
+		VirtualKeys::CommandIdToVirtualKey(m_cState.GetUserFootSwitch(1), nVirtKey, bShift, bCtrl, bAlt);
+		FakeKeyPress(bShift, bCtrl, bAlt, nVirtKey);
+	}
+	else
+	{
+		DoCommand(m_cState.GetUserFootSwitch(1));			// User foot switch B
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1768,4 +1928,97 @@ void CMackieControlMaster::OnHandleBankUpButton()
 		OnSelectMixerStrip(m_cState.BusType());
 	else
 		OnSwitchBankUp();
+}
+
+void CMackieControlMaster::DoExportTrackTemplate()
+{	
+	while(PathFileExistsW(m_cbTempTrackTemplateFilename))
+		DeleteFileW(m_cbTempTrackTemplateFilename);
+
+	WaitForInputIdle(GetCurrentProcess(), 10000);
+
+	HGLOBAL hglbCopy;
+	// Open the clip board and set the data in to the clip board.
+	if (::OpenClipboard(0))
+	{
+		::EmptyClipboard();
+		wchar_t *wcBuffer = 0;
+		hglbCopy = GlobalAlloc(GMEM_MOVEABLE,
+			(m_cbTempTrackTemplateFilename.GetLength() + 1) * sizeof(wchar_t));
+
+		wcBuffer = (wchar_t*)GlobalLock(hglbCopy);
+		wcscpy(wcBuffer, m_cbTempTrackTemplateFilename);
+
+		GlobalUnlock(hglbCopy);
+		::SetClipboardData(CF_UNICODETEXT, hglbCopy);
+		::CloseClipboard();
+	}
+
+	DoCommand(CMD_FILE_EXPORT_TRACK_TEMPLATE);
+	WaitForInputIdle(GetCurrentProcess(), 10000);
+
+	FakeKeyPress(false, false, false, VK_BACK);
+	FakeKeyPress(false, false, false, VK_SPACE);
+	FakeKeyPress(false, false, false, VK_BACK);
+	FakeKeyPress(false, true, false, 'V');
+	WaitForInputIdle(GetCurrentProcess(), 10000);
+	FakeKeyPress(false, false, false, VK_RETURN);
+}
+
+void CMackieControlMaster::DoImportTrackTemplate()
+{
+	HGLOBAL hglbCopy;
+	// Open the clip board and set the data in to the clip board.
+	if (::OpenClipboard(0))
+	{
+		::EmptyClipboard();
+		wchar_t *wcBuffer = 0;
+		hglbCopy = GlobalAlloc(GMEM_MOVEABLE,
+			(m_cbTempTrackTemplateFilename.GetLength() + 1) * sizeof(wchar_t));
+
+		wcBuffer = (wchar_t*)GlobalLock(hglbCopy);
+		wcscpy(wcBuffer, m_cbTempTrackTemplateFilename);
+
+		GlobalUnlock(hglbCopy);
+		::SetClipboardData(CF_UNICODETEXT, hglbCopy);
+		::CloseClipboard();
+	}
+	DoCommand(CMD_FILE_IMPORT_TRACK_TEMPLATE);
+	WaitForInputIdle(GetCurrentProcess(), 10000);
+	FakeKeyPress(false, false, false, VK_BACK);
+	FakeKeyPress(false, false, false, VK_SPACE);
+	FakeKeyPress(false, false, false, VK_BACK);
+	FakeKeyPress(false, true, false, 'V');
+	WaitForInputIdle(GetCurrentProcess(), 10000);
+	FakeKeyPress(false, false, false, VK_RETURN);
+}
+
+void CMackieControlMaster::OnSwitchTrack()
+{
+	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
+	{
+		case MCS_MODIFIER_NONE:							// Select Tracks
+			OnSelectMixerStrip(MIX_STRIP_TRACK);
+			break;
+
+		case MCS_MODIFIER_M1:
+			DoCommand(CMD_FILE_EXPORT_TRACK_TEMPLATE);  // Export Track Template
+			break;
+
+		case MCS_MODIFIER_M2:
+			DoCommand(CMD_FILE_IMPORT_TRACK_TEMPLATE);  // Import Track Template
+			break;
+
+		case MCS_MODIFIER_M3:							// Bounce to Track(s) ??
+			DoCommand(CMD_AUDIO_MIXDOWN_BOUNCE);
+			break;
+
+		case MCS_MODIFIER_M4:							// Bounce to Clip(s)
+			DoCommand(CMD_BOUNCE_TO_CLIPS);
+			break;
+
+		default:
+			break;
+	}
+	
 }

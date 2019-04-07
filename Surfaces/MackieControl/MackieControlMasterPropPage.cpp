@@ -27,6 +27,8 @@
 
 #include "HtmlHelp.h"
 
+#include "VirtualKeys.h"
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // CMackieControlMasterPropPage dialog
@@ -636,6 +638,57 @@ void CMackieControlMasterPropPage::FillVirtualMainCombo()
 // Class Wizard will add additional methods here.
 //
 
+void CMackieControlMasterPropPage::AddCommandToCombos(LPTSTR szName, DWORD dwCmdId)
+{
+	int index;
+
+	index = m_cFunction1.AddString(szName);
+	m_cFunction1.SetItemData(index, dwCmdId);
+
+	index = m_cFunction2.AddString(szName);
+	m_cFunction2.SetItemData(index, dwCmdId);
+
+	index = m_cFunction3.AddString(szName);
+	m_cFunction3.SetItemData(index, dwCmdId);
+
+	index = m_cFunction4.AddString(szName);
+	m_cFunction4.SetItemData(index, dwCmdId);
+
+	index = m_cFunction5.AddString(szName);
+	m_cFunction5.SetItemData(index, dwCmdId);
+
+	index = m_cFunction6.AddString(szName);
+	m_cFunction6.SetItemData(index, dwCmdId);
+
+	index = m_cFunction7.AddString(szName);
+	m_cFunction7.SetItemData(index, dwCmdId);
+
+	index = m_cFunction8.AddString(szName);
+	m_cFunction8.SetItemData(index, dwCmdId);
+
+	index = m_cFootSwitchA.AddString(szName);
+	m_cFootSwitchA.SetItemData(index, dwCmdId);
+
+	index = m_cFootSwitchB.AddString(szName);
+	m_cFootSwitchB.SetItemData(index, dwCmdId);
+}
+
+void CMackieControlMasterPropPage::AddKeyPressesToCombos(bool bShift, bool bCtrl, bool bAlt)
+{
+	for (int i = 0; i < (sizeof(VALID_VKEYS) / sizeof(int)); i++)
+	{
+		DWORD dwCmdId;
+		CString csName;
+
+		if (VirtualKeys::isValidKey(VALID_VKEYS[i], bShift, bCtrl, bAlt))
+		{
+			dwCmdId = VirtualKeys::VirtualKeyToCommandId(VALID_VKEYS[i], bShift, bCtrl, bAlt);
+			if (VirtualKeys::GetKeyPressName(dwCmdId, csName))
+				AddCommandToCombos((LPTSTR)csName.GetString(), dwCmdId); // we're using Unicode, so don't bother trying to convert string
+		}
+	}
+}
+
 BOOL CMackieControlMasterPropPage::OnInitDialog() 
 {
 //	TRACE("CMackieControlMasterPropPage::OnInitDialog()\n");
@@ -663,51 +716,24 @@ BOOL CMackieControlMasterPropPage::OnInitDialog()
 			{
 				LPTSTR szName = new TCHAR[dwSize];
 				Char2TCHAR( szName, pszName, dwSize );
-
-				int index;
-
 #if _DEBUG
 				TCHAR szTemp[256];
 				_sntprintf(szTemp, sizeof(szTemp), _T("%s [%d]"), pszName, dwCmdId);
-
-				index = m_cFunction1.AddString(szTemp);
-#else
-				index = m_cFunction1.AddString(szName);
 #endif
-				m_cFunction1.SetItemData(index, dwCmdId);
-
-				index = m_cFunction2.AddString(szName);
-				m_cFunction2.SetItemData(index, dwCmdId);
-
-				index = m_cFunction3.AddString(szName);
-				m_cFunction3.SetItemData(index, dwCmdId);
-
-				index = m_cFunction4.AddString(szName);
-				m_cFunction4.SetItemData(index, dwCmdId);
-
-				index = m_cFunction5.AddString(szName);
-				m_cFunction5.SetItemData(index, dwCmdId);
-
-				index = m_cFunction6.AddString(szName);
-				m_cFunction6.SetItemData(index, dwCmdId);
-
-				index = m_cFunction7.AddString(szName);
-				m_cFunction7.SetItemData(index, dwCmdId);
-
-				index = m_cFunction8.AddString(szName);
-				m_cFunction8.SetItemData(index, dwCmdId);
-
-				index = m_cFootSwitchA.AddString(szName);
-				m_cFootSwitchA.SetItemData(index, dwCmdId);
-
-				index = m_cFootSwitchB.AddString(szName);
-				m_cFootSwitchB.SetItemData(index, dwCmdId);
-
+				AddCommandToCombos(szName, dwCmdId);
 				delete[] szName;
 			}
 
 			delete[] pszName;
 		}
+
+		AddKeyPressesToCombos(false, false, false); // no modifiers
+		AddKeyPressesToCombos(false, true, false); // CTRL +
+		AddKeyPressesToCombos(true, false, false); // SHIFT +
+		AddKeyPressesToCombos(false, false, true); // ALT +
+		AddKeyPressesToCombos(true, true, false); // CTRL + SHIFT
+		AddKeyPressesToCombos(false, true, true); // CTRL + ALT
+		AddKeyPressesToCombos(true, false, true); // ALT + SHIFT
 	}
 
 	// Fill in the master fader combo boxes

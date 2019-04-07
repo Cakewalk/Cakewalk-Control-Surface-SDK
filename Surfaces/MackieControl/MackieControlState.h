@@ -10,8 +10,8 @@
 #define MCS_MODIFIER_M2			0x02
 #define MCS_MODIFIER_M3			0x04
 #define MCS_MODIFIER_M4			0x08
-#define MCS_MODIFIER_EDIT		0x10
-#define MCS_MODIFIER_NUMERIC	0x20
+#define MCS_MODIFIER_EDIT		0x10   // FLIP on Original MCU
+#define MCS_MODIFIER_NUMERIC	0x20   // GLOBAL VIEW on Original MCU
 #define MCS_MODIFIER_ZOOM		0x40
 
 #define M1_TO_M4_MASK			0x0F

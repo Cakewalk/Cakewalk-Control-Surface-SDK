@@ -91,6 +91,8 @@ CMackieControlMaster::CMackieControlMaster()
 	m_bKeyRepeatTimerActive = false;
 	m_bLastButtonPressed = 0;
 	m_bScrubKeyDown = false;
+
+	getTempTrackTemplateFilename();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1241,3 +1243,16 @@ void CMackieControlMaster::TempDisplayMasterFaderPan()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::getTempTrackTemplateFilename()
+{
+	WCHAR szRegValueBuffer[1024];
+	size_t dwRegValueBufferSize = 1024;
+	auto cbData = static_cast<DWORD>(dwRegValueBufferSize);
+	auto rc = RegGetValueW(HKEY_CURRENT_USER, L"SOFTWARE\\Cakewalk Music Software\\Cakewalk\\Core\\UserPaths\\", L"TrackTplFolder", RRF_RT_REG_SZ, nullptr, static_cast<void*>(&szRegValueBuffer[0]), &cbData);
+	if (rc != ERROR_SUCCESS)
+		GetTempPathW(1024, static_cast<LPWSTR>(szRegValueBuffer));
+
+	m_cbTempTrackTemplateFilename = szRegValueBuffer;
+	m_cbTempTrackTemplateFilename.Append(L"\\__mcu-temp-track-template__.cwx");
+}

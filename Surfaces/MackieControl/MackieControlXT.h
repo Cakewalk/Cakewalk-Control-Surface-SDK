@@ -22,8 +22,22 @@ extern const GUID LIBID_MackieControlXT;
 static const char s_szMackieControlXTFriendlyName[] = "Mackie Control XT (DEBUG)";
 static const char s_szMackieControlXTFriendlyNamePropPage[] = "Mackie Control XT Property Page (DEBUG)";
 #else
+#ifdef _MACKIECONTROLC1
+static const char s_szMackieControlXTFriendlyName[] = "MMcL Mackie Control XT #1";
+static const char s_szMackieControlXTFriendlyNamePropPage[] = "MMcL Mackie Control XT #1 Property Page";
+#endif
+#ifdef _MACKIECONTROLC2
+static const char s_szMackieControlXTFriendlyName[] = "MMcL Mackie Control XT #2";
+static const char s_szMackieControlXTFriendlyNamePropPage[] = "MMcL Mackie Control XT #2 Property Page";
+#endif
+#ifdef _MACKIECONTROLC3
+static const char s_szMackieControlXTFriendlyName[] = "MMcL Mackie Control XT #3";
+static const char s_szMackieControlXTFriendlyNamePropPage[] = "MMcL Mackie Control XT #3 Property Page";
+#endif
+#ifndef _MACKIECONTROLMMCL
 static const char s_szMackieControlXTFriendlyName[] = "Mackie Control XT";
 static const char s_szMackieControlXTFriendlyNamePropPage[] = "Mackie Control XT Property Page";
+#endif
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

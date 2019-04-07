@@ -22,8 +22,22 @@ extern const GUID LIBID_MackieControlMaster;
 static const char s_szMackieControlMasterFriendlyName[] = "Mackie Control (DEBUG)";
 static const char s_szMackieControlMasterFriendlyNamePropPage[] = "Mackie Control Property Page (DEBUG)";
 #else
+#ifdef _MACKIECONTROLC1
+static const char s_szMackieControlMasterFriendlyName[] = "MMcL Mackie Control #1";
+static const char s_szMackieControlMasterFriendlyNamePropPage[] = "MMcL Mackie Control #1 Property Page";
+#endif
+#ifdef _MACKIECONTROLC2
+static const char s_szMackieControlMasterFriendlyName[] = "MMcL Mackie Control #2";
+static const char s_szMackieControlMasterFriendlyNamePropPage[] = "MMcL Mackie Control #2 Property Page";
+#endif
+#ifdef _MACKIECONTROLC3
+static const char s_szMackieControlMasterFriendlyName[] = "MMcL Mackie Control #3";
+static const char s_szMackieControlMasterFriendlyNamePropPage[] = "MMcL Mackie Control #3 Property Page";
+#endif
+#ifndef _MACKIECONTROLMMCL
 static const char s_szMackieControlMasterFriendlyName[] = "Mackie Control";
 static const char s_szMackieControlMasterFriendlyNamePropPage[] = "Mackie Control Property Page";
+#endif
 #endif
 
 /////////////////////////////////////////////////////////////////////////////
@@ -249,6 +263,7 @@ protected:
 	void OnSwitchUserA();
 	void OnSwitchUserB();
 	void OnSwitchMasterFader(bool bDown);
+	void OnSwitchTrack();
 	void TransportTimerCallback();
 	void MoveRewindOrFastForward(Direction eDir);
 	void SetRewindOrFastForward(Direction eDir);
@@ -261,6 +276,8 @@ protected:
 	void OnHandleScrubButton(bool bDown);
 	void OnHandleBankDownButton();
 	void OnHandleBankUpButton();
+	void DoExportTrackTemplate();
+	void DoImportTrackTemplate();
 
 	// MackieControlMasterTx.cpp
 	virtual void OnRefreshSurface(DWORD fdwRefresh, bool bForceSend);
@@ -297,6 +314,9 @@ protected:
 	bool				m_bKeyRepeatTimerActive;
 	bool				m_bScrubKeyDown;
 	BYTE				m_bLastButtonPressed;
+
+	CString	m_cbTempTrackTemplateFilename;
+	void getTempTrackTemplateFilename();
 };
 
 /////////////////////////////////////////////////////////////////////////////
