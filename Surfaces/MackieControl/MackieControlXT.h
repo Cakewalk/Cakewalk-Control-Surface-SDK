@@ -142,6 +142,7 @@ protected:
 	void FormatParamNameOrValue(BYTE bChan, char *szParam, int len);
 	void FormatTrackNumbers(char *str, int len, DWORD dwStartNum);
 	void TempDisplay(DWORD dwCount, char *szText);
+	virtual void SetProjectLoadedState(bool bProjectLoadedState);
 
 	DWORD m_dwXTUpdateCount;
 	DWORD m_dwPreviousStripCount;
@@ -163,6 +164,8 @@ protected:
 	char m_szTempDisplayText[LCD_WIDTH];
 	DWORD m_dwTempDisplayTextCounter;
 	DWORD m_dwTempDisplayValuesCounter[NUM_MAIN_CHANNELS];
+
+	virtual void ZeroAllFaders();
 };
 
 /////////////////////////////////////////////////////////////////////////////

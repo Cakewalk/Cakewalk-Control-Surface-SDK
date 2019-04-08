@@ -287,9 +287,19 @@ bool CMackieControlBase::IsProjectLoaded()
 	HRESULT hr = m_pProject->GetProjectName(szName, &dwLen);
 
 	if (FAILED(hr))
-		return false;
+	{
+		if (m_bProjectLoadedState)
+			SetProjectLoadedState(false);
 
-	return true;
+		return false;
+	}
+	else
+	{
+		if (!m_bProjectLoadedState)
+			SetProjectLoadedState(true);
+
+		return true;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

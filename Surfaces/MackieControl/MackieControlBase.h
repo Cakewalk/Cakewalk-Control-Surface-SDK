@@ -272,6 +272,8 @@ protected:
 	static bool m_bMsgSetAllVPotsToDefault;
 	BYTE m_lastMidiOnNote;
 	bool m_currentPluginIsTrackCompressor;
+	bool m_bProjectLoadedState;
+	virtual void SetProjectLoadedState(bool bProjectLoadedState);
 };
 
 /////////////////////////////////////////////////////////////////////////////

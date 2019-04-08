@@ -317,6 +317,8 @@ protected:
 
 	CString	m_cbTempTrackTemplateFilename;
 	void getTempTrackTemplateFilename();
+
+	virtual void ZeroAllFaders();
 };
 
 /////////////////////////////////////////////////////////////////////////////

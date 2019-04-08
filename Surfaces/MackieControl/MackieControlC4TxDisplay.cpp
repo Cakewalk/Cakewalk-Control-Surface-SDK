@@ -23,7 +23,7 @@ void CMackieControlC4::UpdateLCDDisplays(bool bForceSend)
 {
 	if (!IsProjectLoaded())
 	{
-		m_HwLCDDisplay[0].WriteCentered(0, "No SONAR Project Loaded", bForceSend);
+		m_HwLCDDisplay[0].WriteCentered(0, "No Cakewalk Project Loaded", bForceSend);
 		m_HwLCDDisplay[0].WriteCentered(1, "", bForceSend);
 
 		for (int n = 1; n < NUM_ROWS; n++)

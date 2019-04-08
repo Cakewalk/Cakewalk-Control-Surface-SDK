@@ -230,6 +230,8 @@ void CMackieControlXT::OnDisconnect()
 
 	if (m_bConnected)
 	{
+		ZeroAllFaders();
+
 		m_HwLCDDisplay.WriteCentered(0, "", true);
 		m_HwLCDDisplay.WriteCentered(1, "", true);
 	}
@@ -360,6 +362,31 @@ void CMackieControlXT::TempDisplaySelectedTrackName()
 	snprintf(szBuf, sizeof(szBuf), "%-56s", szLine);
 
 	m_cState.SetTempDisplayText(szBuf);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlXT::SetProjectLoadedState(bool bProjectLoadedState)
+{
+	m_bProjectLoadedState = bProjectLoadedState;
+
+	if (!bProjectLoadedState)
+		ZeroAllFaders();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlXT::ZeroAllFaders()
+{
+	for (int i = 0; i < NUM_MAIN_CHANNELS; i++)
+	{
+		// set fader to minimum
+		m_HwFader[i].SetVal(0.0f, true);
+
+		// move fader up slightly - can help with slightly sticky faders during calibration
+		m_HwFader[i].SetVal(0.01f, true);
+	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////

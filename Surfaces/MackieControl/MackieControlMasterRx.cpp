@@ -185,13 +185,32 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_SELECT:			if (bDown) OnSwitchSelect();								break;
 		case MC_PUNCH:			if (bDown) OnSwitchPunch();									break;
 		case MC_JOG_PRM:		if (bDown) OnSwitchJogPrm();								break;
-		case MC_LOOP_ON_OFF:	if (bDown) OnSwitchLoopOnOff();								break;
+		
+		case MC_LOOP_ON_OFF:	if ((!bDown) && (m_bLastButtonPressed == MC_LOOP_ON_OFF)) 
+									OnSwitchLoopOnOff();	
+									break;
+		
 		case MC_HOME:			if (bDown) OnSwitchHome();									break;
-		case MC_REWIND:			OnSwitchRewind(bDown);										break;
+		
+		case MC_REWIND:			if (m_bSwitches[MC_LOOP_ON_OFF]) 
+									DoCommand(CMD_GOTO_START); 
+								else 
+									OnSwitchRewind(bDown); 
+								break;
+		
 		case MC_FAST_FORWARD:	OnSwitchFastForward(bDown);									break;
 		case MC_STOP:			if (bDown) OnSwitchStop();									break;
 		case MC_PLAY:			if (bDown) OnSwitchPlay();									break;
-		case MC_RECORD:			if (bDown) OnSwitchRecord();								break;
+		
+		case MC_RECORD:			if (bDown) 
+								{
+									if (m_bSwitches[MC_LOOP_ON_OFF])
+										DoCommand(CMD_EDIT_UNDO);
+									else
+										OnSwitchRecord();
+								}
+								break;
+		
 		case MC_CURSOR_UP:		OnSwitchCursorUp(bDown);									break;
 		case MC_CURSOR_DOWN:	OnSwitchCursorDown(bDown);									break;
 		case MC_CURSOR_LEFT:	OnSwitchCursorLeft(bDown);									break;

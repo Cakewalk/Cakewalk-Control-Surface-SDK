@@ -1256,3 +1256,14 @@ void CMackieControlMaster::getTempTrackTemplateFilename()
 	m_cbTempTrackTemplateFilename = szRegValueBuffer;
 	m_cbTempTrackTemplateFilename.Append(L"\\__mcu-temp-track-template__.cwx");
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::ZeroAllFaders()
+{
+	CMackieControlXT::ZeroAllFaders();
+	m_HwMasterFader.SetVal(0.0f, true);
+	m_HwMasterFader.SetVal(0.01f, true);
+}
+
+/////////////////////////////////////////////////////////////////////////////
