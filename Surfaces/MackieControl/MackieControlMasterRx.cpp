@@ -1679,8 +1679,13 @@ void CMackieControlMaster::MoveRewindOrFastForward(Direction eDir)
 			break;
 
 		case MCS_NAVIGATION_MARKER:
-			DoCommand(DIR_BACKWARD == eDir ? CMD_MARKER_PREVIOUS : CMD_MARKER_NEXT);
-			SetTransportCallbackTimer(0.25f, 200, 100);
+			if (m_bSwitches[MC_LOOP_ON_OFF])
+				DoCommand(CMD_INSERT_MARKER);
+			else
+			{
+				DoCommand(DIR_BACKWARD == eDir ? CMD_MARKER_PREVIOUS : CMD_MARKER_NEXT);
+				SetTransportCallbackTimer(0.25f, 200, 100);
+			}
 			break;
 
 		case MCS_NAVIGATION_LOOP:
