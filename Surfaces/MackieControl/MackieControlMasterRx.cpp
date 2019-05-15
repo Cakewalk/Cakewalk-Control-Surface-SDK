@@ -187,12 +187,12 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_JOG_PRM:		if (bDown) OnSwitchJogPrm();								break;
 		
 		case MC_LOOP_ON_OFF:	if ((!bDown) && (m_bLastButtonPressed == MC_LOOP_ON_OFF)) 
-									OnSwitchLoopOnOff();	
-									break;
+									OnSwitchLoopOnOff();  
+								break;
 		
 		case MC_HOME:			if (bDown) OnSwitchHome();									break;
 		
-		case MC_REWIND:			if (m_bSwitches[MC_LOOP_ON_OFF]) 
+		case MC_REWIND:			if (bDown && m_bSwitches[MC_LOOP_ON_OFF])
 									DoCommand(CMD_GOTO_START); 
 								else 
 									OnSwitchRewind(bDown); 
@@ -1939,7 +1939,7 @@ void CMackieControlMaster::OnHandleScrubButton(bool bDown)
 void CMackieControlMaster::OnHandleBankDownButton()
 {
 	// If the scrub button is down, switch to controlling tracks
-	if ((m_cState.GetScrubBankSelectsTrackBus()) && (m_bScrubKeyDown))
+	if (((m_cState.GetScrubBankSelectsTrackBus()) && (m_bScrubKeyDown)) || (m_bSwitches[MC_LOOP_ON_OFF]))
 		OnSelectMixerStrip(MIX_STRIP_TRACK);
 	else
 		OnSwitchBankDown();
@@ -1948,7 +1948,7 @@ void CMackieControlMaster::OnHandleBankDownButton()
 void CMackieControlMaster::OnHandleBankUpButton()
 {
 	// If the scrub button is down, switch to controlling buses
-	if ((m_cState.GetScrubBankSelectsTrackBus()) && (m_bScrubKeyDown))
+	if (((m_cState.GetScrubBankSelectsTrackBus()) && (m_bScrubKeyDown)) || (m_bSwitches[MC_LOOP_ON_OFF]))
 		OnSelectMixerStrip(m_cState.BusType());
 	else
 		OnSwitchBankUp();
