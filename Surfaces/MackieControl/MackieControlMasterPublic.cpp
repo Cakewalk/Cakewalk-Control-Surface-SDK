@@ -392,3 +392,37 @@ void CMackieControlMaster::SetScrubBankSelectsTrackBus(bool bVal)
 
 	m_cState.SetScrubBankSelectsTrackBus(bVal);
 }
+
+void CMackieControlMaster::SetUseHUIProtocol(bool bVal)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	m_cState.SetUseHUIProtocol(bVal);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::GetUseHUIProtocol()
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	return m_cState.GetUseHUIProtocol();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetHUIKeyPadControlsKeyPad(bool bVal)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	m_cState.SetHUIKeyPadControlsKeyPad(bVal);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::GetHUIKeyPadControlsKeyPad()
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	return m_cState.GetHUIKeyPadControlsKeyPad();
+}

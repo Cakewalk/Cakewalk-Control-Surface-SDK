@@ -49,6 +49,7 @@ CMackieControlMasterPropPage::CMackieControlMasterPropPage(CWnd* pParent /*=NULL
 	m_eJogResolution = JOG_MEASURES;
 	m_eTransportResolution = JOG_MEASURES;
 	m_bDisplaySMPTE = false;
+	m_bUseHUIProtocol = false;
 
 	//{{AFX_DATA_INIT(CMackieControlMasterPropPage)
 	//}}AFX_DATA_INIT
@@ -92,6 +93,7 @@ void CMackieControlMasterPropPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_DISABLE_HANDSHAKE, m_cDisableHandshake);
 	DDX_Control(pDX, IDC_EXCLUDE_FILTERS_FROM_PLUGINS, m_cExcludeFiltersFromPlugins);
 	DDX_Control(pDX, IDC_SCRUB_BANK_SELECTS_TRACK_BUS, m_cScrubBankSelectsTrackBus);
+	DDX_Control(pDX, IDC_KEYPAD_USE_KEYPAD_KEYS, m_cHUIKeypadControlsKeypad);
 	//}}AFX_DATA_MAP
 
 	if (pDX->m_bSaveAndValidate == TRUE)
@@ -134,6 +136,9 @@ BEGIN_MESSAGE_MAP(CMackieControlMasterPropPage, CDialog)
 	ON_BN_CLICKED(IDC_DISABLE_HANDSHAKE, OnDisableHandshake)
 	ON_BN_CLICKED(IDC_EXCLUDE_FILTERS_FROM_PLUGINS, OnExcludeFiltersFromPlugins)
 	ON_BN_CLICKED(IDC_SCRUB_BANK_SELECTS_TRACK_BUS, OnScrubBankSelectsTrackBus)
+	ON_BN_CLICKED(IDC_PROTOCOL_MCU, OnBnClickedProtocolMcu)
+	ON_BN_CLICKED(IDC_PROTOCOL_HUI, OnBnClickedProtocolHui)
+	ON_BN_CLICKED(IDC_KEYPAD_USE_KEYPAD_KEYS, OnBnClickedKeypadUseKeypadKeys)
 	//}}AFX_MSG_MAP
 
 END_MESSAGE_MAP()
@@ -480,6 +485,28 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 
 		// Scrub + Bank Down/Up buttons switch between Tracks & Buses
 		m_pSurface->SetScrubBankSelectsTrackBus(m_cScrubBankSelectsTrackBus.GetCheck() != 0);
+
+		if (m_bUseHUIProtocol)
+		{
+			m_pSurface->SetDisableHandshake(true);
+			m_pSurface->SetScrubBankSelectsTrackBus(false);
+			m_pSurface->SetUseHUIProtocol(true);
+			m_cDisableHandshake.SetCheck(1);
+			m_cScrubBankSelectsTrackBus.SetCheck(0);
+			m_cDisableHandshake.EnableWindow(0);
+			m_cScrubBankSelectsTrackBus.EnableWindow(0);
+			m_cHUIKeypadControlsKeypad.EnableWindow(1);
+			m_pSurface->SetSelectDoubleClick(false);
+			m_cSelectDoubleClick.EnableWindow(0);
+		}
+		else
+		{
+			m_pSurface->SetUseHUIProtocol(false);
+			m_pSurface->SetHUIKeyPadControlsKeyPad(false);
+			m_cDisableHandshake.EnableWindow(1);
+			m_cScrubBankSelectsTrackBus.EnableWindow(1);
+			m_cHUIKeypadControlsKeypad.EnableWindow(0);
+		}
 	}
 	else
 	{
@@ -591,6 +618,30 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 		m_cExcludeFiltersFromPlugins.SetCheck(m_pSurface->GetExcludeFiltersFromPlugins() ? 1 : 0);
 
 		m_cScrubBankSelectsTrackBus.SetCheck(m_pSurface->GetScrubBankSelectsTrackBus() ? 1 : 0);
+
+		m_bUseHUIProtocol = m_pSurface->GetUseHUIProtocol();
+		if (m_bUseHUIProtocol)
+			CheckRadioButton(IDC_PROTOCOL_MCU, IDC_PROTOCOL_HUI, IDC_PROTOCOL_HUI);
+		else
+			CheckRadioButton(IDC_PROTOCOL_MCU, IDC_PROTOCOL_HUI, IDC_PROTOCOL_MCU);
+
+		if (m_bUseHUIProtocol)
+		{
+			m_cDisableHandshake.SetCheck(1);
+			m_cScrubBankSelectsTrackBus.SetCheck(0);
+			m_cDisableHandshake.EnableWindow(0);
+			m_cScrubBankSelectsTrackBus.EnableWindow(0);
+			m_cHUIKeypadControlsKeypad.EnableWindow(1);
+			m_pSurface->SetSelectDoubleClick(false);
+			m_cSelectDoubleClick.EnableWindow(0);
+		}
+		else
+		{
+			m_cDisableHandshake.EnableWindow(1);
+			m_cScrubBankSelectsTrackBus.EnableWindow(1);
+			m_cHUIKeypadControlsKeypad.SetCheck(0);
+			m_cHUIKeypadControlsKeypad.EnableWindow(0);
+		}
 	}
 }
 
@@ -1025,6 +1076,28 @@ void CMackieControlMasterPropPage::OnExcludeFiltersFromPlugins()
 ////////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlMasterPropPage::OnScrubBankSelectsTrackBus()
+{
+	UpdateData(TRUE);
+}
+
+
+void CMackieControlMasterPropPage::OnBnClickedProtocolMcu()
+{
+	m_bUseHUIProtocol = false;
+	
+	UpdateData(TRUE);
+}
+
+
+void CMackieControlMasterPropPage::OnBnClickedProtocolHui()
+{
+	m_bUseHUIProtocol = true;
+
+	UpdateData(TRUE);
+}
+
+
+void CMackieControlMasterPropPage::OnBnClickedKeypadUseKeypadKeys()
 {
 	UpdateData(TRUE);
 }

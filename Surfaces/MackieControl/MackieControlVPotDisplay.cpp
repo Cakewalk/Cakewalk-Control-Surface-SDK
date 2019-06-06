@@ -134,7 +134,10 @@ void CMackieControlVPotDisplay::Send(bool bForceSend)
 
 	m_bVal = bVal;
 
-	m_pMackieControlBase->SendMidiShort(0xB0, m_bChan, bVal);
+	if (m_pMackieControlBase->UsingHUIProtocol())
+		m_pMackieControlBase->SendMidiShort(0xB0, (m_bChan - 0x20), bVal);
+	else
+		m_pMackieControlBase->SendMidiShort(0xB0, m_bChan, bVal);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -43,6 +43,7 @@ public:
 	CButton m_cDisableHandshake;
 	CButton m_cExcludeFiltersFromPlugins;
 	CButton m_cScrubBankSelectsTrackBus;
+	CButton m_cHUIKeypadControlsKeypad;
 	//}}AFX_DATA
 
 	// *** IPropertyPage methods ***
@@ -98,6 +99,7 @@ private:
 	JogResolution m_eJogResolution;
 	JogResolution m_eTransportResolution;
 	bool m_bDisplaySMPTE;
+	bool m_bUseHUIProtocol;
 
 	// Generated message map functions
 	//{{AFX_MSG(CMackieControlMasterPropPage)
@@ -134,6 +136,9 @@ private:
 	afx_msg void OnDisableHandshake();
 	afx_msg void OnExcludeFiltersFromPlugins();
 	afx_msg void OnScrubBankSelectsTrackBus();
+	afx_msg void OnBnClickedProtocolMcu();
+	afx_msg void OnBnClickedProtocolHui();
+	afx_msg void OnBnClickedKeypadUseKeypadKeys();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:

@@ -243,6 +243,9 @@ bool CMackieControlXT::OnMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2)
 {
 //	TRACE("CMackieControlXT::OnMidiInShort()\n");
 
+	if (UsingHUIProtocol())
+		return OnHUIMidiInShort(bStatus, bD1, bD2);
+
 	switch (bStatus)
 	{
 		case 0xE0:
@@ -390,3 +393,180 @@ void CMackieControlXT::ZeroAllFaders()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlXT::OnHUIMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2)
+{
+	if (bStatus == 0x90) // ping
+		return true;
+
+	if (bStatus != 0xB0)
+		return false;
+
+	// Zone Select
+	if (bD1 == 0x0F)
+	{
+		m_bCurrentHUIZone = bD2;
+		return true;
+	}
+
+	if (bD1 < 0x08) // fader msb
+	{
+		m_bHUIFaderHi[bD1] = bD2;
+		return true;
+	}
+
+	if ((bD1 >= 0x20) && (bD1 <= 0x27)) // fader lsb
+	{
+		return OnFader((bD1 - 0x20), bD2, m_bHUIFaderHi[(bD1 - 0x20)]);
+	}
+
+	if ((bD1 == 0x2F) || (bD1 == 0x2C)) // switch
+	{
+		BYTE b_D1 = 0;
+		BYTE b_D2 = 0;
+
+		bool translated = TranslateHUIButtons(m_bCurrentHUIZone, (bD2 & 0x0F), ((bD2 & 0x40) > 0), b_D1, b_D2);
+
+		if (translated)
+			return OnSwitch(b_D1, b_D2);
+		else
+			return false;
+	}
+
+	if ((bD1 >= 0x40) && (bD1 <= 0x47)) // VPot
+		return OnVPot((bD1 - 0x30), bD2);
+
+	return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlXT::TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2)
+{
+	bD1 = 0xFF;
+	bD2 = bOn ? 0x7F : 0x00;
+
+	switch (bCurrentZone)
+	{
+		case 0x00:
+		case 0x01:
+		case 0x02:
+		case 0x03:
+		case 0x04:
+		case 0x05:
+		case 0x06:
+		case 0x07:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_FADER_1 + bCurrentZone;
+					break;
+
+				case 0x01:
+					bD1 = MC_SELECT_1 + bCurrentZone;
+					break;
+
+				case 0x02:
+					bD1 = MC_MUTE_1 + bCurrentZone;
+					break;
+
+				case 0x03:
+					bD1 = MC_SOLO_1 + bCurrentZone;
+					break;
+
+				case 0x04:
+					bD1 = MC_VPOT_1 + bCurrentZone;
+					break;
+
+				case 0x07:
+					bD1 = MC_REC_ARM_1 + bCurrentZone;
+					break;
+			}
+			break;
+	}
+	return (bD1 != 0xFF);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlXT::SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend)
+{
+	if (bForceSend); // TODO
+
+	switch (bID)
+	{
+		case MC_REC_ARM_1:
+		case MC_REC_ARM_2:
+		case MC_REC_ARM_3:
+		case MC_REC_ARM_4:
+		case MC_REC_ARM_5:
+		case MC_REC_ARM_6:
+		case MC_REC_ARM_7:
+		case MC_REC_ARM_8:
+			SendMidiShort(0xB0, 0x0C, (bID - MC_REC_ARM_1));
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x47 : 0x07);
+			return true;
+
+		case MC_SOLO_1:
+		case MC_SOLO_2:
+		case MC_SOLO_3:
+		case MC_SOLO_4:
+		case MC_SOLO_5:
+		case MC_SOLO_6:
+		case MC_SOLO_7:
+		case MC_SOLO_8:
+			SendMidiShort(0xB0, 0x0C, (bID - MC_SOLO_1));
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x43 : 0x03);
+			return true;
+
+		case MC_MUTE_1:
+		case MC_MUTE_2:
+		case MC_MUTE_3:
+		case MC_MUTE_4:
+		case MC_MUTE_5:
+		case MC_MUTE_6:
+		case MC_MUTE_7:
+		case MC_MUTE_8:
+			SendMidiShort(0xB0, 0x0C, (bID - MC_MUTE_1));
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x42 : 0x02);
+			return true;
+
+		case MC_SELECT_1:
+		case MC_SELECT_2:
+		case MC_SELECT_3:
+		case MC_SELECT_4:
+		case MC_SELECT_5:
+		case MC_SELECT_6:
+		case MC_SELECT_7:
+		case MC_SELECT_8:
+			SendMidiShort(0xB0, 0x0C, (bID - MC_SELECT_1));
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x41 : 0x01);
+			return true;
+
+		case MC_VPOT_1:
+		case MC_VPOT_2:
+		case MC_VPOT_3:
+		case MC_VPOT_4:
+		case MC_VPOT_5:
+		case MC_VPOT_6:
+		case MC_VPOT_7:
+		case MC_VPOT_8:
+			SendMidiShort(0xB0, 0x0C, (bID - MC_VPOT_1));
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x45 : 0x05);
+			return true;
+
+		case MC_FADER_1:
+		case MC_FADER_2:
+		case MC_FADER_3:
+		case MC_FADER_4:
+		case MC_FADER_5:
+		case MC_FADER_6:
+		case MC_FADER_7:
+		case MC_FADER_8:
+			SendMidiShort(0xB0, 0x0C, (bID - MC_FADER_1));
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x40 : 0x00);
+			return true;
+
+		default: return false;
+	}
+}

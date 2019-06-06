@@ -48,6 +48,9 @@
 #define IDC_SELECT_DOUBLECLICK          1030
 #define IDC_EXCLUDE_FILTERS_FROM_PLUGINS2 1031
 #define IDC_SCRUB_BANK_SELECTS_TRACK_BUS 1032
+#define IDC_PROTOCOL_MCU                1033
+#define IDC_PROTOCOL_HUI                1034
+#define IDC_KEYPAD_USE_KEYPAD_KEYS      1035
 
 // Next default values for new objects
 // 
@@ -55,7 +58,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1033
+#define _APS_NEXT_CONTROL_VALUE         1036
 #define _APS_NEXT_SYMED_VALUE           103
 #endif
 #endif

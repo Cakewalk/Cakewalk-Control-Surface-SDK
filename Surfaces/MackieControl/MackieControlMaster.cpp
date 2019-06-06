@@ -33,7 +33,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 // Version informatin for save/load
-#define PERSISTENCE_VERSION				9
+#define PERSISTENCE_VERSION				10
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -479,6 +479,20 @@ HRESULT CMackieControlMaster::Save( IStream* pStm, BOOL bClearDirty )
 		return E_FAIL;
 	}
 
+	// PERSISTENCE_VERSION = 10
+	bool bUseHUIProtocol = m_cState.GetUseHUIProtocol();
+	if (FAILED(SafeWrite(pStm, &bUseHUIProtocol, sizeof(bUseHUIProtocol))))
+	{
+		TRACE("CMackieControlMaster::Save(): bUseHUIProtocol failed\n");
+		return E_FAIL;
+	}
+
+	bool bHUIKeypad = m_cState.GetHUIKeyPadControlsKeyPad();
+	if (FAILED(SafeWrite(pStm, &bHUIKeypad, sizeof(bHUIKeypad))))
+	{
+		TRACE("CMackieControlMaster::Save(): bHUIKeypad failed\n");
+		return E_FAIL;
+	}
 
 	if (bClearDirty)
 		m_bDirty = FALSE;
@@ -728,6 +742,25 @@ HRESULT CMackieControlMaster::Load( IStream* pStm )
 		}
 		m_cState.SetScrubBankSelectsTrackBus(bScrubBankSelectsTrackBus);
 	}
+	if (dwVer >= 10)
+	{
+		bool bUseHUIProtocol;
+		if (FAILED(SafeRead(pStm, &bUseHUIProtocol, sizeof(bUseHUIProtocol))))
+		{
+			TRACE("CMackieControlMaster::Load(): bUseHUIProtocol failed\n");
+			return E_FAIL;
+		}
+		m_cState.SetUseHUIProtocol(bUseHUIProtocol);
+
+		// HUI Keypad controls keypad keys rather than standard numeric keys above QUERTY
+		bool bHUIKeypad;
+		if (FAILED(SafeRead(pStm, &bHUIKeypad, sizeof(bHUIKeypad))))
+		{
+			TRACE("CMackieControlMaster::Load(): bHUIKeypad failed\n");
+			return E_FAIL;
+		}
+		m_cState.SetHUIKeyPadControlsKeyPad(bHUIKeypad);
+	}
 
 	m_bDirty = FALSE;
 
@@ -953,6 +986,31 @@ bool CMackieControlMaster::OnMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2)
 	if (CMackieControlXT::OnMidiInShort(bStatus, bD1, bD2))
 		return true;
 
+	if (UsingHUIProtocol())
+	{
+		if (bD1 == 0x0D)
+			return OnJog((bD2 & 0x40) ? (bD2 - 0x40) : (bD2 + 0x40)); // HUI goes reverse direction to MCU
+
+		if ((bD1 == 0x2F) || (bD1 == 0x2C)) // switch
+		{
+			BYTE b_D1 = 0;
+			BYTE b_D2 = 0;
+
+			bool translated = TranslateHUIButtons(m_bCurrentHUIZone, (bD2 & 0x0F), ((bD2 & 0x40) > 0), b_D1, b_D2);
+
+			if (translated)
+			{
+				if (b_D1 >= HUI_KEYPAD_0)
+					return OnHuiSwitch(b_D1, b_D2);
+				else
+					return OnSwitch(b_D1, b_D2);
+			}
+			else
+				return false;
+		}
+	}
+
+
 	switch (bStatus)
 	{
 		case 0xE8:
@@ -1020,7 +1078,10 @@ void CMackieControlMaster::QuerySerialNumber(BYTE bDeviceType)
 
 	if (!m_bHaveSerialNumber)
 	{
-		m_bDeviceType = m_bExpectedDeviceType;
+		if (GetUseHUIProtocol())
+			m_bDeviceType = 0x05; // HUI
+		else
+			m_bDeviceType = m_bExpectedDeviceType;
 
 		m_bHaveSerialNumber = true;
 
@@ -1267,3 +1328,474 @@ void CMackieControlMaster::ZeroAllFaders()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2)
+{
+	if (CMackieControlXT::TranslateHUIButtons(bCurrentZone, bPort, bOn, bD1, bD2))
+		return true;
+
+	bD1 = 0xFF;
+	bD2 = bOn ? 0x7F : 0x00;
+
+	switch (bCurrentZone)
+	{
+		case 0x08:
+			switch (bPort)
+			{
+				case 0x07:
+					bD1 = MC_SAVE;
+					break;
+			}
+			break;
+
+		case 0x09:
+			switch (bPort)
+			{
+				case 0x03:
+					bD1 = MC_MARKER;
+					break;
+			}
+			break;
+
+		case 0x13:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = HUI_KEYPAD_0;
+					break;
+
+				case 0x01:
+					bD1 = HUI_KEYPAD_1;
+					break;
+
+				case 0x02:
+					bD1 = HUI_KEYPAD_4;
+					break;
+
+				case 0x03:
+					bD1 = HUI_KEYPAD_2;
+					break;
+
+				case 0x04:
+					bD1 = HUI_KEYPAD_5;
+					break;
+
+				case 0x05:
+					bD1 = HUI_KEYPAD_DOT;
+					break;
+
+				case 0x06:
+					bD1 = HUI_KEYPAD_3;
+					break;
+
+				case 0x07:
+					bD1 = HUI_KEYPAD_6;
+					break;
+			}
+			break;
+
+		case 0x14:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = HUI_KEYPAD_ENTER;
+					break;
+
+				case 0x01:
+					bD1 = HUI_KEYPAD_PLUS;
+					break;
+			}
+			break;
+
+		case 0x15:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = HUI_KEYPAD_7;
+					break;
+
+				case 0x01:
+					bD1 = HUI_KEYPAD_8;
+					break;
+
+				case 0x02:
+					bD1 = HUI_KEYPAD_9;
+					break;
+
+				case 0x03:
+					bD1 = HUI_KEYPAD_MINUS;
+					break;
+
+				case 0x04:
+					bD1 = HUI_KEYPAD_CLR;
+					break;
+
+				case 0x05:
+					bD1 = HUI_KEYPAD_EQUALS;
+					break;
+
+				case 0x06:
+					bD1 = HUI_KEYPAD_FWDSLASH;
+					break;
+
+				case 0x07:
+					bD1 = HUI_KEYPAD_ASTERIX;
+					break;
+			}
+			break;
+
+		case 0x0A:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_CHANNEL_DOWN;
+					break;
+
+				case 0x01:
+					bD1 = MC_BANK_DOWN;
+					break;
+
+				case 0x02:
+					bD1 = MC_CHANNEL_UP;
+					break;
+
+				case 0x03:
+					bD1 = MC_BANK_UP;
+					break;
+			}
+			break;
+
+		case 0x0D:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_CURSOR_DOWN;
+					break;
+
+				case 0x01:
+					bD1 = MC_CURSOR_LEFT;
+					break;
+
+				case 0x02:
+					bD1 = MC_CURSOR_ZOOM;
+					break;
+
+				case 0x03:
+					bD1 = MC_CURSOR_RIGHT;
+					break;
+
+				case 0x04:
+					bD1 = MC_CURSOR_UP;
+					break;
+
+				case 0x05:
+					bD1 = MC_SCRUB;
+					break;
+			}
+			break;
+
+		case 0x0E:
+			switch (bPort)
+			{
+				case 0x01:
+					bD1 = MC_REWIND;
+					break;
+
+				case 0x02:
+					bD1 = MC_FAST_FORWARD;
+					break;
+
+				case 0x03:
+					bD1 = MC_STOP;
+					break;
+
+				case 0x04:
+					bD1 = MC_PLAY;
+					break;
+
+				case 0x05:
+					bD1 = MC_RECORD;
+					break;
+			}
+			break;
+
+		case 0x0F:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_HOME;
+					break;
+
+				case 0x03:
+					bD1 = MC_LOOP_ON_OFF;
+					break;
+
+				case 0x04:
+					bD1 = MC_PUNCH;
+					break;
+			}
+			break;
+
+		case 0x16:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_SMPTE;
+					break;
+
+				case 0x02:
+					bD1 = MC_BEATS;
+					break;
+
+				case 0x03:
+					bD1 = MC_RUDE;
+					break;
+			}
+			break;
+
+		case 0x17:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_PLUG_INS;
+					break;
+
+				case 0x01:
+					bD1 = MC_PAN;
+					break;
+
+				case 0x04:
+					bD1 = MC_SEND;
+					break;
+			}
+			break;
+
+		case 0x18:
+			switch (bPort)
+			{
+				case 0x01:
+					bD1 = MC_OFFSET;
+					break;
+
+				case 0x02:
+					bD1 = MC_READ_OFF;
+					break;
+
+				case 0x03:
+					bD1 = MC_DISARM;
+					break;
+
+				case 0x04:
+					bD1 = MC_SNAPSHOT;
+					break;
+
+				case 0x05:
+					bD1 = MC_DISARM;
+					break;
+
+				case 0x06:
+					bD1 = MC_JOG_PRM;
+					break;
+			}
+			break;
+
+		case 0x1A:
+			switch (bPort)
+			{
+				case 0x02:
+					bD1 = MC_SNAPSHOT;
+					break;
+			}
+			break;
+
+		case 0x1B:
+			bD1 = MC_F1 + bPort;
+			break;
+
+		case 0x1C:
+			switch (bPort)
+			{
+				case 0x00:
+					bD1 = MC_PARAM;
+					break;
+
+				case 0x02:
+					bD1 = MC_M1;
+					break;
+
+				case 0x03:
+					bD1 = MC_M2;
+					break;
+
+				case 0x04:
+					bD1 = MC_M3;
+					break;
+
+				case 0x05:
+					bD1 = MC_M4;
+					break;
+			}
+			break;
+	}
+
+	return (bD1 != 0xFF);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend)
+{
+	if (bForceSend); // TODO
+
+	if (CMackieControlXT::SetHuiLED(bID, bVal, bForceSend))
+		return true;
+
+	switch (bID)
+	{
+		case MC_LOOP_ON_OFF:
+			SendMidiShort(0xB0, 0x0C, 0x0F);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x43 : 0x03);
+			return true;
+
+		case MC_REWIND:
+			SendMidiShort(0xB0, 0x0C, 0x0E);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x41 : 0x01);
+			return true;
+
+		case MC_FAST_FORWARD:
+			SendMidiShort(0xB0, 0x0C, 0x0E);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x42 : 0x02);
+			return true;
+
+		case MC_STOP:
+			SendMidiShort(0xB0, 0x0C, 0x0E);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x43 : 0x03);
+			return true;
+
+		case MC_PLAY:
+			SendMidiShort(0xB0, 0x0C, 0x0E);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x44 : 0x04);
+			return true;
+
+		case MC_RECORD:
+			SendMidiShort(0xB0, 0x0C, 0x0E);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x45 : 0x05);
+			return true;
+
+		case MC_SCRUB:
+			SendMidiShort(0xB0, 0x0C, 0x0D);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x45 : 0x05);
+			return true;
+
+		case MC_PARAM:
+			SendMidiShort(0xB0, 0x0C, 0x1C);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x40 : 0x00);
+			return true;
+
+		case MC_SEND:
+			SendMidiShort(0xB0, 0x0C, 0x17);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x44 : 0x04);
+			return true;
+
+		case MC_PAN:
+			SendMidiShort(0xB0, 0x0C, 0x17);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x41 : 0x01);
+			return true;
+
+		case MC_PLUG_INS:  // not sure if this is right... this should mean bypass FX on a HUI
+			SendMidiShort(0xB0, 0x0C, 0x17);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x40 : 0x00);
+			return true;
+
+		/*
+		case MC_EQ:
+		case MC_DYNAMICS:
+		case MC_FLIP:
+		case MC_EDIT:
+			return true;
+		*/
+
+		case MC_READ_OFF:
+			SendMidiShort(0xB0, 0x0C, 0x18);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x42 : 0x02);
+			return true;
+
+		case MC_SNAPSHOT:  // use "write" button - the equivalent button on MCU overlay
+			SendMidiShort(0xB0, 0x0C, 0x18);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x44 : 0x04);
+
+			SendMidiShort(0xB0, 0x0C, 0x1A);  // also use "capture" button
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x42 : 0x02);
+
+			return true;
+
+		case MC_DISARM:  // use "touch" button - the equivalent button on MCU overlay
+			SendMidiShort(0xB0, 0x0C, 0x18);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x45 : 0x05);
+
+			SendMidiShort(0xB0, 0x0C, 0x18); // also use "off" button
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x43 : 0x03);
+			return true;
+
+		case MC_OFFSET:  // use "latch" button
+			SendMidiShort(0xB0, 0x0C, 0x18);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x41 : 0x01);
+			return true;
+
+		/*
+		case MC_SELECT:
+		case MC_TRACK:
+		case MC_AUX:
+		case MC_MAIN:
+		case MC_LOOP:
+			return true;
+		*/
+
+		case MC_SAVE:
+			SendMidiShort(0xB0, 0x0C, 0x08);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x47 : 0x07);
+			return true;
+
+		case MC_MARKER:
+			SendMidiShort(0xB0, 0x0C, 0x09);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x48 : 0x03);
+			return true;
+
+		case MC_PUNCH:
+			SendMidiShort(0xB0, 0x0C, 0x0F);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x44 : 0x04);
+			return true;
+
+		case MC_SMPTE:
+			SendMidiShort(0xB0, 0x0C, 0x16);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x40 : 0x00);
+			return true;
+
+		case MC_BEATS:
+			SendMidiShort(0xB0, 0x0C, 0x16);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x42 : 0x02);
+			return true;
+
+		case MC_RUDE:
+			SendMidiShort(0xB0, 0x0C, 0x16);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x43 : 0x03);
+			return true;
+
+		case MC_CURSOR_ZOOM:
+			SendMidiShort(0xB0, 0x0C, 0x0D);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x42 : 0x02);
+			return true;
+
+		case MC_JOG_PRM:
+			SendMidiShort(0xB0, 0x0C, 0x0D);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x46 : 0x06);
+			return true;
+
+		case MC_HOME:
+			SendMidiShort(0xB0, 0x0C, 0x0F);
+			SendMidiShort(0xB0, 0x2C, (bVal != 0) ? 0x40 : 0x00);
+			return true;
+
+		default: return false;
+	}
+}

@@ -177,6 +177,7 @@ public:
 	void SetFunctionKey(BYTE bN, DWORD dwCmdId);
 	CString GetFunctionKeyName(BYTE bN);
 	void SetFunctionKeyName(BYTE bN, CString strName);
+	virtual bool UsingHUIProtocol() { return false; };
 protected:
 
 	// MackieControlC4Reconfigure.cpp
@@ -260,6 +261,8 @@ protected:
 	DWORD m_dwTempDisplayValuesCounter[NUM_ROWS][NUM_COLS];
 
 	CKeyBinding m_cUserFunctionKeys[NUM_C4_USER_FUNCTION_KEYS];
+	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2) { return false; };
+	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend) { return false; };
 };
 
 /////////////////////////////////////////////////////////////////////////////

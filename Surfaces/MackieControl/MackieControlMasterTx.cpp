@@ -138,6 +138,9 @@ void CMackieControlMaster::UpdateTransportLEDs(bool bForceSend)
 
 void CMackieControlMaster::UpdateVSelectDisplay(bool bForceSend)
 {
+	if (UsingHUIProtocol())
+		return;
+
 	bool bDot = (m_cState.GetAssignmentMode() == MCS_ASSIGNMENT_CHANNEL_STRIP);
 
 	// Display from '1' to '0'
@@ -285,8 +288,10 @@ void CMackieControlMaster::UpdateTimeCodeDisplay(bool bForceSend)
 		char sFrame[8];
 		snprintf(sFrame, sizeof(sFrame), "%02d", timeCurrent.smpte.nFrame);
 
-		snprintf(sBuf, sizeof(sBuf), "%3s.%02d.%02d.%3s", sHour, timeCurrent.smpte.nMin,
-											timeCurrent.smpte.nSec, sFrame);
+		if (UsingHUIProtocol())
+			snprintf(sBuf, sizeof(sBuf), "%2s.%02d.%02d.%2s", sHour, timeCurrent.smpte.nMin, timeCurrent.smpte.nSec, sFrame);
+		else
+			snprintf(sBuf, sizeof(sBuf), "%3s.%02d.%02d.%3s", sHour, timeCurrent.smpte.nMin, timeCurrent.smpte.nSec, sFrame);
 	}
 	else
 	{
@@ -296,28 +301,59 @@ void CMackieControlMaster::UpdateTimeCodeDisplay(bool bForceSend)
 		if (FAILED(hr))
 			return;
 
-		snprintf(sBuf, sizeof(sBuf), "%3d%02d  %03d", timeCurrent.mbt.nMeas,
-										timeCurrent.mbt.nBeat,
-										timeCurrent.mbt.nTick);
+		if (UsingHUIProtocol())
+			snprintf(sBuf, sizeof(sBuf), "%03d.%02d.%03d", timeCurrent.mbt.nMeas, timeCurrent.mbt.nBeat, timeCurrent.mbt.nTick);
+		else
+			snprintf(sBuf, sizeof(sBuf), "%3d%02d  %03d", timeCurrent.mbt.nMeas, timeCurrent.mbt.nBeat, timeCurrent.mbt.nTick);
 	}
 
 	char *s = sBuf;
 
-	for (int n = 0; n < NUM_TIME_CODE_DISPLAY_CELLS; n++)
+	if (UsingHUIProtocol())
 	{
-		if (*s)
+		// HUI timecode display
+		// TODO: Make this more efficient. We shouldn't have to send out the whole 8 chars every time.
+
+		for (int n = 0; n < NUM_HUI_TIME_CODE_DISPLAY_CELLS; n++)
 		{
-			bool bDot = (s[1] == '.');
+			if (*s)
+			{
+				bool bDot = (s[1] == '.') && (n < 7);
+				
+				// buffer is populated right to left
+				m_bHuiTimeCodeSysExBuff[(14 - n)] = bDot ? (*s - 0x20) : (*s - 0x30);
 
-			m_cTimeCodeDisplay[n].SetChar(*s, bDot, bForceSend);
-
-			if (bDot)
+				if (bDot)
+					s++;
 				s++;
-			s++;
+			}
+			else
+			{
+				m_bHuiTimeCodeSysExBuff[14 - n] = 0;
+			}
 		}
-		else
+
+		SendMidiLong(16, &m_bHuiTimeCodeSysExBuff[0]);
+	}
+	else
+	{
+		// MCU timecode display
+		for (int n = 0; n < NUM_TIME_CODE_DISPLAY_CELLS; n++)
 		{
-			m_cTimeCodeDisplay[n].SetChar(' ', false, bForceSend);
+			if (*s)
+			{
+				bool bDot = (s[1] == '.');
+
+				m_cTimeCodeDisplay[n].SetChar(*s, bDot, bForceSend);
+
+				if (bDot)
+					s++;
+				s++;
+			}
+			else
+			{
+				m_cTimeCodeDisplay[n].SetChar(' ', false, bForceSend);
+			}
 		}
 	}
 }
@@ -327,6 +363,9 @@ void CMackieControlMaster::UpdateTimeCodeDisplay(bool bForceSend)
 void CMackieControlMaster::UpdateMasterFader(bool bForceSend)
 {
 	if (!HaveMixerStrips())
+		return;
+
+	if (UsingHUIProtocol())
 		return;
 
 	float fVal;

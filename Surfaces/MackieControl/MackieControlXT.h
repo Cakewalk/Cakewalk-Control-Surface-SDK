@@ -45,6 +45,9 @@ static const char s_szMackieControlXTFriendlyNamePropPage[] = "Mackie Control XT
 // Number of fader channels
 #define NUM_MAIN_CHANNELS			8
 
+// Number of refreshes before a ping is sent to the HUI
+#define HUI_PING_COUNTDOWN 100
+
 /////////////////////////////////////////////////////////////////////////////
 // CMackieControlXT
 
@@ -106,6 +109,7 @@ protected:
 	virtual void OnDisconnect();
 	virtual bool OnMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2);
 	virtual bool OnMidiInLong(DWORD cbLongMsg, const BYTE* pbLongMsg);
+	virtual bool OnHUIMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2);
 	virtual void OnReceivedSerialNumber();
 	virtual void SetAllFadersToDefault();
 	virtual void SetAllVPotsToDefault();
@@ -166,6 +170,13 @@ protected:
 	DWORD m_dwTempDisplayValuesCounter[NUM_MAIN_CHANNELS];
 
 	virtual void ZeroAllFaders();
+
+	// HUI specific stuff
+
+	int m_huiPingCounter = HUI_PING_COUNTDOWN;
+	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2);
+	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend);
+	void PingHuiIfRequired();
 };
 
 /////////////////////////////////////////////////////////////////////////////

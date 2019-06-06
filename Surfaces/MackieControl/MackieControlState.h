@@ -240,6 +240,8 @@ public:
 	bool GetDisableHandshake()			{ return m_bDisableHandshake; };
 	bool GetExcludeFiletersFromPlugins(){ return m_bExcludeFiltersFromPlugins; }
 	bool GetScrubBankSelectsTrackBus()	{ return m_bScrubBankSelectsTrackBus; }
+	bool GetUseHUIProtocol()			{ return m_bUseHUIProtocol;  }
+	bool GetHUIKeyPadControlsKeyPad()	{ return m_bHUIKeyPadControlsKeyPad; }
 
 	// Setters
 	void SetConfigureLayoutMode(bool bConfigureLayoutMode);
@@ -278,6 +280,8 @@ public:
 	void SetDisableHandshake(bool bDisableHandshake);
 	void SetExcludeFiltersFromPlugins(bool bExcludeFiltersFromPlugins);
 	void SetScrubBankSelectsTrackBus(bool bScrubBankSelectsTrackBus);
+	void SetUseHUIProtocol(bool bHUIProtocol);
+	void SetHUIKeyPadControlsKeyPad(bool bHUIKeyPadControlsKeyPad);
 
 	void SetTempDisplayText(const char *szText);
 
@@ -345,6 +349,8 @@ protected:
 	bool m_bDisableHandshake;
 	bool m_bExcludeFiltersFromPlugins;
 	bool m_bScrubBankSelectsTrackBus;
+	bool m_bUseHUIProtocol;
+	bool m_bHUIKeyPadControlsKeyPad;
 	CKeyBinding m_cUserFunctionKeys[NUM_USER_FUNCTION_KEYS];
 	CKeyBinding m_cUserFootSwitch[NUM_USER_FOOT_SWITCHES];
 	JogResolution m_eJogResolution;

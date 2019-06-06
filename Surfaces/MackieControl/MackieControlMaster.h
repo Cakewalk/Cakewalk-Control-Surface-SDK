@@ -47,6 +47,7 @@ static const char s_szMackieControlMasterFriendlyNamePropPage[] = "Mackie Contro
 
 // Number of digits in the time code display
 #define NUM_TIME_CODE_DISPLAY_CELLS		10
+#define NUM_HUI_TIME_CODE_DISPLAY_CELLS	8
 
 /////////////////////////////////////////////////////////////////////////////
 // CMackieControlMaster
@@ -128,7 +129,10 @@ public:
 	bool GetExcludeFiltersFromPlugins();
 	bool GetScrubBankSelectsTrackBus();
 	void SetScrubBankSelectsTrackBus(bool bVal);
-
+	void SetUseHUIProtocol(bool bVal);
+	bool GetUseHUIProtocol();
+	void SetHUIKeyPadControlsKeyPad(bool bVal);
+	bool GetHUIKeyPadControlsKeyPad();
 protected:
 	enum MASTER_IDs
 	{
@@ -175,6 +179,28 @@ protected:
 		MC_CURSOR_RIGHT,	MC_CURSOR_ZOOM,		MC_SCRUB,			MC_USER_A,
 		MC_USER_B,			MC_FADER_MASTER = 0x70,
 		MC_SMPTE,			MC_BEATS,			MC_RUDE
+	};
+
+	enum HUI_IDS
+	{
+		HUI_KEYPAD_0 = 0x80,
+		HUI_KEYPAD_1,
+		HUI_KEYPAD_2,
+		HUI_KEYPAD_3,
+		HUI_KEYPAD_4,
+		HUI_KEYPAD_5,
+		HUI_KEYPAD_6,
+		HUI_KEYPAD_7,
+		HUI_KEYPAD_8,
+		HUI_KEYPAD_9,
+		HUI_KEYPAD_ENTER,
+		HUI_KEYPAD_PLUS,
+		HUI_KEYPAD_MINUS,
+		HUI_KEYPAD_EQUALS,
+		HUI_KEYPAD_FWDSLASH,
+		HUI_KEYPAD_ASTERIX,
+		HUI_KEYPAD_DOT,
+		HUI_KEYPAD_CLR
 	};
 
 	HRESULT SafeWrite(IStream *pStm, void const *pv, ULONG cb);
@@ -319,6 +345,13 @@ protected:
 	void getTempTrackTemplateFilename();
 
 	virtual void ZeroAllFaders();
+
+	// HUI specific stuff
+
+	BYTE m_bHuiTimeCodeSysExBuff[16] = { 0xF0, 0x00, 0x00, 0x66, 0x05, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF7 };
+	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2);
+	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend);
+	bool OnHuiSwitch(BYTE bD1, BYTE bD2);
 };
 
 /////////////////////////////////////////////////////////////////////////////

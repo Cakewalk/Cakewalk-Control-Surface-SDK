@@ -1936,6 +1936,8 @@ void CMackieControlMaster::OnHandleScrubButton(bool bDown)
 	m_bScrubKeyDown = bDown;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 void CMackieControlMaster::OnHandleBankDownButton()
 {
 	// If the scrub button is down, switch to controlling tracks
@@ -1945,6 +1947,8 @@ void CMackieControlMaster::OnHandleBankDownButton()
 		OnSwitchBankDown();
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 void CMackieControlMaster::OnHandleBankUpButton()
 {
 	// If the scrub button is down, switch to controlling buses
@@ -1953,6 +1957,8 @@ void CMackieControlMaster::OnHandleBankUpButton()
 	else
 		OnSwitchBankUp();
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlMaster::DoExportTrackTemplate()
 {	
@@ -1989,6 +1995,8 @@ void CMackieControlMaster::DoExportTrackTemplate()
 	FakeKeyPress(false, false, false, VK_RETURN);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 void CMackieControlMaster::DoImportTrackTemplate()
 {
 	HGLOBAL hglbCopy;
@@ -2016,6 +2024,8 @@ void CMackieControlMaster::DoImportTrackTemplate()
 	WaitForInputIdle(GetCurrentProcess(), 10000);
 	FakeKeyPress(false, false, false, VK_RETURN);
 }
+
+/////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlMaster::OnSwitchTrack()
 {
@@ -2045,4 +2055,40 @@ void CMackieControlMaster::OnSwitchTrack()
 			break;
 	}
 	
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::OnHuiSwitch(BYTE bD1, BYTE bD2)
+{
+	CCriticalSectionAuto csa(m_cState.GetCS());
+
+	bool bDown = (bD2 == 0x7F);
+	bool useKeypad = m_cState.GetHUIKeyPadControlsKeyPad();
+
+	switch (bD1)
+	{
+		case HUI_KEYPAD_0:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD0 : '0');
+		case HUI_KEYPAD_1:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD1 : '1');
+		case HUI_KEYPAD_2:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD2 : '2');
+		case HUI_KEYPAD_3:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD3 : '3');
+		case HUI_KEYPAD_4:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD4 : '4');
+		case HUI_KEYPAD_5:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD5 : '5');
+		case HUI_KEYPAD_6:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD6 : '6'); 
+		case HUI_KEYPAD_7:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD7 : '7');
+		case HUI_KEYPAD_8:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD8 : '8');
+		case HUI_KEYPAD_9:			if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_NUMPAD9 : '9');
+		case HUI_KEYPAD_ENTER:		if (bDown) FakeKeyPress(false, false, false, VK_RETURN);
+		case HUI_KEYPAD_PLUS:		if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_ADD : '+');
+		case HUI_KEYPAD_MINUS:		if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_SUBTRACT : '-');
+		case HUI_KEYPAD_EQUALS:		if (bDown) FakeKeyPress(false, false, false, '=');
+		case HUI_KEYPAD_FWDSLASH:	if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_DIVIDE : '/');
+		case HUI_KEYPAD_ASTERIX:	if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_MULTIPLY : '*');
+		case HUI_KEYPAD_DOT:		if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_SEPARATOR : '.');
+	}
+
+	// Keep a note of the last button pressed
+	m_bLastButtonPressed = bD1;
+
+	return true;
 }

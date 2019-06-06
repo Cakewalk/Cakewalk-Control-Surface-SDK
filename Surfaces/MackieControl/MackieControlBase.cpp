@@ -519,6 +519,12 @@ void CMackieControlBase::SetLED(BYTE bID, BYTE bVal, bool bForceSend)
 	if (bID >= NUM_SWITCH_AND_LED_IDS)
 		return;
 
+	if (UsingHUIProtocol())
+	{
+		SetHuiLED(bID, bVal, bForceSend);
+		return;
+	}
+
 	// The hardware accepts:
 	//		0x00 - Off
 	//		0x01 - Blink
@@ -560,3 +566,8 @@ void CMackieControlBase::SetProjectLoadedState(bool bProjectLoadedState)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlBase::UsingHUIProtocol()
+{
+	return m_cState.GetUseHUIProtocol();
+}

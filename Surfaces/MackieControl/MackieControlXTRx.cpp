@@ -50,6 +50,9 @@ bool CMackieControlXT::OnVPot(BYTE bD1, BYTE bD2)
 	BYTE bChan = bD1 & 0x0F;
 	bool bLeft = (bD2 & 0x40) != 0;
 
+	if (UsingHUIProtocol())
+		bLeft = !bLeft;
+
 	CCriticalSectionAuto csa(m_cState.GetCS());
 
 	if (m_cState.GetConfigureLayoutMode())
@@ -72,8 +75,18 @@ bool CMackieControlXT::OnVPot(BYTE bD1, BYTE bD2)
 	{
 		if (m_SwVPot[bChan].HasBinding())
 		{
-			BYTE bVelocity = (bD2 & 0x0F);
-			float fVelocity = (float)(((bVelocity - 1) * 3) + 1);
+			BYTE bVelocity;
+			float fVelocity;
+			if (UsingHUIProtocol())
+			{
+				bVelocity = (bD2 > 0x40) ? (bD2 - 0x40) : bD2;
+				fVelocity = (float)(((bVelocity - 1) * 3) + 1);
+			}
+			else
+			{
+				bVelocity = (bD2 & 0x0F);
+				fVelocity = (float)(((bVelocity - 1) * 3) + 1);
+			}
 
 			float fStepSize = m_SwVPot[bChan].GetStepSize() * fVelocity;
 

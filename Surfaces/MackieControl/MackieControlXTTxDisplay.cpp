@@ -93,6 +93,16 @@ void CMackieControlXT::UpdateUpperLCD(bool bForceSend)
 			else
 				FormatTrackNameOrNumber(n, szBuf, sizeof(szBuf));
 
+			if (UsingHUIProtocol())
+			{
+				m_bHuiScribble[7]  = n;
+				m_bHuiScribble[8]  = szBuf[0];
+				m_bHuiScribble[9]  = szBuf[1];
+				m_bHuiScribble[10] = szBuf[2];
+				m_bHuiScribble[11] = szBuf[3];
+				SendMidiLong(13, &m_bHuiScribble[0]);
+			}
+			
 			::strlcat(szLine, szBuf, sizeof(szLine));
 		}
 
@@ -185,6 +195,7 @@ void CMackieControlXT::FormatTrackNameOrNumber(BYTE bChan, char *szTrack, int le
 	AssignmentMode eAssignmentMode = m_cState.GetAssignmentMode();
 
 	bool bDisplayValues = false;
+	int maxStrLen = UsingHUIProtocol() ? 4 : 6;
 
 	// Temp display the paramter value instead?
 	if (!m_cState.GetDisplayValues() && m_dwTempDisplayValuesCounter[bChan] > 0)
@@ -194,7 +205,7 @@ void CMackieControlXT::FormatTrackNameOrNumber(BYTE bChan, char *szTrack, int le
 
 	if (MCS_ASSIGNMENT_CHANNEL_STRIP == eAssignmentMode)
 	{
-		m_SwVPot[bChan].GetCrunchedParamLabel(szBuf, 6);
+		m_SwVPot[bChan].GetCrunchedParamLabel(szBuf, maxStrLen);
 	}
 	else
 	{
@@ -205,25 +216,33 @@ void CMackieControlXT::FormatTrackNameOrNumber(BYTE bChan, char *szTrack, int le
 		else if (m_cState.GetDisplayTrackNumbers())
 		{
 			if (m_SwStrip[bChan].StripExists())
-				snprintf(szBuf, sizeof(szBuf), "Trk%3d", m_SwStrip[bChan].GetStripNum() + 1);
+				snprintf(szBuf, sizeof(szBuf), UsingHUIProtocol() ? "T%3d" : "Trk%3d", m_SwStrip[bChan].GetStripNum() + 1);
 			else
 				szBuf[0] = 0;
 		}
 		else
 		{
-			m_SwStrip[bChan].GetCrunchedStripName(szBuf, 6);
+			m_SwStrip[bChan].GetCrunchedStripName(szBuf, maxStrLen);
 		}
 	}
 
-	szBuf[6] = 0;
-
-	snprintf(szTrack, len, "%-6s ", szBuf);
+	if (UsingHUIProtocol())
+	{
+		szBuf[4] = 0;
+		snprintf(szTrack, len, "%-4s", szBuf);
+	}
+	else
+	{
+		szBuf[6] = 0;
+		snprintf(szTrack, len, "%-6s ", szBuf);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlXT::FormatParamNameOrValue(BYTE bChan, char *szParam, int len)
 {
+	int maxStrLen = UsingHUIProtocol() ? 4 : 6;
 	// Display values?
 	bool bDisplayValues = m_cState.GetDisplayValues();
 
@@ -235,17 +254,23 @@ void CMackieControlXT::FormatParamNameOrValue(BYTE bChan, char *szParam, int len
 		char szBuf[16];
 
 		if (bDisplayValues)
-			m_SwVPot[bChan].GetCrunchedValueText(szBuf, 6);
+			m_SwVPot[bChan].GetCrunchedValueText(szBuf, maxStrLen);
 		else
-			m_SwVPot[bChan].GetCrunchedParamLabel(szBuf, 6);
+			m_SwVPot[bChan].GetCrunchedParamLabel(szBuf, maxStrLen);
 
 		szBuf[6] = 0;
 
-		snprintf(szParam, len, "%-6s ", szBuf);
+		if (UsingHUIProtocol())
+			snprintf(szParam, len, "%-4s", szBuf);
+		else
+			snprintf(szParam, len, "%-6s ", szBuf);
 	}
 	else
 	{
-		::strlcpy(szParam, "       ", len);
+		if (UsingHUIProtocol())
+			::strlcpy(szParam, "    ", len);
+		else
+			::strlcpy(szParam, "       ", len);
 	}
 }
 

@@ -160,6 +160,7 @@ protected:
 public:
 	DWORD GetStripCount(SONAR_MIXER_STRIP eMixerStrip);
 	SONAR_MIXER_STRIP GetMasterStripType()		{ return m_cState.MasterType(); };
+	virtual bool UsingHUIProtocol();
 protected:
 	bool GetStripName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, char *pszText, DWORD *pdwLen);
 	DWORD GetPluginCount(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum);
@@ -274,6 +275,14 @@ protected:
 	bool m_currentPluginIsTrackCompressor;
 	bool m_bProjectLoadedState;
 	virtual void SetProjectLoadedState(bool bProjectLoadedState);
+
+	// HUI specific stuff
+
+	BYTE m_bHuiScribble[13] = { 0xF0, 0x00, 0x00, 0x66, 0x05, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF7 };
+	BYTE m_bCurrentHUIZone;
+	BYTE m_bHUIFaderHi[8];
+	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend) = 0;
+	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////

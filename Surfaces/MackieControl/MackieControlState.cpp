@@ -112,6 +112,8 @@ CMackieControlState::CMackieControlState()
 	m_iMetersUpdatePeriod = 1;
 	m_eBusType = MIX_STRIP_BUS;
 	m_eMasterType = MIX_STRIP_MASTER;
+	m_bUseHUIProtocol = false;
+	m_bHUIKeyPadControlsKeyPad = false;
 }
 
 CMackieControlState::~CMackieControlState()
@@ -1014,6 +1016,20 @@ int CMackieControlState::HasCapability(ISonarIdentity *pSonarIdentity, HOST_CAPA
 	TRACE("HasCapability() %d = %d, %d\n", cap, hr, ret);
 
 	return ret;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlState::SetUseHUIProtocol(bool bUseHUIProtocol)
+{
+	m_bUseHUIProtocol = bUseHUIProtocol;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlState::SetHUIKeyPadControlsKeyPad(bool bHUIKeyPadControlsKeyPad)
+{
+	m_bHUIKeyPadControlsKeyPad = bHUIKeyPadControlsKeyPad;
 }
 
 /////////////////////////////////////////////////////////////////////////////

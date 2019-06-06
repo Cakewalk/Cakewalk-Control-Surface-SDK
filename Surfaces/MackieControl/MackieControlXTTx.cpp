@@ -28,6 +28,8 @@ void CMackieControlXT::OnRefreshSurface(DWORD fdwRefresh, bool bForceSend)
 	// Do the reconfigure before this so that the setup is up to date
 	UpdateToolbarDisplay(bForceSend);
 
+	PingHuiIfRequired();
+
 	// Now update the various sections
 	UpdateLCDDisplay(bForceSend);
 	UpdateLevelMeters(bForceSend);
@@ -175,6 +177,20 @@ void CMackieControlXT::UpdateFader(BYTE bChan, bool bForceSend)
 		fVal = 0.0f;
 
 	m_HwFader[bChan].SetVal(fVal, bForceSend);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlXT::PingHuiIfRequired()
+{
+	if (UsingHUIProtocol())
+	{
+		if ((m_huiPingCounter--) > 0)
+			return;
+
+		SendMidiShort(0x90, 0x00, 0x00);
+		m_huiPingCounter = HUI_PING_COUNTDOWN;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
