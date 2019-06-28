@@ -41,7 +41,14 @@ static char THIS_FILE[] = __FILE__;
 
 CMackieControlC4::CMackieControlC4()
 { 
-//	TRACE("CMackieControlC4::CMackieControlC4()\n");
+	m_cState.AddUnit(this);
+
+	// Load the plugin mappings here so that we can locate the .ini file correctly
+	m_cState.LoadPluginMappings();
+
+	UpdateToolbarDisplay(true);
+	
+	//	TRACE("CMackieControlC4::CMackieControlC4()\n");
 
 	// Override base class settings
 	m_bExpectedDeviceType = 0x17;
@@ -624,6 +631,13 @@ int CMackieControlC4::GetNumVPotsInSplit(C4SplitSection eSplit)
 		case C4_SPLIT_2_2:	return (eSplit == C4_UPPER) ? 16 : 16;
 		case C4_SPLIT_3_1:	return (eSplit == C4_UPPER) ? 24 :  8;
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+MackieSurfaceType CMackieControlC4::GetSurfaceType()
+{
+	return SURFACE_TYPE_C4;
 }
 
 /////////////////////////////////////////////////////////////////////////////

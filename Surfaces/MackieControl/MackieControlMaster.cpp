@@ -1799,3 +1799,12 @@ bool CMackieControlMaster::SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend)
 		default: return false;
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+MackieSurfaceType CMackieControlMaster::GetSurfaceType()
+{
+	return SURFACE_TYPE_MASTER;
+}
+
+/////////////////////////////////////////////////////////////////////////////

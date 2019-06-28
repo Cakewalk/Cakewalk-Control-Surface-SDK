@@ -82,13 +82,6 @@ CMackieControlBase::CMackieControlBase() :
 	m_bForceRefreshAllWhenDone = false;
 
 	CCriticalSectionAuto csa(m_cState.GetCS());
-
-	m_cState.AddUnit(this);
-
-	// Load the plugin mappings here so that we can locate the .ini file correctly
-	m_cState.LoadPluginMappings();
-
-	UpdateToolbarDisplay(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -571,3 +564,13 @@ bool CMackieControlBase::UsingHUIProtocol()
 {
 	return m_cState.GetUseHUIProtocol();
 }
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+MackieSurfaceType CMackieControlBase::GetSurfaceType()
+{
+	return SURFACE_TYPE_UNKNOWN;
+}
+
+/////////////////////////////////////////////////////////////////////////////

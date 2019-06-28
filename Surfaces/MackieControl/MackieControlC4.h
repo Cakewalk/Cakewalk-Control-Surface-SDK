@@ -178,6 +178,7 @@ public:
 	CString GetFunctionKeyName(BYTE bN);
 	void SetFunctionKeyName(BYTE bN, CString strName);
 	virtual bool UsingHUIProtocol() { return false; };
+	virtual MackieSurfaceType GetSurfaceType();
 protected:
 
 	// MackieControlC4Reconfigure.cpp

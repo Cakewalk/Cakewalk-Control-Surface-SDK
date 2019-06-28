@@ -307,7 +307,7 @@ public:
 	bool HaveStripFilter()			{ return m_bHaveStripFilter; };
 	SONAR_MIXER_STRIP BusType()		{ return m_eBusType; };
 	SONAR_MIXER_STRIP MasterType()	{ return m_eMasterType; };
-
+	DWORD m_dwNextAutoStripNumOffset;
 protected:
 	void SetModifiers(DWORD dwModifiers);
 	void CalculateFirstAndLastFader();

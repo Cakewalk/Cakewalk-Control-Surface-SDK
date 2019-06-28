@@ -37,6 +37,13 @@ static char THIS_FILE[] = __FILE__;
 
 CMackieControlXT::CMackieControlXT()
 {
+	m_cState.AddUnit(this);
+
+	// Load the plugin mappings here so that we can locate the .ini file correctly
+	m_cState.LoadPluginMappings();
+
+	UpdateToolbarDisplay(true);
+
 //	TRACE("CMackieControlXT::CMackieControlXT()\n");
 
 	m_bExpectedDeviceType = 0x15;
@@ -570,3 +577,12 @@ bool CMackieControlXT::SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend)
 		default: return false;
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+MackieSurfaceType CMackieControlXT::GetSurfaceType()
+{
+	return SURFACE_TYPE_XT;
+}
+
+/////////////////////////////////////////////////////////////////////////////

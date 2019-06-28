@@ -44,6 +44,14 @@
 #define NEW_CMD_STOP_WITH_NOW_MARKER					293
 #define NEW_CMD_AUTO_PUNCH_TOGGLE						544
 
+enum MackieSurfaceType
+{
+	SURFACE_TYPE_UNKNOWN,
+	SURFACE_TYPE_C4,
+	SURFACE_TYPE_XT,
+	SURFACE_TYPE_MASTER
+};
+
 /////////////////////////////////////////////////////////////////////////////
 
 #define snprintf	_snprintf
@@ -161,6 +169,7 @@ public:
 	DWORD GetStripCount(SONAR_MIXER_STRIP eMixerStrip);
 	SONAR_MIXER_STRIP GetMasterStripType()		{ return m_cState.MasterType(); };
 	virtual bool UsingHUIProtocol();
+	virtual MackieSurfaceType GetSurfaceType();
 protected:
 	bool GetStripName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, char *pszText, DWORD *pdwLen);
 	DWORD GetPluginCount(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum);

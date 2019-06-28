@@ -133,6 +133,7 @@ public:
 	bool GetUseHUIProtocol();
 	void SetHUIKeyPadControlsKeyPad(bool bVal);
 	bool GetHUIKeyPadControlsKeyPad();
+	virtual MackieSurfaceType GetSurfaceType();
 protected:
 	enum MASTER_IDs
 	{

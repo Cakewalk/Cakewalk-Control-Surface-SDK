@@ -84,7 +84,7 @@ public:
 	virtual STDMETHODIMP GetTypeInfo( UINT, LCID, ITypeInfo** );
 	virtual STDMETHODIMP GetIDsOfNames( REFIID, OLECHAR**, UINT, LCID, DISPID* );
 	virtual STDMETHODIMP Invoke( DISPID, REFIID, LCID, WORD, DISPPARAMS*, VARIANT*, EXCEPINFO*, UINT* );
-	
+	virtual MackieSurfaceType GetSurfaceType();
 // Attributes
 	// TODO:  Declare methods which deal with setting or retreiving values here.
 	

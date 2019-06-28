@@ -786,6 +786,15 @@ void CMackieControlState::AddUnit(CMackieControlBase *pUnit)
 {
 	RemoveUnit(pUnit);	// Just in case
 
+	if (m_ListOfUnits.size() == 0)
+		m_dwNextAutoStripNumOffset = 0;
+
+	if (pUnit->GetSurfaceType() >= SURFACE_TYPE_XT)
+	{
+		pUnit->SetUnitStripNumOffset(m_dwNextAutoStripNumOffset);
+		m_dwNextAutoStripNumOffset += 8;
+	}
+
 	m_ListOfUnits.push_back(pUnit);
 
 	CalculateFirstAndLastFader();
