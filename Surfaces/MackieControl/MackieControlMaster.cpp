@@ -1439,7 +1439,7 @@ bool CMackieControlMaster::TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bo
 					break;
 
 				case 0x07:
-					bD1 = HUI_KEYPAD_ASTERIX;
+					bD1 = HUI_KEYPAD_ASTERISK;
 					break;
 			}
 			break;

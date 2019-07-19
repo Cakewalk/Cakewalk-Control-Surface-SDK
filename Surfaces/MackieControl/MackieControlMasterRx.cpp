@@ -1165,7 +1165,7 @@ void CMackieControlMaster::OnSwitchSave()
 			break;
 
 		case MCS_MODIFIER_M2:
-			DoCommand(CMD_SAVE_COPY_AS);
+			DoCommand(CMD_FILE_SAVE_COPY_AS);
 			break;
 
 		case MCS_MODIFIER_M3:
@@ -2083,7 +2083,7 @@ bool CMackieControlMaster::OnHuiSwitch(BYTE bD1, BYTE bD2)
 		case HUI_KEYPAD_MINUS:		if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_SUBTRACT : '-');
 		case HUI_KEYPAD_EQUALS:		if (bDown) FakeKeyPress(false, false, false, '=');
 		case HUI_KEYPAD_FWDSLASH:	if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_DIVIDE : '/');
-		case HUI_KEYPAD_ASTERIX:	if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_MULTIPLY : '*');
+		case HUI_KEYPAD_ASTERISK:	if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_MULTIPLY : '*');
 		case HUI_KEYPAD_DOT:		if (bDown) FakeKeyPress(false, false, false, useKeypad ? VK_SEPARATOR : '.');
 	}
 
