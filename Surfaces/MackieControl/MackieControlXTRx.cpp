@@ -18,6 +18,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #define ONE_OVER_1023		0.0009775171065493646f
+#define MC_LOOP_ON_OFF		89
+#define MC_SCRUB			101
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -115,6 +117,7 @@ bool CMackieControlXT::OnSwitch(BYTE bD1, BYTE bD2)
 	CCriticalSectionAuto csa(m_cState.GetCS());
 
 	bool bDown = (bD2 == 0x7F);
+	bool bResult = true;
 
 	switch (bD1)
 	{
@@ -123,7 +126,7 @@ bool CMackieControlXT::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_REC_ARM_5:	case MC_REC_ARM_6:
 		case MC_REC_ARM_7:	case MC_REC_ARM_8:
 			if (bDown)
-				OnSwitchRecArm(bD1 - MC_REC_ARM_1);
+				bResult = OnSwitchRecArm(bD1 - MC_REC_ARM_1);
 			break;
 
 		case MC_SOLO_1:		case MC_SOLO_2:
@@ -131,7 +134,7 @@ bool CMackieControlXT::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_SOLO_5:		case MC_SOLO_6:
 		case MC_SOLO_7:		case MC_SOLO_8:
 			if (bDown)
-				OnSwitchSolo(bD1 - MC_SOLO_1);
+				bResult = OnSwitchSolo(bD1 - MC_SOLO_1);
 			break;
 
 		case MC_MUTE_1:		case MC_MUTE_2:
@@ -139,7 +142,7 @@ bool CMackieControlXT::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_MUTE_5:		case MC_MUTE_6:
 		case MC_MUTE_7:		case MC_MUTE_8:
 			if (bDown)
-				OnSwitchMute(bD1 - MC_MUTE_1);
+				bResult = OnSwitchMute(bD1 - MC_MUTE_1);
 			break;
 
 		case MC_SELECT_1:	case MC_SELECT_2:
@@ -172,7 +175,7 @@ bool CMackieControlXT::OnSwitch(BYTE bD1, BYTE bD2)
 	// It's one of ours, so record if it's currently pressed
 	m_bSwitches[bD1] = bDown;
 
-	return true;
+	return bResult;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -194,8 +197,11 @@ void CMackieControlXT::OnSwitchVPot(BYTE bChan)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlXT::OnSwitchRecArm(BYTE bChan)
+bool CMackieControlXT::OnSwitchRecArm(BYTE bChan)
 {
+	if ( m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB])
+		return false; // let Master handle this
+
 	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
 	{
 		case MCS_MODIFIER_NONE:
@@ -219,32 +225,37 @@ void CMackieControlXT::OnSwitchRecArm(BYTE bChan)
 		default:
 			break;
 	}
+
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlXT::OnSwitchSolo(BYTE bChan)
+bool CMackieControlXT::OnSwitchSolo(BYTE bChan)
 {
-	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
+	if ( m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB])
+		return false; // let Master handle this
+
+	switch ( m_cState.GetModifiers( M1_TO_M4_MASK ) )
 	{
 		case MCS_MODIFIER_NONE:
+		{
+			float fVal;
+
+			HRESULT hr = m_SwSolo[bChan].GetVal( &fVal );
+
+			if ( SUCCEEDED( hr ) )
 			{
-				float fVal;
+				fVal = (fVal >= 0.5f) ? 0.0f : 1.0f;
 
-				HRESULT hr = m_SwSolo[bChan].GetVal(&fVal);
+				hr = m_SwSolo[bChan].SetVal( fVal );
 
-				if (SUCCEEDED(hr))
-				{
-					fVal = (fVal >= 0.5f) ? 0.0f : 1.0f;
-
-					hr = m_SwSolo[bChan].SetVal(fVal);
-
-					// Only Select if enabling solo
-					if (fVal >= 0.5 && m_cState.GetSoloSelectsChannel() && SUCCEEDED(hr))
-						OnSwitchSelect(bChan);
-				}
+				// Only Select if enabling solo
+				if ( fVal >= 0.5 && m_cState.GetSoloSelectsChannel() && SUCCEEDED( hr ) )
+					OnSwitchSelect( bChan );
 			}
-			break;
+		}
+		break;
 
 		case MCS_MODIFIER_M4:
 			ClearAllSolos();
@@ -253,12 +264,17 @@ void CMackieControlXT::OnSwitchSolo(BYTE bChan)
 		default:
 			break;
 	}
+
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlXT::OnSwitchMute(BYTE bChan)
+bool CMackieControlXT::OnSwitchMute(BYTE bChan)
 {
+	if ( m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB] )
+		return false; // let Master handle this
+
 	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
 	{
 		case MCS_MODIFIER_NONE:
@@ -284,6 +300,8 @@ void CMackieControlXT::OnSwitchMute(BYTE bChan)
 		default:
 			break;
 	}
+
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////

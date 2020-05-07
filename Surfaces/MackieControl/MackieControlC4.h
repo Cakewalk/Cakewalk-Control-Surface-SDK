@@ -151,6 +151,8 @@ protected:
 	void SetMixerStrip(C4SplitSection eSplit, SONAR_MIXER_STRIP eMixerStrip);
 	Assignment GetAssignment(C4SplitSection eSplit);
 	void SetAssignment(C4SplitSection eSplit, Assignment eAssignment);
+	Assignment GetPreSynthRackAssignment(C4SplitSection eSplit);
+	void SetPreSynthRackAssignment( C4SplitSection eSplit, Assignment eAssignment );
 	AssignmentMode GetAssignmentMode(C4SplitSection eSplit);
 	DWORD GetPluginNumOffset(C4SplitSection eSplit);
 	void ShiftPluginNumOffset(C4SplitSection eSplit, int iAmount);
@@ -247,6 +249,7 @@ protected:
 	bool m_bLockMode[NUM_SPLITS];
 	SONAR_MIXER_STRIP m_eMixerStrip[NUM_SPLITS];
 	Assignment m_eAssignment[NUM_SPLITS];
+	Assignment m_ePreSynthRackAssignment[NUM_SPLITS];
 	Assignment m_ePreviousAssignment[NUM_SPLITS];
 	AssignmentMode m_eAssignmentMode[NUM_SPLITS];
 	bool m_bEnableMeters[NUM_SPLITS];

@@ -94,7 +94,7 @@ CMackieControlC4::CMackieControlC4()
 		{
 			// The first send parameter is send enable,
 			// so change the starting point to 1 (send level)
-			m_dwParamNumOffset[s][n][MCS_ASSIGNMENT_SEND][MCS_ASSIGNMENT_MUTLI_CHANNEL] = 1;
+			m_dwParamNumOffset[s][n][MCS_ASSIGNMENT_SEND][MCS_ASSIGNMENT_MULTI_CHANNEL] = 1;
 		}
 
 		m_dwSelectedStripNum[s] = 0;
@@ -103,6 +103,7 @@ CMackieControlC4::CMackieControlC4()
 		m_eAssignment[s] = MCS_ASSIGNMENT_PARAMETER;
 		m_eAssignmentMode[s] = MCS_ASSIGNMENT_CHANNEL_STRIP;
 		m_ePreviousAssignment[s] = m_eAssignment[s];
+		m_ePreSynthRackAssignment[s] = m_eAssignment[s];
 
 		m_bEnableMeters[s] = false;
 		m_bDisplayValues[s] = false;
@@ -562,6 +563,7 @@ void CMackieControlC4::TempDisplaySelectedTrackName(C4SplitSection eSplit)
 		case MIX_STRIP_MAIN:	snprintf(szTrackType, sizeof(szTrackType), "VMain %c", dwStripNum + 'A');	break;
 		case MIX_STRIP_BUS:		snprintf(szTrackType, sizeof(szTrackType), "Bus %d", dwStripNum + 1);		break;
 		case MIX_STRIP_MASTER:	snprintf(szTrackType, sizeof(szTrackType), "Master %d", dwStripNum + 1);	break;
+		case MIX_STRIP_RACK:	snprintf(szTrackType, sizeof(szTrackType), "Synth Rack");					break;
 		default:
 			return;
 	}
@@ -578,12 +580,25 @@ void CMackieControlC4::TempDisplaySelectedTrackName(C4SplitSection eSplit)
 		if (GetCurrentPluginName(GetAssignment(eSplit), GetMixerStrip(eSplit),
 									GetSelectedStripNum(eSplit), dwPluginNum,
 									szPluginName, &dwLen))
+		{
+			if ( eMixerStrip == MIX_STRIP_RACK )
+				snprintf( szLine, sizeof( szLine ), "Rack Synth %d: %s", dwPluginNum + 1, szPluginName );
+			else
 			snprintf(szLine, sizeof(szLine), "%s: \"%s\", Plugin %d: \"%s\"", szTrackType, szStripName, dwPluginNum + 1, szPluginName);
+		}
+		else
+		{
+			if ( eMixerStrip == MIX_STRIP_RACK )
+				snprintf( szLine, sizeof( szLine ), "Rack Synth %d: --None--", dwPluginNum + 1);
 		else
 			snprintf(szLine, sizeof(szLine), "%s: \"%s\", Plugin %d: --None--", szTrackType, szStripName, dwPluginNum + 1);
 	}
+	}
 	else
 	{
+		if ( eMixerStrip == MIX_STRIP_RACK )
+			snprintf( szLine, sizeof( szLine ), "%s", szTrackType );
+		else
 		snprintf(szLine, sizeof(szLine), "%s: \"%s\"", szTrackType, szStripName);
 	}
 

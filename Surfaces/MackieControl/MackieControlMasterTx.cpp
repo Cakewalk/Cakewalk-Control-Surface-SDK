@@ -36,7 +36,8 @@ void CMackieControlMaster::OnRefreshSurface(DWORD fdwRefresh, bool bForceSend)
 	// Now update the master section
 	CCriticalSectionAuto csa(m_cState.GetCS());
 
-	ReconfigureMaster(bForceSend);
+	if (!GetUseHUIProtocol())
+		ReconfigureMaster(bForceSend);
 
 	// Do the reconfigure before this so that the setup is up to date
 	UpdateToolbarDisplay(bForceSend);
@@ -46,7 +47,7 @@ void CMackieControlMaster::OnRefreshSurface(DWORD fdwRefresh, bool bForceSend)
 	UpdateVSelectDisplay(bForceSend);
 	UpdateTimeCodeDisplay(bForceSend);
 
-	if (!m_cState.GetDisableFaders())
+	if (!m_cState.GetDisableFaders() && !GetUseHUIProtocol())
 		UpdateMasterFader(bForceSend);
 }
 
@@ -143,10 +144,6 @@ void CMackieControlMaster::UpdateVSelectDisplay(bool bForceSend)
 
 	bool bDot = (m_cState.GetAssignmentMode() == MCS_ASSIGNMENT_CHANNEL_STRIP);
 
-	// Display from '1' to '0'
-	DWORD dwPluginNum = m_cState.GetPluginNumOffset() + 1;
-	if (dwPluginNum > 9)
-		dwPluginNum -= 10;
 
 	switch (m_cState.GetAssignment())
 	{
@@ -194,23 +191,31 @@ void CMackieControlMaster::UpdateVSelectDisplay(bool bForceSend)
 			break;
 
 		case MCS_ASSIGNMENT_PLUGIN:
-			m_cVSelectDisplay[0].SetChar('P', false, bForceSend);
-			m_cVSelectDisplay[1].SetChar((char)dwPluginNum + '0', bDot, bForceSend);
+			if ( m_cState.GetMixerStrip() == MIX_STRIP_RACK )
+			{
+				m_cVSelectDisplay[0].SetChar( 'S', false, bForceSend );
+				m_cVSelectDisplay[1].SetChar( 'y', false, bForceSend );
+			}
+			else
+			{
+				m_cVSelectDisplay[0].SetChar( 'P', false, bForceSend );
+				m_cVSelectDisplay[1].SetChar( 'l', false, bForceSend );
+			}
 			break;
 
 		case MCS_ASSIGNMENT_EQ:
 			m_cVSelectDisplay[0].SetChar('E', false, bForceSend);
-			m_cVSelectDisplay[1].SetChar((char)dwPluginNum + '0', bDot, bForceSend);
+			m_cVSelectDisplay[1].SetChar('q', false, bForceSend );
 			break;
 
 		case MCS_ASSIGNMENT_EQ_FREQ_GAIN:
-			m_cVSelectDisplay[0].SetChar('F', false, bForceSend);
-			m_cVSelectDisplay[1].SetChar((char)dwPluginNum + '0', bDot, bForceSend);
+			m_cVSelectDisplay[0].SetChar( 'F', false, bForceSend );
+			m_cVSelectDisplay[1].SetChar( 'g', false, bForceSend );
 			break;
 
 		case MCS_ASSIGNMENT_DYNAMICS:
-			m_cVSelectDisplay[0].SetChar('D', false, bForceSend);
-			m_cVSelectDisplay[1].SetChar((char)dwPluginNum + '0', bDot, bForceSend);
+			m_cVSelectDisplay[0].SetChar( 'D', false, bForceSend );
+			m_cVSelectDisplay[1].SetChar( 'y', false, bForceSend );
 			break;
 
 		default:

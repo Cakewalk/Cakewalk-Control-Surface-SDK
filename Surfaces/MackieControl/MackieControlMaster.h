@@ -224,6 +224,8 @@ protected:
 	void ShiftStripNumOffset(int iAmount);
 	void ShiftPluginNumOffset(int iAmount);
 	void ShiftParamNumOffset(int iAmount);
+	void SetPluginNumOffset( int iPluginNumOffset );
+	void SetParamNumOffset( int iParamNumOffset );
 	void SafeSetMasterFaderOffset(SONAR_MIXER_STRIP eMixerStrip, DWORD dwOffset);
 	void TempDisplayMasterFader();
 	void TempDisplayMasterFaderPan();
@@ -274,7 +276,7 @@ protected:
 	void OnSwitchPunch();
 	void OnSelectNavigationMode(NavigationMode eNavigationMode);
 	void OnSwitchJogPrm();
-	void OnSwitchLoopOnOff();
+	void OnSwitchLoopOnOff(bool bDown);
 	void OnSwitchHome();
 	void OnSwitchRewind(bool bDown);
 	void OnSwitchFastForward(bool bDown);
@@ -291,15 +293,21 @@ protected:
 	void OnSwitchUserB();
 	void OnSwitchMasterFader(bool bDown);
 	void OnSwitchTrack();
+	void OnSwitchAux();
+	void OnSwitchMain();
+	void OnSwitchPlugin(bool bSwitchToSynthRack);
+	void OnSwitchSolo( BYTE nSwitch, bool bDown );
+	void OnSwitchMute( BYTE nSwitch, bool bDown );
+	void OnSwitchRecArm( BYTE nSwitch, bool bDown );
 	void TransportTimerCallback();
 	void MoveRewindOrFastForward(Direction eDir);
 	void SetRewindOrFastForward(Direction eDir);
 	void KeyRepeatTimerCallback();
 	void DoCursorKey(BOOL bKey);
-	void DoCursorKeyUp();
-	void DoCursorKeyDown();
-	void DoCursorKeyLeft();
-	void DoCursorKeyRight();
+	bool DoCursorKeyUp();
+	bool DoCursorKeyDown();
+	bool DoCursorKeyLeft();
+	bool DoCursorKeyRight();
 	void OnHandleScrubButton(bool bDown);
 	void OnHandleBankDownButton();
 	void OnHandleBankUpButton();
@@ -314,6 +322,8 @@ protected:
 	void UpdateVSelectDisplay(bool bForceSend);
 	void UpdateTimeCodeDisplay(bool bForceSend);
 	void UpdateMasterFader(bool bForceSend);
+	void SavePreSynthRackAssignments();
+	void RestorePreSynthRackAssignments();
 
 	bool m_bWasInEQFreqGainMode;
 

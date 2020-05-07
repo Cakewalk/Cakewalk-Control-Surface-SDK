@@ -22,6 +22,14 @@
 
 void CMackieControlXT::UpdateLCDDisplay(bool bForceSend)
 {
+	// If we're calling this for the first time, clear both LCD lines
+	// to remove the default startup message on the LCD screen
+	if ( bFirstLCDRefreshCall )
+	{
+		ClearLCDDisplay( true, false );
+		bFirstLCDRefreshCall = false;
+	}
+
 	// Layout mode?
 	if (m_cState.GetConfigureLayoutMode())
 	{
@@ -41,10 +49,22 @@ void CMackieControlXT::UpdateLCDDisplay(bool bForceSend)
 
 	if (!IsProjectLoaded())
 	{
+		// If we've just unloaded a project, ensure any left over meters are cleared
+		if ( bFirstUnloadedProjectRefreshCall )
+		{
+			ClearLCDDisplay( true, false );
+			bFirstUnloadedProjectRefreshCall = false;
+		}
+
 		m_HwLCDDisplay.WriteCentered(0, "No Cakewalk Project Loaded", bForceSend);
 		m_HwLCDDisplay.WriteCentered(1, "", bForceSend);
 
 		return;
+	}
+	else
+	{
+		// Project is loaded, but ensure this is true for when the project is next closed
+		bFirstUnloadedProjectRefreshCall = true;
 	}
 
 	// Refresh the upper line
@@ -114,11 +134,14 @@ void CMackieControlXT::UpdateUpperLCD(bool bForceSend)
 
 void CMackieControlXT::UpdateLowerLCD(bool bForceSend)
 {
+	if ( UsingHUIProtocol() )
+		return;
+
 	char szLine[128];
 	szLine[0] = 0;
 	BYTE bX = 0;
 
-	bool bDisplayLevelMeters = (m_cState.GetAssignmentMode() == MCS_ASSIGNMENT_MUTLI_CHANNEL &&
+	bool bDisplayLevelMeters = (m_cState.GetAssignmentMode() == MCS_ASSIGNMENT_MULTI_CHANNEL &&
 								m_cState.GetDisplayLevelMeters() == METERS_BOTH);
 
 	bool bDisplayFlip = m_cState.GetDisplayFlip();

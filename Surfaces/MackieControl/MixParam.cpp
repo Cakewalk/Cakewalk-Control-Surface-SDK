@@ -161,7 +161,7 @@ HRESULT CMixParam::GetCrunchedStripName(LPSTR pszText, DWORD dwLen)
 	pszText[0] = 0;
 
 	char szBuf[128];
-	DWORD dwTmpLen = sizeof(szBuf);
+	DWORD dwTmpLen = sizeof(szBuf) - 1;
 
 	HRESULT hr = GetStripName(szBuf, &dwTmpLen);
 
@@ -184,7 +184,7 @@ HRESULT CMixParam::GetCrunchedParamLabel(LPSTR pszText, DWORD dwLen)
 	pszText[0] = 0;
 
 	char szBuf[128];
-	DWORD dwTmpLen = sizeof(szBuf);
+	DWORD dwTmpLen = sizeof(szBuf) - 1;
 
 	HRESULT hr = GetParamLabel(szBuf, &dwTmpLen);
 

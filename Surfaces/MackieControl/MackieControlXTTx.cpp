@@ -21,14 +21,14 @@ void CMackieControlXT::OnRefreshSurface(DWORD fdwRefresh, bool bForceSend)
 {
 //	TRACE("CMackieControlXT::OnRefreshSurface()\n");
 
+	PingHuiIfRequired();
+
 	CCriticalSectionAuto csa(m_cState.GetCS());
 
 	ReconfigureXT(bForceSend);
 
 	// Do the reconfigure before this so that the setup is up to date
 	UpdateToolbarDisplay(bForceSend);
-
-	PingHuiIfRequired();
 
 	// Now update the various sections
 	UpdateLCDDisplay(bForceSend);
@@ -185,6 +185,12 @@ void CMackieControlXT::PingHuiIfRequired()
 {
 	if (UsingHUIProtocol())
 	{
+		if ( HUI_PING_COUNTDOWN == 1 )
+		{
+			SendMidiShort( 0x90, 0x00, 0x00 );
+			return;
+		}
+
 		if ((m_huiPingCounter--) > 0)
 			return;
 

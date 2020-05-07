@@ -148,6 +148,10 @@ HRESULT CMackieControlMaster::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 				strStatus =_T( "Mstr");
 				break;
 
+			case MIX_STRIP_RACK:
+				strStatus = _T( "SynR" );
+				break;
+
 			default:
 				strStatus = _T("Err0");
 				break;
@@ -181,6 +185,10 @@ HRESULT CMackieControlMaster::GetStatusText( LPSTR pszStatus, DWORD* pdwLen )
 
 			case MIX_STRIP_MASTER:
 				strBuf.Format(_T("Mstr %d"), m_SwMasterFader.GetStripNum() + 1);
+				break;
+
+			case MIX_STRIP_RACK:
+				strBuf.Format( _T( "SynR %d" ), m_SwMasterFader.GetStripNum() + 1 );
 				break;
 
 			default:
@@ -1160,6 +1168,21 @@ void CMackieControlMaster::ShiftStripNumOffset(int iAmount)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void CMackieControlMaster::SetPluginNumOffset( int iPluginNumOffset )
+{
+	if ( IsAPluginMode( m_cState.GetAssignment() ) )
+	{
+		if ( iPluginNumOffset < 0 )
+			iPluginNumOffset = 0;
+		else if ( iPluginNumOffset > MAX_PLUGINS )
+			iPluginNumOffset = MAX_PLUGINS;
+
+		m_cState.SetPluginNumOffset( iPluginNumOffset );
+
+		TempDisplaySelectedTrackName();
+	}
+}
+
 void CMackieControlMaster::ShiftPluginNumOffset(int iAmount)
 {
 	if (IsAPluginMode(m_cState.GetAssignment()))
@@ -1168,13 +1191,41 @@ void CMackieControlMaster::ShiftPluginNumOffset(int iAmount)
 
 		if (iPluginNumOffset < 0)
 			iPluginNumOffset = 0;
-		else if (iPluginNumOffset > 9)
-			iPluginNumOffset = 9;
+		else if (iPluginNumOffset > MAX_PLUGINS )
+			iPluginNumOffset = MAX_PLUGINS;
 
 		m_cState.SetPluginNumOffset(iPluginNumOffset);
 
 		TempDisplaySelectedTrackName();
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetParamNumOffset( int iParamNumOffset )
+{
+	int iNumParams = GetNumParams( m_cState.GetMixerStrip(), m_cState.GetSelectedStripNum(),
+		m_cState.GetPluginNumOffset(), m_cState.GetAssignment() );
+
+	if ( MCS_ASSIGNMENT_EQ_FREQ_GAIN == m_cState.GetAssignment() ||
+		MCS_ASSIGNMENT_CHANNEL_STRIP == m_cState.GetAssignmentMode() ||
+		m_cState.GetMixerStrip() == MIX_STRIP_RACK )
+	{
+		int iLastFader = m_cState.GetLastFaderNumber();
+
+		if ( iParamNumOffset + iLastFader >= iNumParams )
+			iParamNumOffset = iNumParams - iLastFader - 1;
+	}
+	else	// MCS_ASSIGNMENT_MUTLI_CHANNEL
+	{
+		if ( iParamNumOffset >= iNumParams )
+			iParamNumOffset = iNumParams - 1;
+	}
+
+	if ( iParamNumOffset < 0 )
+		iParamNumOffset = 0;
+
+	m_cState.SetParamNumOffset( iParamNumOffset );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1187,7 +1238,8 @@ void CMackieControlMaster::ShiftParamNumOffset(int iAmount)
 									m_cState.GetPluginNumOffset(), m_cState.GetAssignment());
 
 	if (MCS_ASSIGNMENT_EQ_FREQ_GAIN == m_cState.GetAssignment() ||
-		MCS_ASSIGNMENT_CHANNEL_STRIP == m_cState.GetAssignmentMode())
+		  MCS_ASSIGNMENT_CHANNEL_STRIP == m_cState.GetAssignmentMode() ||
+		  m_cState.GetMixerStrip() == MIX_STRIP_RACK )
 	{
 		int iLastFader = m_cState.GetLastFaderNumber();
 
@@ -1248,6 +1300,10 @@ void CMackieControlMaster::TempDisplayMasterFader()
 
 		case MIX_STRIP_MASTER:
 			snprintf(szBuf, sizeof(szBuf), "Master Fader = Master %d", dwOffset + 1);
+			break;
+
+		case MIX_STRIP_RACK:
+			snprintf( szBuf, sizeof( szBuf ), "Synth Rack = Synth %d", dwOffset + 1 );
 			break;
 
 		default:
@@ -1562,6 +1618,10 @@ bool CMackieControlMaster::TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bo
 
 				case 0x01:
 					bD1 = MC_PAN;
+					break;
+
+				case 0x02: // MCU HUI Emulation
+					bD1 = MC_PARAM;
 					break;
 
 				case 0x04:

@@ -44,6 +44,8 @@
 #define NEW_CMD_STOP_WITH_NOW_MARKER					293
 #define NEW_CMD_AUTO_PUNCH_TOGGLE						544
 
+#define MAX_PLUGINS	99
+
 enum MackieSurfaceType
 {
 	SURFACE_TYPE_UNKNOWN,

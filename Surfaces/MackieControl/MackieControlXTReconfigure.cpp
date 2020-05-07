@@ -42,7 +42,7 @@ void CMackieControlXT::ReconfigureXT(bool bForce)
 	// Check for changes in the number of plugins
 	if (IsAPluginMode(eAssignment))
 	{
-		if (MCS_ASSIGNMENT_MUTLI_CHANNEL == eAssignmentMode)
+		if (MCS_ASSIGNMENT_MULTI_CHANNEL == eAssignmentMode)
 		{
 			for (int n = 0; n < NUM_MAIN_CHANNELS; n++)
 			{
@@ -291,7 +291,7 @@ void CMackieControlXT::ReconfigureXT(bool bForce)
 		}
 
 		// VPots are dependent on the assignment mode
-		if (MCS_ASSIGNMENT_MUTLI_CHANNEL == eAssignmentMode)
+		if (MCS_ASSIGNMENT_MULTI_CHANNEL == eAssignmentMode)
 		{
 			for (n = 0; n < NUM_MAIN_CHANNELS; n++)
 			{

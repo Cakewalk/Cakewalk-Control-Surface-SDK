@@ -133,15 +133,22 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 	CCriticalSectionAuto csa(m_cState.GetCS());
 
 	bool bDown = (bD2 == 0x7F);
+	
+	SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
 
 	switch (bD1)
 	{
-		case MC_PARAM:			if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_PARAMETER);	break;
-		case MC_SEND:			if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_SEND);			break;
-		case MC_PAN:			if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_PAN);			break;
-		case MC_PLUG_INS:		if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_PLUGIN);		break;
-		case MC_EQ:				if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_EQ);			break;
-		case MC_DYNAMICS:		if (bDown) OnSelectAssignment(MCS_ASSIGNMENT_DYNAMICS);		break;
+		// -----------------------------------------------------------------------------------------------
+		// When in MIX_STRAP_RACK mode, do not call OnSelectAssignment for anything other than MC_PLUG_INS
+		//
+		case MC_PARAM:			if (bDown && eInitialMixerStrip != MIX_STRIP_RACK) OnSelectAssignment(MCS_ASSIGNMENT_PARAMETER); break;
+		case MC_SEND:			if (bDown && eInitialMixerStrip != MIX_STRIP_RACK) OnSelectAssignment(MCS_ASSIGNMENT_SEND);		 break;
+		case MC_PAN:			if (bDown && eInitialMixerStrip != MIX_STRIP_RACK) OnSelectAssignment(MCS_ASSIGNMENT_PAN);		 break;
+		case MC_EQ:				if (bDown && eInitialMixerStrip != MIX_STRIP_RACK) OnSelectAssignment(MCS_ASSIGNMENT_EQ);		 break;
+		case MC_DYNAMICS:		if (bDown && eInitialMixerStrip != MIX_STRIP_RACK) OnSelectAssignment(MCS_ASSIGNMENT_DYNAMICS);	 break;
+		// -----------------------------------------------------------------------------------------------
+		
+		case MC_PLUG_INS:		if (bDown) OnSwitchPlugin( ( m_cState.GetModifiers( M1_TO_M4_MASK ) == MCS_MODIFIER_M1 ) );		 break;
 		case MC_BANK_DOWN:		if (bDown) OnHandleBankDownButton();						break;
 		case MC_BANK_UP:		if (bDown) OnHandleBankUpButton();							break;
 		case MC_CHANNEL_DOWN:	if (bDown) OnSwitchChannelDown();							break;
@@ -176,41 +183,22 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_DISARM:			if (bDown) OnSwitchDisarm();								break;
 		case MC_OFFSET:			if (bDown) OnSwitchOffset();								break;
 		case MC_SAVE:			if (bDown) OnSwitchSave();									break;
-		case MC_AUX:			if (bDown) OnSelectMixerStrip(m_cState.BusType());			break;
-		case MC_MAIN:			if (bDown) OnSelectMixerStrip(m_cState.MasterType());		break;
+		case MC_AUX:			if (bDown) OnSwitchAux();									break;
+		case MC_MAIN:			if (bDown) OnSwitchMain();									break;
 		case MC_UNDO:			if (bDown) OnSwitchUndo();									break;
 		case MC_REDO:			if (bDown) OnSwitchRedo();									break;
 		case MC_MARKER:			if (bDown) OnSwitchMarker();								break;
 		case MC_LOOP:			if (bDown) OnSwitchLoop();									break;
 		case MC_SELECT:			if (bDown) OnSwitchSelect();								break;
 		case MC_PUNCH:			if (bDown) OnSwitchPunch();									break;
-		case MC_JOG_PRM:		if (bDown) OnSwitchJogPrm();								break;
-		
-		case MC_LOOP_ON_OFF:	if ((!bDown) && (m_bLastButtonPressed == MC_LOOP_ON_OFF)) 
-									OnSwitchLoopOnOff();  
-								break;
-		
-		case MC_HOME:			if (bDown) OnSwitchHome();									break;
-		
-		case MC_REWIND:			if (bDown && m_bSwitches[MC_LOOP_ON_OFF])
-									DoCommand(CMD_GOTO_START); 
-								else 
-									OnSwitchRewind(bDown); 
-								break;
-		
+		case MC_JOG_PRM:		if (bDown) OnSwitchJogPrm();								break;		
+		case MC_LOOP_ON_OFF:	OnSwitchLoopOnOff(bDown);									break;		
+		case MC_HOME:			if (bDown) OnSwitchHome();									break;		
+		case MC_REWIND:			OnSwitchRewind( bDown );									break;		
 		case MC_FAST_FORWARD:	OnSwitchFastForward(bDown);									break;
-		case MC_STOP:			if (bDown) OnSwitchStop();									break;
-		case MC_PLAY:			if (bDown) OnSwitchPlay();									break;
-		
-		case MC_RECORD:			if (bDown) 
-								{
-									if (m_bSwitches[MC_LOOP_ON_OFF])
-										DoCommand(CMD_EDIT_UNDO);
-									else
-										OnSwitchRecord();
-								}
-								break;
-		
+		case MC_STOP:			if (bDown) OnSwitchStop();									break;		
+		case MC_PLAY:			if (bDown) OnSwitchPlay();									break;		
+		case MC_RECORD:			if ( bDown ) OnSwitchRecord();								break;
 		case MC_CURSOR_UP:		OnSwitchCursorUp(bDown);									break;
 		case MC_CURSOR_DOWN:	OnSwitchCursorDown(bDown);									break;
 		case MC_CURSOR_LEFT:	OnSwitchCursorLeft(bDown);									break;
@@ -220,6 +208,22 @@ bool CMackieControlMaster::OnSwitch(BYTE bD1, BYTE bD2)
 		case MC_USER_A:			if (bDown) OnSwitchUserA();									break;
 		case MC_USER_B:			if (bDown) OnSwitchUserB();									break;
 		case MC_FADER_MASTER:	OnSwitchMasterFader(bDown);									break;
+
+		// ----------------------------------------------------------------
+		// Delegated from CMackieControlXT if loop on/off button is pressed
+		// 
+		case MC_SOLO_1: case MC_SOLO_2: case MC_SOLO_3: case MC_SOLO_4:
+		case MC_SOLO_5: case MC_SOLO_6: case MC_SOLO_7:
+		case MC_SOLO_8: OnSwitchSolo( bD1, bDown );											break;
+
+		case MC_MUTE_1: case MC_MUTE_2: case MC_MUTE_3: case MC_MUTE_4:
+		case MC_MUTE_5: case MC_MUTE_6: case MC_MUTE_7:
+		case MC_MUTE_8: OnSwitchMute( bD1, bDown );											break;
+
+		case MC_REC_ARM_1: case MC_REC_ARM_2: case MC_REC_ARM_3: case MC_REC_ARM_4:
+		case MC_REC_ARM_5: case MC_REC_ARM_6: case MC_REC_ARM_7:
+		case MC_REC_ARM_8: OnSwitchRecArm( bD1, bDown );									break;
+		// ----------------------------------------------------------------
 
 		default:
 			return false;
@@ -243,7 +247,7 @@ void CMackieControlMaster::OnSelectAssignment(Assignment eAssignment)
 		if (MCS_ASSIGNMENT_EQ_FREQ_GAIN == m_cState.GetAssignment())
 		{
 			m_cState.SetAssignment(MCS_ASSIGNMENT_EQ);
-			m_cState.SetAssignmentMode(MCS_ASSIGNMENT_MUTLI_CHANNEL);
+			m_cState.SetAssignmentMode(MCS_ASSIGNMENT_MULTI_CHANNEL);
 			m_bWasInEQFreqGainMode = false;
 
 			TempDisplaySelectedTrackName();
@@ -266,10 +270,10 @@ void CMackieControlMaster::OnSelectAssignment(Assignment eAssignment)
 
 	if (m_cState.GetAssignment() == eAssignment)
 	{
-		if (m_cState.GetAssignmentMode() == MCS_ASSIGNMENT_MUTLI_CHANNEL)
+		if (m_cState.GetAssignmentMode() == MCS_ASSIGNMENT_MULTI_CHANNEL)
 			m_cState.SetAssignmentMode(MCS_ASSIGNMENT_CHANNEL_STRIP);
 		else
-			m_cState.SetAssignmentMode(MCS_ASSIGNMENT_MUTLI_CHANNEL);
+			m_cState.SetAssignmentMode(MCS_ASSIGNMENT_MULTI_CHANNEL);
 
 		m_bWasInEQFreqGainMode = false;
 	}
@@ -286,6 +290,14 @@ void CMackieControlMaster::OnSelectAssignment(Assignment eAssignment)
 
 void CMackieControlMaster::OnSwitchBankDown()
 {
+	if ( (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB])
+		&& m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN 
+		&& m_cState.GetModifiers( BANK_CHANNEL_MASK ) == MCS_MODIFIER_EDIT )
+	{
+		ShiftPluginNumOffset( -1 );
+		return;
+	}
+
 	switch (m_cState.GetModifiers(BANK_CHANNEL_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Go left by 8 tracks
@@ -313,6 +325,14 @@ void CMackieControlMaster::OnSwitchBankDown()
 
 void CMackieControlMaster::OnSwitchBankUp()
 {
+	if ( (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB]) 
+		&& m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN 
+		&& m_cState.GetModifiers( BANK_CHANNEL_MASK ) == MCS_MODIFIER_EDIT )
+	{
+		ShiftPluginNumOffset( 1 );
+		return;
+	}
+		
 	switch (m_cState.GetModifiers(BANK_CHANNEL_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Go right by 8 tracks
@@ -1097,6 +1117,7 @@ void CMackieControlMaster::OnSelectMixerStrip(SONAR_MIXER_STRIP eMixerStrip)
 {
 	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
 	{
+		case MCS_MODIFIER_M1: // needed for switching to MIX_STRIP_RACK
 		case MCS_MODIFIER_NONE:							// Set mixer strip type
 			m_cState.SetMixerStrip(eMixerStrip);
 
@@ -1362,20 +1383,24 @@ void CMackieControlMaster::OnSwitchJogPrm()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlMaster::OnSwitchLoopOnOff()
+void CMackieControlMaster::OnSwitchLoopOnOff(bool bDown)
 {
-	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
+	// react to switch up, so LOOP button can be used as shift
+	if ( (!bDown) && (m_bLastButtonPressed == MC_LOOP_ON_OFF ) )
 	{
-		case MCS_MODIFIER_NONE:							// Toggle loop mode
-			ToggleLoopMode();
-			break;
+		switch ( m_cState.GetModifiers( M1_TO_M4_MASK ) )
+		{
+			case MCS_MODIFIER_NONE:							// Toggle loop mode
+				ToggleLoopMode();
+				break;
 
-		case MCS_MODIFIER_M1:							// Transport | Loop / Auto Shuttle
-			DoCommand(CMD_REALTIME_AUTO_SHUTTLE);
-			break;
+			case MCS_MODIFIER_M1:							// Transport | Loop / Auto Shuttle
+				DoCommand( CMD_REALTIME_AUTO_SHUTTLE );
+				break;
 
-		default:
-			break;
+			default:
+				break;
+		}
 	}
 }
 
@@ -1402,22 +1427,34 @@ void CMackieControlMaster::OnSwitchHome()
 
 void CMackieControlMaster::OnSwitchRewind(bool bDown)
 {
-	ClearTransportCallbackTimer();
+	// Send LED to HUI right away to make it seem more responsive
+	if ( bDown && UsingHUIProtocol() )
+		SetHuiLED( MC_REWIND, 1, true );
 
-	if (bDown)
+	// LOOP + REW = Go to start
+	if ( bDown && (m_bSwitches[MC_LOOP_ON_OFF]))
 	{
-		switch (m_cState.GetModifiers(M1_TO_M4_MASK))
+		DoCommand( CMD_GOTO_START );
+	}
+	else
+	{
+		ClearTransportCallbackTimer();
+
+		if ( bDown )
 		{
-			case MCS_MODIFIER_NONE:						// Move backwards
-				MoveRewindOrFastForward(DIR_BACKWARD);
-				break;
+			switch ( m_cState.GetModifiers( M1_TO_M4_MASK ) )
+			{
+				case MCS_MODIFIER_NONE:						// Move backwards
+					MoveRewindOrFastForward( DIR_BACKWARD );
+					break;
 
-			case MCS_MODIFIER_M1:						// Set left marker
-				SetRewindOrFastForward(DIR_BACKWARD);
-				break;
+				case MCS_MODIFIER_M1:						// Set left marker
+					SetRewindOrFastForward( DIR_BACKWARD );
+					break;
 
-			default:
-				break;
+				default:
+					break;
+			}
 		}
 	}
 }
@@ -1426,6 +1463,10 @@ void CMackieControlMaster::OnSwitchRewind(bool bDown)
 
 void CMackieControlMaster::OnSwitchFastForward(bool bDown)
 {
+	// Send LED to HUI right away to make it seem more responsive
+	if ( bDown && UsingHUIProtocol() )
+		SetHuiLED( MC_FAST_FORWARD, 1, true );
+
 	ClearTransportCallbackTimer();
 
 	if (bDown)
@@ -1450,6 +1491,10 @@ void CMackieControlMaster::OnSwitchFastForward(bool bDown)
 
 void CMackieControlMaster::OnSwitchStop()
 {
+	// Send LED to HUI right away to make it seem more responsive
+	if (UsingHUIProtocol()) 
+		SetHuiLED( MC_STOP, 1, true );
+
 	ClearTransportCallbackTimer();
 
 	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
@@ -1475,6 +1520,10 @@ void CMackieControlMaster::OnSwitchStop()
 
 void CMackieControlMaster::OnSwitchPlay()
 {
+	// Send LED to HUI right away to make it seem more responsive
+	if (UsingHUIProtocol()) 
+		SetHuiLED( MC_PLAY, 1, true );
+
 	ClearTransportCallbackTimer();
 
 	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
@@ -1496,24 +1545,35 @@ void CMackieControlMaster::OnSwitchPlay()
 
 void CMackieControlMaster::OnSwitchRecord()
 {
-	ClearTransportCallbackTimer();
-
-	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
+	if ( (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB]) ) // Loop/REC on nanoKONTROL does undo
 	{
-		case MCS_MODIFIER_NONE:							// Record
-			DoCommand(CMD_REALTIME_RECORD);
-			break;
+		DoCommand( CMD_EDIT_UNDO );
+	}
+	else
+	{
+		// Send LED to HUI right away to make it seem more responsive
+		if ( UsingHUIProtocol() ) 
+			SetHuiLED( MC_RECORD, 1, true );
 
-		case MCS_MODIFIER_M1:							// Record Automation
-			DoCommand(CMD_REALTIME_RECORD_AUTOMATION);
-			break;
+		ClearTransportCallbackTimer();
 
-		case MCS_MODIFIER_M2:							// Transport | Record Options
-			DoCommand(CMD_REALTIME_RECORD_MODE);
-			break;
+		switch ( m_cState.GetModifiers( M1_TO_M4_MASK ) )
+		{
+			case MCS_MODIFIER_NONE:							// Record
+				DoCommand( CMD_REALTIME_RECORD );
+				break;
 
-		default:
-			break;
+			case MCS_MODIFIER_M1:							// Record Automation
+				DoCommand( CMD_REALTIME_RECORD_AUTOMATION );
+				break;
+
+			case MCS_MODIFIER_M2:							// Transport | Record Options
+				DoCommand( CMD_REALTIME_RECORD_MODE );
+				break;
+
+			default:
+				break;
+		}
 	}
 }
 
@@ -1679,7 +1739,7 @@ void CMackieControlMaster::MoveRewindOrFastForward(Direction eDir)
 			break;
 
 		case MCS_NAVIGATION_MARKER:
-			if (m_bSwitches[MC_LOOP_ON_OFF])
+			if (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB])
 				DoCommand(CMD_INSERT_MARKER);
 			else
 			{
@@ -1701,6 +1761,10 @@ void CMackieControlMaster::MoveRewindOrFastForward(Direction eDir)
 			break;
 
 		default:
+			// This fixes the issue where RWD doesn't work when play was started via GUI, and stop was done via CS
+			// TODO: work out how it ever gets to this state
+			NudgeTimeCursor(m_cState.GetTransportResolution(), eDir);
+			SetTransportCallbackTimer(0.25f, 300, 15);
 			break;
 	}
 }
@@ -1752,39 +1816,50 @@ void CMackieControlMaster::DoCursorKey(BOOL bKey)
 {
 	m_bKeyRepeatKey = bKey;
 
+	bool bDoRepeat = false;
+
 	switch (bKey)
 	{
 		case MC_CURSOR_UP:
-			DoCursorKeyUp();
+			bDoRepeat = DoCursorKeyUp();
 			break;
 
 		case MC_CURSOR_DOWN:
-			DoCursorKeyDown();
+			bDoRepeat = DoCursorKeyDown();
 			break;
 
 		case MC_CURSOR_LEFT:
-			DoCursorKeyLeft();
+			bDoRepeat = DoCursorKeyLeft();
 			break;
 
 		case MC_CURSOR_RIGHT:
-			DoCursorKeyRight();
+			bDoRepeat = DoCursorKeyRight();
 			break;
 
 		default:
 			return;
 	}
 
-	SetKeyRepeatCallbackTimer(0.4f, 500, 50);
+	if ( bDoRepeat )
+		SetKeyRepeatCallbackTimer(0.4f, 500, 50);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlMaster::DoCursorKeyUp()
+bool CMackieControlMaster::DoCursorKeyUp()
 {
+	bool bDoRepeat = true;
+
 	switch (m_cState.GetModifiers(ZOOM_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Cursor up
-			FakeKeyPress(false, false, false, VK_UP);
+			if ( m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN && m_cState.GetModifiers( BANK_CHANNEL_MASK ) == MCS_MODIFIER_EDIT )
+			{
+				bDoRepeat = false;
+				ShiftPluginNumOffset( 1 );
+			}
+			else
+				FakeKeyPress(false, false, false, VK_UP);
 			break;
 
 		case MCS_MODIFIER_M1:							// Page Up
@@ -1816,18 +1891,29 @@ void CMackieControlMaster::DoCursorKeyUp()
 			break;
 
 		default:
+			bDoRepeat = false;
 			break;
 	}
+
+	return bDoRepeat;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlMaster::DoCursorKeyDown()
+bool CMackieControlMaster::DoCursorKeyDown()
 {
+	bool bDoRepeat = true;
+
 	switch (m_cState.GetModifiers(ZOOM_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Cursor down
-			FakeKeyPress(false, false, false, VK_DOWN);
+			if ( m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN && m_cState.GetModifiers( BANK_CHANNEL_MASK ) == MCS_MODIFIER_EDIT )
+			{
+				bDoRepeat = false;
+				ShiftPluginNumOffset( -1 );
+			}
+			else
+				FakeKeyPress( false, false, false, VK_DOWN );
 			break;
 
 		case MCS_MODIFIER_M1:							// Page Down
@@ -1855,22 +1941,37 @@ void CMackieControlMaster::DoCursorKeyDown()
 			break;
 
 		default:
+			bDoRepeat = false;
 			break;
 	}
+
+	return bDoRepeat;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlMaster::DoCursorKeyLeft()
+bool CMackieControlMaster::DoCursorKeyLeft()
 {
+	bool bDoRepeat = true;
+
 	switch (m_cState.GetModifiers(ZOOM_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Cursor left
-			FakeKeyPress(false, false, false, VK_LEFT);
+			if ( m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN && m_cState.GetModifiers( BANK_CHANNEL_MASK ) == MCS_MODIFIER_EDIT )
+			{
+				bDoRepeat = false;
+				ShiftParamNumOffset( -NUM_MAIN_CHANNELS );
+				m_dwToolbarUpdateCount++;
+			}
+			else
+				FakeKeyPress(false, false, false, VK_LEFT);
 			break;
 
 		case MCS_MODIFIER_M1:							// Shift-Tab
-			FakeKeyPress(true, false, false, VK_TAB);
+			if ( m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN )
+				ShiftParamNumOffset( -1 );
+			else
+				FakeKeyPress(true, false, false, VK_TAB);
 			break;
 
 		case MCS_MODIFIER_M2:							// Backspace
@@ -1882,22 +1983,37 @@ void CMackieControlMaster::DoCursorKeyLeft()
 			break;
 
 		default:
+			bDoRepeat = false;
 			break;
 	}
+
+	return bDoRepeat;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlMaster::DoCursorKeyRight()
+bool CMackieControlMaster::DoCursorKeyRight()
 {
+	bool bDoRepeat = true;
+
 	switch (m_cState.GetModifiers(ZOOM_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Cursor right
-			FakeKeyPress(false, false, false, VK_RIGHT);
+			if ( m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN && m_cState.GetModifiers( BANK_CHANNEL_MASK ) == MCS_MODIFIER_EDIT )
+			{
+				bDoRepeat = false;
+				ShiftParamNumOffset( NUM_MAIN_CHANNELS );
+				m_dwToolbarUpdateCount++;
+			}
+			else
+				FakeKeyPress(false, false, false, VK_RIGHT);
 			break;
 
 		case MCS_MODIFIER_M1:							// Tab
-			FakeKeyPress(false, false, false, VK_TAB);
+			if ( m_cState.GetAssignment() == MCS_ASSIGNMENT_PLUGIN )
+				ShiftParamNumOffset( 1 );
+			else
+				FakeKeyPress(false, false, false, VK_TAB);
 			break;
 
 		case MCS_MODIFIER_M2:							// Spacebar
@@ -1913,8 +2029,11 @@ void CMackieControlMaster::DoCursorKeyRight()
 			break;
 
 		default:
+			bDoRepeat = false;
 			break;
 	}
+
+	return bDoRepeat;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2032,7 +2151,14 @@ void CMackieControlMaster::OnSwitchTrack()
 	switch (m_cState.GetModifiers(M1_TO_M4_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Select Tracks
-			OnSelectMixerStrip(MIX_STRIP_TRACK);
+			{
+				SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
+				
+				OnSelectMixerStrip( MIX_STRIP_TRACK );
+				
+				if ( eInitialMixerStrip == MIX_STRIP_RACK )
+					RestorePreSynthRackAssignments();
+			}
 			break;
 
 		case MCS_MODIFIER_M1:
@@ -2055,6 +2181,149 @@ void CMackieControlMaster::OnSwitchTrack()
 			break;
 	}
 	
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnSwitchAux()
+{
+	SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
+
+	OnSelectMixerStrip( m_cState.BusType() );
+	
+	if ( eInitialMixerStrip == MIX_STRIP_RACK )
+		RestorePreSynthRackAssignments();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnSwitchMain()
+{
+	SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
+
+	OnSelectMixerStrip( m_cState.MasterType() );
+
+	if ( eInitialMixerStrip == MIX_STRIP_RACK )
+		RestorePreSynthRackAssignments();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnSwitchSolo( BYTE nSwitch, bool bDown )
+{
+	if ( bDown && (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB]))
+	{
+		SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
+
+		switch ( nSwitch )
+		{
+			case MC_SOLO_1:	
+				OnSwitchTrack();		
+				break;
+
+			case MC_SOLO_2:	
+				OnSwitchAux();			
+				break;
+
+			case MC_SOLO_3:	
+				OnSwitchMain();			
+				break;
+
+			case MC_SOLO_4: 
+				OnSwitchPlugin( true );	
+				break;
+
+			case MC_SOLO_7: 
+				if ( eInitialMixerStrip != MIX_STRIP_RACK )
+				{
+					OnSelectAssignment( MCS_ASSIGNMENT_PARAMETER );
+					m_cState.DisableModifier( MCS_MODIFIER_EDIT );
+				}
+				break;
+
+			case MC_SOLO_8:
+				OnSwitchPlugin( false );  
+				m_cState.EnableModifier( MCS_MODIFIER_EDIT );
+				break;
+		}
+	}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnSwitchMute( BYTE nSwitch, bool bDown )
+{
+	if ( bDown && (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB]))
+	{
+		SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
+
+		if ( nSwitch >= MC_MUTE_1 && nSwitch <= MC_MUTE_8 )
+		{
+			SetPluginNumOffset( nSwitch - MC_MUTE_1 );
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnSwitchRecArm( BYTE nSwitch, bool bDown )
+{
+	if ( bDown && (m_bSwitches[MC_LOOP_ON_OFF] || m_bSwitches[MC_SCRUB]))
+	{
+		SONAR_MIXER_STRIP eInitialMixerStrip = m_cState.GetMixerStrip();
+
+		if ( nSwitch >= MC_REC_ARM_1 && nSwitch <= MC_REC_ARM_8 )
+		{
+			SetParamNumOffset( NUM_MAIN_CHANNELS * (nSwitch - MC_REC_ARM_1 ));
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::OnSwitchPlugin(bool bSwitchToSynthRack )
+{
+	// Switch to MIX_STRIP_RACK if modifier M1 is pressed
+	if ( bSwitchToSynthRack )
+	{
+		SavePreSynthRackAssignments();
+		OnSelectMixerStrip( MIX_STRIP_RACK );
+		m_cState.EnableModifier( MCS_MODIFIER_EDIT );
+		m_cState.SetAssignmentMode( MCS_ASSIGNMENT_CHANNEL_STRIP );
+	}
+
+	// Switch to plugin assignment regardless - MIX_STRIP_RACK needs this too
+	OnSelectAssignment( MCS_ASSIGNMENT_PLUGIN );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SavePreSynthRackAssignments()
+{
+	m_cState.SavePreSynthRackAssignments();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::RestorePreSynthRackAssignments()
+{
+	OnSelectAssignment( m_cState.GetPreSynthRackAssignment() );
+
+	if ( m_cState.GetPreSynthRackEditMode() )
+	{
+		m_cState.EnableModifier( MCS_MODIFIER_EDIT );
+		SetLED( MC_EDIT, 1, true );
+	}
+	else
+	{
+		m_cState.DisableModifier( MCS_MODIFIER_EDIT );
+		SetLED( MC_EDIT, 0, true );
+	}
+
+	m_dwMasterUpdateCount++;
+
+	m_cState.SetAssignmentMode( m_cState.GetPreSynthRackAssignmentMode() );
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2092,3 +2361,4 @@ bool CMackieControlMaster::OnHuiSwitch(BYTE bD1, BYTE bD2)
 
 	return true;
 }
+

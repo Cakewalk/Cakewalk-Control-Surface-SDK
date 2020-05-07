@@ -46,7 +46,8 @@ static const char s_szMackieControlXTFriendlyNamePropPage[] = "Mackie Control XT
 #define NUM_MAIN_CHANNELS			8
 
 // Number of refreshes before a ping is sent to the HUI
-#define HUI_PING_COUNTDOWN 100
+// Using the default refresh rate of 75ms this means every 0.75 seconds
+#define HUI_PING_COUNTDOWN 10
 
 /////////////////////////////////////////////////////////////////////////////
 // CMackieControlXT
@@ -105,6 +106,9 @@ protected:
 		MC_FADER_5,				MC_FADER_6,		MC_FADER_7,		MC_FADER_8,
 	};
 
+	bool bFirstLCDRefreshCall = true;
+	bool bFirstUnloadedProjectRefreshCall = true;
+
 	virtual void OnConnect();
 	virtual void OnDisconnect();
 	virtual bool OnMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2);
@@ -124,9 +128,9 @@ protected:
 	bool OnSwitch(BYTE bD1, BYTE bD2);		// *Not* virtual
 	bool OnVPot(BYTE bD1, BYTE bD2);
 	void OnSwitchVPot(BYTE bChan);
-	void OnSwitchRecArm(BYTE bChan);
-	void OnSwitchSolo(BYTE bChan);
-	void OnSwitchMute(BYTE bChan);
+	bool OnSwitchRecArm(BYTE bChan);
+	bool OnSwitchSolo(BYTE bChan);
+	bool OnSwitchMute(BYTE bChan);
 	void OnSwitchSelect(BYTE bChan);
 	void OnSwitchFader(BYTE bChan, bool bDown);
 
@@ -170,6 +174,7 @@ protected:
 	DWORD m_dwTempDisplayValuesCounter[NUM_MAIN_CHANNELS];
 
 	virtual void ZeroAllFaders();
+	virtual void ClearLCDDisplay( bool bTurnMetersOff, bool bTurnMetersBackOn );
 
 	// HUI specific stuff
 

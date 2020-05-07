@@ -182,7 +182,7 @@ BYTE CMackieControlC4::ConfigureMeters(int row, bool bForceSend)
 	C4SplitSection eSplit = GetSplitForRow(row);
 
 	bool bDisplayLevelMeters = (m_eC4Assignment == C4_ASSIGNMENT_NORMAL &&
-								GetAssignmentMode(eSplit) == MCS_ASSIGNMENT_MUTLI_CHANNEL &&
+								GetAssignmentMode(eSplit) == MCS_ASSIGNMENT_MULTI_CHANNEL &&
 								GetDisplayLevelMeters(eSplit));
 
 	for (int n = 0; n < NUM_COLS; n++)
@@ -220,7 +220,7 @@ void CMackieControlC4::UpdateLevelMeters(bool bForceSend)
 		if (!GetDisplayLevelMeters(eSplit))
 			continue;
 
-		if (GetAssignmentMode(eSplit) != MCS_ASSIGNMENT_MUTLI_CHANNEL)
+		if (GetAssignmentMode(eSplit) != MCS_ASSIGNMENT_MULTI_CHANNEL)
 			continue;
 
 		for (int n = 0; n < NUM_COLS; n++)
@@ -347,7 +347,7 @@ void CMackieControlC4::DisplayTrackSettings(C4SplitSection eSplit, BYTE row, boo
 	strUpper += (m_cState.HaveMeters()) ? _T("Meters ") : _T("       ");
 	strUpper += _T("Disply");
 
-	strTemp = _T("Track   Bus   Main");
+	strTemp = _T("Track   Bus   Main  SynthR");
 	strLower.Format(_T("%-27s "), strTemp);
 	if (m_cState.HaveMeters())
 		strLower += GetDisplayLevelMeters(eSplit) ? _T("On     ") : _T("Off    ");
@@ -367,8 +367,14 @@ void CMackieControlC4::DisplayTrackSettings(C4SplitSection eSplit, BYTE row, boo
 
 
 	strUpper = (eSplit == C4_UPPER) ?_T("Upper") : _T("Lower");
+
 	strUpper += _T(" Assignment");
+
+	// All assignments other than Plugin are unavailable for MIX_STRIP_RACK
+	if ( GetMixerStrip( eSplit ) != MIX_STRIP_RACK )
 	strLower = _T("Params Sends   Pan   Plugin   EQ    Dyn");
+	else
+		strLower = _T( "------ -----   ---   Plugin   --    ---" );
 
 	TCHAR2Char( szBuf, strUpper, cb );
 	m_HwLCDDisplay[row + 1].WriteToEOL(0, szBuf, bForceSend);

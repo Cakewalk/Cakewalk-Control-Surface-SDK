@@ -53,18 +53,22 @@ CMackieControlState::CMackieControlState()
 	{
 		// In paramter mode the faders are in position 0, so
 		// set the inital offset for multi-channel mode to 1 (pan)
-		m_dwParamNumOffset[n][MCS_ASSIGNMENT_PARAMETER][MCS_ASSIGNMENT_MUTLI_CHANNEL] = 1;
+		m_dwParamNumOffset[n][MCS_ASSIGNMENT_PARAMETER][MCS_ASSIGNMENT_MULTI_CHANNEL] = 1;
 
 		// Similarly, the first send parameter is send enable,
 		// so change the starting point to 1 (send level)
-		m_dwParamNumOffset[n][MCS_ASSIGNMENT_SEND][MCS_ASSIGNMENT_MUTLI_CHANNEL] = 1;
+		m_dwParamNumOffset[n][MCS_ASSIGNMENT_SEND][MCS_ASSIGNMENT_MULTI_CHANNEL] = 1;
 	}
 
 	m_dwSelectedStripNum = 0;
 
 	m_eMixerStrip = MIX_STRIP_TRACK;
 	m_eAssignment = MCS_ASSIGNMENT_PARAMETER;
-	m_eAssignmentMode = MCS_ASSIGNMENT_MUTLI_CHANNEL;
+	m_eAssignmentMode = MCS_ASSIGNMENT_MULTI_CHANNEL; 
+
+	m_ePreSynthRackAssignment = MCS_ASSIGNMENT_PARAMETER;
+	m_ePreSynthRackAssignmentMode = MCS_ASSIGNMENT_MULTI_CHANNEL;
+	m_bPreSynthRackEditMode = false;
 
 	m_eFlipMode = MCS_FLIP_NORMAL;
 
@@ -276,6 +280,16 @@ void CMackieControlState::SetAssignment(Assignment eAssignment)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void CMackieControlState::SavePreSynthRackAssignments()
+{
+	m_ePreSynthRackAssignmentMode = m_eAssignmentMode;
+	m_ePreSynthRackAssignment = m_eAssignment;
+
+	DWORD dwMods = GetModifiers( M1_TO_M4_MASK | MCS_MODIFIER_EDIT | MCS_MODIFIER_NUMERIC );
+	m_bPreSynthRackEditMode = (dwMods & MCS_MODIFIER_EDIT);
+}
+
+/////////////////////////////////////////////////////////////////////////////
 void CMackieControlState::SetAssignmentMode(AssignmentMode eAssignmentMode)
 {
 	if (m_eAssignmentMode != eAssignmentMode)
@@ -298,7 +312,11 @@ void CMackieControlState::CycleFlipMode()
 			break;
 
 		case MCS_FLIP_DUPLICATE:
-			SetFlipMode(MCS_FLIP_FLIP);
+			// Don't go to MCS_FLIP_FLIP mode when using MIX_STRIP_RACK
+			if ( m_eMixerStrip == MIX_STRIP_RACK )
+				SetFlipMode( MCS_FLIP_NORMAL );
+			else
+				SetFlipMode(MCS_FLIP_FLIP);
 			break;
 
 		case MCS_FLIP_FLIP:
@@ -612,6 +630,14 @@ void CMackieControlState::LoadPluginMappings()
 				LoadParameterProperties(szFile, szPluginName, "M2VPot", j, &cPluginProps.m_mapParamPropsM2VPot);
 				LoadParameterProperties(szFile, szPluginName, "M3VPot", j, &cPluginProps.m_mapParamPropsM3VPot);
 				LoadParameterProperties(szFile, szPluginName, "M4VPot", j, &cPluginProps.m_mapParamPropsM4VPot);
+
+				// Always load the labels AFTER the main properties, so the properties that were loaded above 
+				// are added to and not replaced
+				LoadParameterProperties( szFile, szPluginName, "VPotLabel", j, &cPluginProps.m_mapParamPropsVPot, true );
+				LoadParameterProperties( szFile, szPluginName, "M1VPotLabel", j, &cPluginProps.m_mapParamPropsM1VPot, true );
+				LoadParameterProperties( szFile, szPluginName, "M2VPotLabel", j, &cPluginProps.m_mapParamPropsM2VPot, true );
+				LoadParameterProperties( szFile, szPluginName, "M3VPotLabel", j, &cPluginProps.m_mapParamPropsM3VPot, true );
+				LoadParameterProperties( szFile, szPluginName, "M4VPotLabel", j, &cPluginProps.m_mapParamPropsM4VPot, true );
 			}
 
 			// EQ?
@@ -645,7 +671,8 @@ void CMackieControlState::LoadPluginMappings()
 
 void CMackieControlState::LoadParameterProperties(const char *szFile, const char *szPluginName,
 												  const char *szParamName, int iIndex,
-												  mapParameterProperties *mapParamProps)
+												  mapParameterProperties *mapParamProps,
+												  bool isLabelLine)
 {
 	char szTemp[32];
 	snprintf(szTemp, sizeof(szTemp), "%s%d", szParamName, iIndex);
@@ -654,7 +681,23 @@ void CMackieControlState::LoadParameterProperties(const char *szFile, const char
 	::GetPrivateProfileStringA(szPluginName, szTemp, "", szPropsLine, sizeof(szPropsLine), szFile);
 
 	CParameterProperties cParamProps;
-	if (ParseParameterPropertiesLine(szPropsLine, &cParamProps))
+	
+	bool success = false;
+
+	if ( isLabelLine )
+	{
+		// Change the existing properties, don't add a new one.
+		// Note that this relies on having first read the main properties.
+		if ( mapParamProps->count( iIndex ) )
+		{
+			cParamProps = (*mapParamProps)[iIndex];
+			success = ParseParameterPropertiesLabelLine( szPropsLine, &cParamProps );
+		}
+	}
+	else
+		success = ParseParameterPropertiesLine( szPropsLine, &cParamProps );
+	
+	if (success)
 		(*mapParamProps)[iIndex] = cParamProps;
 }
 
@@ -745,6 +788,57 @@ bool CMackieControlState::ParseParameterPropertiesLine(char *szLine, CParameterP
 	}
 
 	return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlState::ParseParameterPropertiesLabelLine( char *szLine, CParameterProperties *pPluginProps )
+{
+	if ( !szLine )
+		return false;
+
+	// Remove any comments
+	char *s = ::strchr( szLine, ';' );
+	if ( s )
+		*s = 0;
+
+	// Remove trailing white space
+	s = szLine + ::strlen( szLine ) - 1;
+	while ( s >= szLine && (*s == ' ' || *s == '\t') )
+		*s-- = 0;
+
+	// Anything left?
+	if ( !*szLine )
+		return false;
+
+
+	if ( ::strncmp( szLine, "enable", 6 ) == 0 )
+		pPluginProps->m_dwParamNum = 0x80000000;
+	else
+		pPluginProps->m_dwParamNum = ::atoi( szLine );
+
+	s = ::strchr( szLine, ',' );
+	if ( s )
+	{
+		++s;
+
+		char szTempLabel[128];
+
+		char *p = szTempLabel;
+		while ( *s && *s != ',' && (p - szTempLabel) < sizeof( szTempLabel ) )
+			*p++ = *s++;
+		*p = 0;
+		int labelLength = ::strlen( szTempLabel );
+
+		if ( labelLength > MAX_LABEL_LEN || labelLength < 1 )
+			return false;
+
+		::strncpy( &pPluginProps->m_szAltLabel[0], szTempLabel, labelLength );
+
+		return true;
+	}
+
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

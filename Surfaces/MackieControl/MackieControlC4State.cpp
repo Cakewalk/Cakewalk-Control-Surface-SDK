@@ -60,6 +60,8 @@ Assignment CMackieControlC4::GetAssignment(C4SplitSection eSplit)
 	return m_eAssignment[eSplit];
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
 void CMackieControlC4::SetAssignment(C4SplitSection eSplit, Assignment eAssignment)
 {
 	if (m_eAssignment[eSplit] != eAssignment)
@@ -72,7 +74,27 @@ void CMackieControlC4::SetAssignment(C4SplitSection eSplit, Assignment eAssignme
 }
 
 /////////////////////////////////////////////////////////////////////////////
+// Used to store previous assignment before switching to MIX_STRIP_RACK
+//
 
+void CMackieControlC4::SetPreSynthRackAssignment( C4SplitSection eSplit, Assignment eAssignment )
+{
+	m_ePreSynthRackAssignment[eSplit] = eAssignment;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Allows restoration of previous assignment when returning to MIX_STRIP_TRACK,
+// MIX_STRIP_AUX etc.. 
+
+Assignment CMackieControlC4::GetPreSynthRackAssignment( C4SplitSection eSplit )
+{
+	if ( m_ePreSynthRackAssignment[eSplit] == MCS_ASSIGNMENT_EQ_FREQ_GAIN )
+		return MCS_ASSIGNMENT_EQ;
+
+	return m_ePreSynthRackAssignment[eSplit];
+}
+
+/////////////////////////////////////////////////////////////////////////////
 // The current assignment mode (multi channel or channel strip)
 //
 // Always local
@@ -101,8 +123,8 @@ void CMackieControlC4::ShiftPluginNumOffset(C4SplitSection eSplit, int iAmount)
 
 		if (iPluginNumOffset < 0)
 			iPluginNumOffset = 0;
-		else if (iPluginNumOffset > 9)
-			iPluginNumOffset = 9;
+		else if (iPluginNumOffset > MAX_PLUGINS )
+			iPluginNumOffset = MAX_PLUGINS;
 
 		if (GetPluginNumOffset(eSplit) != iPluginNumOffset)
 		{
