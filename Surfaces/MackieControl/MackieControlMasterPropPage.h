@@ -99,7 +99,9 @@ private:
 	JogResolution m_eJogResolution;
 	JogResolution m_eTransportResolution;
 	bool m_bDisplaySMPTE;
-	bool m_bUseHUIProtocol;
+	bool m_bUseHUIProtocol = false;
+	bool m_bUseUniversalProtocol = false;
+	bool m_bUseCubaseProtocol = false;
 
 	// Generated message map functions
 	//{{AFX_MSG(CMackieControlMasterPropPage)
@@ -136,7 +138,9 @@ private:
 	afx_msg void OnDisableHandshake();
 	afx_msg void OnExcludeFiltersFromPlugins();
 	afx_msg void OnScrubBankSelectsTrackBus();
-	afx_msg void OnBnClickedProtocolMcu();
+	afx_msg void OnBnClickedProtocolMcuSONAR();
+	afx_msg void OnBnClickedProtocolMcuUniversal();
+	afx_msg void OnBnClickedProtocolMcuCubase();
 	afx_msg void OnBnClickedProtocolHui();
 	afx_msg void OnBnClickedKeypadUseKeypadKeys();
 	//}}AFX_MSG

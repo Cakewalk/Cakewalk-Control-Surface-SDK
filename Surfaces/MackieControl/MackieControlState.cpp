@@ -11,6 +11,7 @@
 #include "MackieControlInformation.h"
 #include "MackieControlState.h"
 #include "MackieControlBase.h"
+#include <string>
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +91,7 @@ CMackieControlState::CMackieControlState()
 	m_bSelectHighlightsTrack = false;
 	m_bSelectDoubleClick = false;
 	m_bFaderTouchSelectsChannel = false;
-	m_bDisableHandshake = false;
+	m_bDisableHandshake = true;
 	m_bScrubBankSelectsTrackBus = false;
 
 	m_eJogResolution = JOG_MEASURES;
@@ -118,6 +119,8 @@ CMackieControlState::CMackieControlState()
 	m_eMasterType = MIX_STRIP_MASTER;
 	m_bUseHUIProtocol = false;
 	m_bHUIKeyPadControlsKeyPad = false;
+	m_bUseUniversalProtocol = false;
+	m_bUseCubaseProtocol = false;
 }
 
 CMackieControlState::~CMackieControlState()
@@ -565,6 +568,70 @@ void CMackieControlState::SetExcludeFiltersFromPlugins(bool bExcludeFiltersFromP
 
 /////////////////////////////////////////////////////////////////////////////
 
+void CMackieControlState::LoadIniSection( const char *szPath, const char *szSection, std::map<std::string, std::string> &paramMap )
+{	
+	const int bufferSize = 32767;
+	char buffer[bufferSize] = "";
+
+	int charsRead = 0;
+
+	charsRead = GetPrivateProfileSectionA( szSection,
+		buffer,
+		bufferSize,
+		szPath );
+	// if there isn't enough space, returns bufferSize - 2
+
+	ASSERT( bufferSize );
+	// if we got some data...
+	if ( (0 < charsRead) && ((bufferSize - 2) > charsRead) )
+	{
+		// walk the buffer extracting values
+
+		// start at the beginning (const to remind us not to
+		// change the contents of the buffer)
+		const char* pSubstr = buffer;
+
+		// while we have non-empty substrings...
+		while ( '\0' != *pSubstr )
+		{
+			// length of key-value pair substring
+			size_t substrLen = strlen( pSubstr );
+
+			// split substring on '=' char
+			const char* pos = strchr( pSubstr, '=' );
+			if ( NULL != pos )
+			{
+				char name[256] = "";
+				char value[256] = "";
+
+				strncpy_s( name, _countof( name ), pSubstr, pos - pSubstr );
+				strncpy_s( value, _countof( value ), pos + 1, substrLen - (pos - pSubstr) );
+
+				// Remove any comments
+				char *s = ::strchr( value, ';' );
+				if ( s )
+					*s = 0;
+
+				auto rtrim = [&] ( std::string s )
+				{
+					const std::string WHITESPACE = " \n\r\t\f\v";
+					size_t start = s.find_first_not_of( WHITESPACE );
+					return ( start == std::string::npos ) ? "" : s.substr( start );
+				};
+
+				std::string strName = rtrim( name );
+				std::string strValue = rtrim( value );
+
+				if ( !strName.empty() && !strValue.empty() )
+					paramMap.emplace( strName.c_str(), strValue.c_str() );
+			}
+
+			// jump over the current substring plus its null
+			pSubstr += (substrLen + 1);
+		}
+	}
+}
+
 void CMackieControlState::LoadPluginMappings()
 {
 //	TRACE("CMackieControlState::LoadPluginMappings()\n");
@@ -597,70 +664,68 @@ void CMackieControlState::LoadPluginMappings()
 	// Clear out any existing mappings
 	m_mapPluginProperties.clear();
 
-	// For each entry in the Index section...
-	for (int i = 0; i < 128; i++)
+	std::map<std::string, std::string> pluginEntries;
+	LoadIniSection( szFile, "Plugins", pluginEntries );
+
+	for ( auto entryPair : pluginEntries )
 	{
-		char szNum[16];
-		snprintf(szNum, sizeof(szNum), "%d", i);
+		std::map<std::string, std::string> pluginParams;
+		char szPluginName[256];
+		strcpy( szPluginName, entryPair.second.c_str() );
 
-		char szPluginName[128];
-		::GetPrivateProfileStringA("Plugins", szNum, "", szPluginName, sizeof(szPluginName), szFile);
+		LoadIniSection( szFile, entryPair.second.c_str(), pluginParams );
 
-		// Load the plugin information
-		if (*szPluginName)
+		int iPluginType = std::stoi( pluginParams["PluginType"] );
+		if ( iPluginType < 0 || iPluginType >= 32 )
+			continue;
+
+		int iNumVPots = std::stoi( pluginParams["NumVPots"] );
+		if ( iNumVPots < 0 || iNumVPots >= 1024 )
+			continue;
+
+		CPluginProperties cPluginProps;
+
+		cPluginProps.m_dwPluginType = 1 << iPluginType;		// Convert to bit mask
+		cPluginProps.m_dwNumVPots = iNumVPots;
+
+		for ( int j = 0; j < iNumVPots; j++ )
 		{
-			int iPluginType = ::GetPrivateProfileIntA(szPluginName, "PluginType", 0, szFile);
-			if (iPluginType < 0 || iPluginType >= 32)
-				continue;
+			LoadParameterProperties( pluginParams, "VPot", j, &cPluginProps.m_mapParamPropsVPot );
+			LoadParameterProperties( pluginParams, "M1VPot", j, &cPluginProps.m_mapParamPropsM1VPot );
+			LoadParameterProperties( pluginParams, "M2VPot", j, &cPluginProps.m_mapParamPropsM2VPot );
+			LoadParameterProperties( pluginParams, "M3VPot", j, &cPluginProps.m_mapParamPropsM3VPot );
+			LoadParameterProperties( pluginParams, "M4VPot", j, &cPluginProps.m_mapParamPropsM4VPot );
 
-			int iNumVPots = ::GetPrivateProfileIntA(szPluginName, "NumVPots", 0, szFile);
-			if (iNumVPots < 0 || iNumVPots >= 1024)
-				continue;
-
-			CPluginProperties cPluginProps;
-
-			cPluginProps.m_dwPluginType = 1 << iPluginType;		// Convert to bit mask
-			cPluginProps.m_dwNumVPots = iNumVPots;
-
-			// Load the VPot mappings
-			for (int j = 0; j < iNumVPots; j++)
-			{
-				LoadParameterProperties(szFile, szPluginName, "VPot", j, &cPluginProps.m_mapParamPropsVPot);
-				LoadParameterProperties(szFile, szPluginName, "M1VPot", j, &cPluginProps.m_mapParamPropsM1VPot);
-				LoadParameterProperties(szFile, szPluginName, "M2VPot", j, &cPluginProps.m_mapParamPropsM2VPot);
-				LoadParameterProperties(szFile, szPluginName, "M3VPot", j, &cPluginProps.m_mapParamPropsM3VPot);
-				LoadParameterProperties(szFile, szPluginName, "M4VPot", j, &cPluginProps.m_mapParamPropsM4VPot);
-
-				// Always load the labels AFTER the main properties, so the properties that were loaded above 
-				// are added to and not replaced
-				LoadParameterProperties( szFile, szPluginName, "VPotLabel", j, &cPluginProps.m_mapParamPropsVPot, true );
-				LoadParameterProperties( szFile, szPluginName, "M1VPotLabel", j, &cPluginProps.m_mapParamPropsM1VPot, true );
-				LoadParameterProperties( szFile, szPluginName, "M2VPotLabel", j, &cPluginProps.m_mapParamPropsM2VPot, true );
-				LoadParameterProperties( szFile, szPluginName, "M3VPotLabel", j, &cPluginProps.m_mapParamPropsM3VPot, true );
-				LoadParameterProperties( szFile, szPluginName, "M4VPotLabel", j, &cPluginProps.m_mapParamPropsM4VPot, true );
-			}
-
-			// EQ?
-			if (iPluginType == 1)
-			{
-				int iNumFreqBands = ::GetPrivateProfileIntA(szPluginName, "NumFreqBands", 0, szFile);
-				if (iNumFreqBands < 0 || iNumFreqBands >= 128)
-					continue;
-
-				// Load Gain/Freq/Q mode mappings
-				for (int k = 0; k < iNumFreqBands; k++)
-				{
-					LoadParameterProperties(szFile, szPluginName, "Gain", k, &cPluginProps.m_mapParamPropsGain);
-					LoadParameterProperties(szFile, szPluginName, "CourseFreq", k, &cPluginProps.m_mapParamPropsCourseFreq);
-					LoadParameterProperties(szFile, szPluginName, "FineFreq", k, &cPluginProps.m_mapParamPropsFineFreq);
-					LoadParameterProperties(szFile, szPluginName, "Q", k, &cPluginProps.m_mapParamPropsQ);
-					LoadParameterProperties(szFile, szPluginName, "BandEnable", k, &cPluginProps.m_mapParamPropsBandEnable);
-				}
-			}
-
-			m_mapPluginProperties[szPluginName] = cPluginProps;
+			// Always load the labels AFTER the main properties, so the properties that were loaded above 
+			// are added to and not replaced
+			LoadParameterProperties( pluginParams, "VPotLabel", j, &cPluginProps.m_mapParamPropsVPot, true );
+			LoadParameterProperties( pluginParams, "M1VPotLabel", j, &cPluginProps.m_mapParamPropsM1VPot, true );
+			LoadParameterProperties( pluginParams, "M2VPotLabel", j, &cPluginProps.m_mapParamPropsM2VPot, true );
+			LoadParameterProperties( pluginParams, "M3VPotLabel", j, &cPluginProps.m_mapParamPropsM3VPot, true );
+			LoadParameterProperties( pluginParams, "M4VPotLabel", j, &cPluginProps.m_mapParamPropsM4VPot, true );			
 		}
+
+		// EQ?
+		if ( iPluginType == 1 )
+		{
+			int iNumFreqBands = std::stoi( pluginParams["NumFreqBands"] );
+			if ( iNumFreqBands < 0 || iNumFreqBands >= 128 )
+				continue;
+
+			// Load Gain/Freq/Q mode mappings
+			for ( int k = 0; k < iNumFreqBands; k++ )
+			{
+				LoadParameterProperties( pluginParams, "Gain", k, &cPluginProps.m_mapParamPropsGain );
+				LoadParameterProperties( pluginParams, "CourseFreq", k, &cPluginProps.m_mapParamPropsCourseFreq );
+				LoadParameterProperties( pluginParams, "FineFreq", k, &cPluginProps.m_mapParamPropsFineFreq );
+				LoadParameterProperties( pluginParams, "Q", k, &cPluginProps.m_mapParamPropsQ );
+				LoadParameterProperties( pluginParams, "BandEnable", k, &cPluginProps.m_mapParamPropsBandEnable );
+			}
+		}
+
+		m_mapPluginProperties[entryPair.second.c_str()] = cPluginProps;
 	}
+
 
 #ifdef _DEBUG
 //	DumpPluginProperties();
@@ -669,36 +734,39 @@ void CMackieControlState::LoadPluginMappings()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMackieControlState::LoadParameterProperties(const char *szFile, const char *szPluginName,
-												  const char *szParamName, int iIndex,
-												  mapParameterProperties *mapParamProps,
-												  bool isLabelLine)
+void CMackieControlState::LoadParameterProperties( std::map<std::string, std::string> &pluginParams,
+	const char *szParamName, int iIndex, mapParameterProperties *mapParamProps, bool isLabelLine )
 {
 	char szTemp[32];
-	snprintf(szTemp, sizeof(szTemp), "%s%d", szParamName, iIndex);
-
-	char szPropsLine[128];
-	::GetPrivateProfileStringA(szPluginName, szTemp, "", szPropsLine, sizeof(szPropsLine), szFile);
+	snprintf( szTemp, sizeof( szTemp ), "%s%d", szParamName, iIndex );
 
 	CParameterProperties cParamProps;
-	
+
 	bool success = false;
 
-	if ( isLabelLine )
+	char szPropsLine[256];
+	if ( pluginParams.find( szTemp ) != pluginParams.end() )
 	{
-		// Change the existing properties, don't add a new one.
-		// Note that this relies on having first read the main properties.
-		if ( mapParamProps->count( iIndex ) )
+		strcpy( szPropsLine, pluginParams[szTemp].c_str() );
+
+		if ( isLabelLine )
 		{
-			cParamProps = (*mapParamProps)[iIndex];
-			success = ParseParameterPropertiesLabelLine( szPropsLine, &cParamProps );
+			// Change the existing properties, don't add a new one.
+			// Note that this relies on having first read the main properties.
+			if ( mapParamProps->count( iIndex ) )
+			{
+				cParamProps = (*mapParamProps)[iIndex];
+				success = ParseParameterPropertiesLabelLine( szPropsLine, &cParamProps );
+			}
 		}
+		else
+			success = ParseParameterPropertiesLine( szPropsLine, &cParamProps );
+
+		if ( success )
+			(*mapParamProps)[iIndex] = cParamProps;
+
+		ASSERT( success );
 	}
-	else
-		success = ParseParameterPropertiesLine( szPropsLine, &cParamProps );
-	
-	if (success)
-		(*mapParamProps)[iIndex] = cParamProps;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -747,6 +815,7 @@ bool CMackieControlState::ParseParameterPropertiesLine(char *szLine, CParameterP
 		else if (streq(szDataType, "bool"))			pPluginProps->m_eDataType = DT_BOOL;
 		else if (streq(szDataType, "switch"))		pPluginProps->m_eDataType = DT_BOOL;
 		else if (streq(szDataType, "boost/cut"))	pPluginProps->m_eDataType = DT_BOOST_CUT;
+		else if (streq(szDataType, "revspread" ) )	pPluginProps->m_eDataType = DT_REVSPREAD;
 		else if (streq(szDataType, "spread"))		pPluginProps->m_eDataType = DT_SPREAD;
 		else
 		{
@@ -828,7 +897,7 @@ bool CMackieControlState::ParseParameterPropertiesLabelLine( char *szLine, CPara
 		while ( *s && *s != ',' && (p - szTempLabel) < sizeof( szTempLabel ) )
 			*p++ = *s++;
 		*p = 0;
-		int labelLength = ::strlen( szTempLabel );
+		int labelLength = int( ::strlen( szTempLabel ) );
 
 		if ( labelLength > MAX_LABEL_LEN || labelLength < 1 )
 			return false;
@@ -1126,6 +1195,37 @@ int CMackieControlState::HasCapability(ISonarIdentity *pSonarIdentity, HOST_CAPA
 void CMackieControlState::SetUseHUIProtocol(bool bUseHUIProtocol)
 {
 	m_bUseHUIProtocol = bUseHUIProtocol;
+	if ( bUseHUIProtocol )
+	{
+		m_bUseUniversalProtocol = false;
+		m_bUseCubaseProtocol = false;
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlState::SetUseUniversalProtocol( bool bUseUniversalProtocol )
+{
+	m_bUseUniversalProtocol = bUseUniversalProtocol;
+	if ( bUseUniversalProtocol )
+	{
+		m_bUseHUIProtocol = false;
+		m_bUseCubaseProtocol = false;
+		m_bHUIKeyPadControlsKeyPad = false;
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlState::SetUseCubaseProtocol( bool bUseCubaseProtocol )
+{
+	m_bUseCubaseProtocol = bUseCubaseProtocol;
+	if ( bUseCubaseProtocol )
+	{
+		m_bUseHUIProtocol = false;
+		m_bUseUniversalProtocol = false;
+		m_bHUIKeyPadControlsKeyPad = false;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

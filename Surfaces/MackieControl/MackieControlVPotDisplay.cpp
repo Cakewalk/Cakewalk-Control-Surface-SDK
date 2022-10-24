@@ -104,6 +104,10 @@ void CMackieControlVPotDisplay::Send(bool bForceSend)
 			bVal = 1 + (BYTE)((m_fVal * 5.0f) + 0.5f);
 			break;
 
+		case DT_REVSPREAD:
+			bVal = 1 + (BYTE)(( (1.0f - m_fVal) * 5.0f) + 0.5f);
+			break;
+
 		default:
 			return;
 	}
@@ -119,7 +123,8 @@ void CMackieControlVPotDisplay::Send(bool bForceSend)
 			break;
 
 		case DT_SPREAD:
-			bVal |= 0x30;		// Spread
+		case DT_REVSPREAD:
+			bVal |= 0x30;		// Spread / Reverse Spread
 			break;
 
 		default:

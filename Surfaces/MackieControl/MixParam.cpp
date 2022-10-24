@@ -247,6 +247,7 @@ HRESULT CMixParam::GetNormalizedVal(float *fVal, bool *bDot)
 			case DT_LEVEL:
 			case DT_INTERLEAVE:
 			case DT_SPREAD:
+			case DT_REVSPREAD:
 				*bDot = false;
 				break;
 

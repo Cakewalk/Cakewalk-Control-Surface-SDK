@@ -176,6 +176,10 @@ void CMackieControlXT::ReconfigureXT(bool bForce)
 			m_SwMute[n].SetParams(eMixerStrip, N, MIX_PARAM_MUTE, 0);
 			m_SwMute[n].SetAttribs(DT_BOOL);
 
+			// Fx
+			m_SwFXBin[n].SetParams( eMixerStrip, N, MIX_PARAM_FX, 65535 );
+			m_SwFXBin[n].SetAttribs( DT_BOOL );
+
 			// Archive
 			m_SwArchive[n].SetParams(eMixerStrip, N, MIX_PARAM_ARCHIVE, 0);
 			m_SwArchive[n].SetAttribs(DT_BOOL);
@@ -204,6 +208,10 @@ void CMackieControlXT::ReconfigureXT(bool bForce)
 			m_SwMute[n].SetParams(eMixerStrip, N, MIX_PARAM_MUTE, 0);
 			m_SwMute[n].SetAttribs(DT_BOOL);
 
+			// Fx
+			m_SwFXBin[n].SetParams( eMixerStrip, N, MIX_PARAM_FX, 65535 );
+			m_SwFXBin[n].SetAttribs( DT_BOOL );
+
 			// Archive
 			m_SwArchive[n].ClearBinding();
 
@@ -222,6 +230,10 @@ void CMackieControlXT::ReconfigureXT(bool bForce)
 			m_SwMute[n].SetParams(eMixerStrip, N, MIX_PARAM_MUTE, 0);
 			m_SwMute[n].SetAttribs(DT_BOOL);
 
+			// Fx
+			m_SwFXBin[n].SetParams( eMixerStrip, N, MIX_PARAM_FX, 65535 );
+			m_SwFXBin[n].SetAttribs( DT_BOOL );
+
 			// Archive
 			m_SwArchive[n].ClearBinding();
 
@@ -233,6 +245,8 @@ void CMackieControlXT::ReconfigureXT(bool bForce)
 			m_SwRec[n].ClearBinding();
 			m_SwSolo[n].ClearBinding();
 			m_SwMute[n].ClearBinding();
+			m_SwFXBin[n].ClearBinding();
+
 			m_SwArchive[n].ClearBinding();
 			m_SwInputEcho[n].ClearBinding();
 		}

@@ -33,7 +33,7 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 
 // Version informatin for save/load
-#define PERSISTENCE_VERSION				10
+#define PERSISTENCE_VERSION				11
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -502,6 +502,22 @@ HRESULT CMackieControlMaster::Save( IStream* pStm, BOOL bClearDirty )
 		return E_FAIL;
 	}
 
+	// PERSISTENCE_VERSION = 11
+
+	bool bUseUniversalProtocol = m_cState.GetUseUniversalProtocol();
+	if ( FAILED( SafeWrite( pStm, &bUseUniversalProtocol, sizeof( bUseUniversalProtocol ) ) ) )
+	{
+		TRACE( "CMackieControlMaster::Save(): bUseUniversalProtocol failed\n" );
+		return E_FAIL;
+	}
+
+	bool bUseCubaseProtocol = m_cState.GetUseCubaseProtocol();
+	if ( FAILED( SafeWrite( pStm, &bUseCubaseProtocol, sizeof( bUseCubaseProtocol ) ) ) )
+	{
+		TRACE( "CMackieControlMaster::Save(): bUseCubaseProtocol failed\n" );
+		return E_FAIL;
+	}
+
 	if (bClearDirty)
 		m_bDirty = FALSE;
 
@@ -752,7 +768,7 @@ HRESULT CMackieControlMaster::Load( IStream* pStm )
 	}
 	if (dwVer >= 10)
 	{
-		bool bUseHUIProtocol;
+		bool bUseHUIProtocol = false;
 		if (FAILED(SafeRead(pStm, &bUseHUIProtocol, sizeof(bUseHUIProtocol))))
 		{
 			TRACE("CMackieControlMaster::Load(): bUseHUIProtocol failed\n");
@@ -761,13 +777,33 @@ HRESULT CMackieControlMaster::Load( IStream* pStm )
 		m_cState.SetUseHUIProtocol(bUseHUIProtocol);
 
 		// HUI Keypad controls keypad keys rather than standard numeric keys above QUERTY
-		bool bHUIKeypad;
+		bool bHUIKeypad = false;
 		if (FAILED(SafeRead(pStm, &bHUIKeypad, sizeof(bHUIKeypad))))
 		{
 			TRACE("CMackieControlMaster::Load(): bHUIKeypad failed\n");
 			return E_FAIL;
 		}
 		m_cState.SetHUIKeyPadControlsKeyPad(bHUIKeypad);
+	}
+	if ( dwVer >= 11 )
+	{
+		bool bUseUniversalProtocol = false;
+		if ( FAILED( SafeRead( pStm, &bUseUniversalProtocol, sizeof( bUseUniversalProtocol ) ) ) )
+		{
+			TRACE( "CMackieControlMaster::Load(): bUseUniversalProtocol failed\n" );
+			bUseUniversalProtocol = false;
+			return E_FAIL;
+		}
+		m_cState.SetUseUniversalProtocol( bUseUniversalProtocol );
+
+		bool bUseCubaseProtocol = false;
+		if ( FAILED( SafeRead( pStm, &bUseCubaseProtocol, sizeof( bUseCubaseProtocol ) ) ) )
+		{
+			TRACE( "CMackieControlMaster::Load(): bUseCubaseProtocol failed\n" );
+			bUseCubaseProtocol = false;
+			return E_FAIL;
+		}
+		m_cState.SetUseCubaseProtocol( bUseCubaseProtocol );
 	}
 
 	m_bDirty = FALSE;
@@ -1017,7 +1053,16 @@ bool CMackieControlMaster::OnMidiInShort(BYTE bStatus, BYTE bD1, BYTE bD2)
 				return false;
 		}
 	}
-
+	else if ( UsingUniversalProtocol() && bStatus == 0x90 )
+	{
+		if ( !TranslateUniversalButtons( bD1, bD2 ) )
+			return false;
+	}
+	else if ( UsingCubaseProtocol() && bStatus == 0x90 )
+	{
+		if ( !TranslateCubaseButtons( bD1, bD2 ) )
+			return false;
+	}
 
 	switch (bStatus)
 	{
@@ -1237,7 +1282,7 @@ void CMackieControlMaster::ShiftParamNumOffset(int iAmount)
 	int iNumParams = GetNumParams(m_cState.GetMixerStrip(), m_cState.GetSelectedStripNum(),
 									m_cState.GetPluginNumOffset(), m_cState.GetAssignment());
 
-	if (MCS_ASSIGNMENT_EQ_FREQ_GAIN == m_cState.GetAssignment() ||
+	if ( MCS_ASSIGNMENT_EQ_FREQ_GAIN == m_cState.GetAssignment() ||
 		  MCS_ASSIGNMENT_CHANNEL_STRIP == m_cState.GetAssignmentMode() ||
 		  m_cState.GetMixerStrip() == MIX_STRIP_RACK )
 	{
@@ -1705,7 +1750,10 @@ bool CMackieControlMaster::TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bo
 
 bool CMackieControlMaster::SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend)
 {
-	if (bForceSend); // TODO
+	if ( bForceSend )
+	{
+		// TODO
+	}
 
 	if (CMackieControlXT::SetHuiLED(bID, bVal, bForceSend))
 		return true;
@@ -1858,6 +1906,202 @@ bool CMackieControlMaster::SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend)
 
 		default: return false;
 	}
+}
+
+bool CMackieControlMaster::TranslateUniversalLED( BYTE &bD1 )
+{
+	BYTE dummy = 0;
+	return TranslateUniversalButtons( bD1, dummy );
+}
+
+bool CMackieControlMaster::TranslateUniversalButtons( BYTE &bD1, BYTE &bD2 )
+{
+	bool bDown = (bD2 == 0x7F);
+
+	switch ( bD1 )
+	{
+		case MC_NEW_AUDIO:
+		case MC_NEW_MIDI:
+		case MC_FIT_TRACKS:
+		case MC_FIT_PROJECT:
+		case MC_CLOSE_WIN:
+			bD1 = MC_TRACK;
+			break;
+
+		case MC_OK_ENTER:
+		case MC_CANCEL:
+			bD1 = MC_AUX;
+			break;
+
+		case MC_NEXT_WIN: bD1 = MC_MAIN; break;
+		case MC_SNAPSHOT: bD1 = MC_DISARM; break;
+		case MC_AUX: bD1 = MC_SAVE;	break;
+		case MC_MAIN: bD1 = MC_UNDO; break;
+		case MC_UNDO: bD1 = MC_CANCEL; break;
+		case MC_REDO: bD1 = MC_OK_ENTER; break;
+		case MC_SELECT: bD1 = MC_LOOP_ON_OFF; break;
+
+		case MC_M1:
+		case MC_M2:
+		case MC_M3:
+		case MC_M4:
+		case MC_TRACK:
+		case MC_DISARM:
+		case MC_OFFSET:
+		case MC_SAVE:
+		case MC_LOOP:
+		case MC_PUNCH:
+		case MC_JOG_PRM:
+			return false;
+
+		case MC_HOME: if ( bDown) DoCommand( CMD_SOLO_ALL ); return false;
+	}
+
+	return true;
+}
+
+
+bool CMackieControlMaster::TranslateCubaseLED( BYTE &bD1 )
+{
+	BYTE dummy = 0;
+	return TranslateCubaseButtons( bD1, dummy );
+}
+
+bool CMackieControlMaster::TranslateCubaseButtons( BYTE &bD1, BYTE &bD2 )
+{
+	bool bDown = (bD2 == 0x7F);
+
+	switch ( bD1 )
+	{
+		case MC_NEW_AUDIO:
+		{
+			if ( bDown ) ShiftStripNumOffset( -100000 );
+			return false;
+		}
+		case MC_NEW_MIDI:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( NUM_MAIN_CHANNELS );
+			}
+			return false;
+		}
+		case MC_FIT_TRACKS:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( (NUM_MAIN_CHANNELS * 2) );
+			}
+			return false;
+		}
+		case MC_FIT_PROJECT:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( (NUM_MAIN_CHANNELS * 3) );
+			}
+			return false;
+		}
+		case MC_OK_ENTER:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( (NUM_MAIN_CHANNELS * 4) );
+			}
+			return false;
+		}
+		case MC_CANCEL:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( (NUM_MAIN_CHANNELS * 5) );
+			}
+			return false;
+		}
+		case MC_NEXT_WIN:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( (NUM_MAIN_CHANNELS * 6) );
+			}
+			return false;
+		}
+		case MC_CLOSE_WIN:
+		{
+			if ( bDown )
+			{
+				ShiftStripNumOffset( -100000 );
+				ShiftStripNumOffset( (NUM_MAIN_CHANNELS * 7) );
+			}
+			return false;
+		}
+
+		case MC_M1: bD1 = MC_UNDO; break;
+		case MC_M2:	bD1 = MC_REDO; break;
+		case MC_SNAPSHOT: bD1 = MC_DISARM;	break;
+		case MC_TRACK: bD1 = MC_AUX; break;
+		case MC_AUX: bD1 = MC_TRACK; break;
+		case MC_MAIN: bD1 = MC_UNDO; break;
+
+		case MC_M3:	bD1 = MC_SAVE; break;
+		case MC_M4:	bD1 = MC_UNDO; break;
+
+		case MC_DISARM: 
+		{
+			if ( bDown ) DoCommand( CMD_SHOWALLTRACKS );
+			return false;
+		}
+		case MC_OFFSET: 
+		{
+			if ( bDown ) DoCommand( CMD_VIEW_CONSOLE );
+			return false;
+		}
+		case MC_SAVE: 
+		{
+			if ( bDown ) DoCommand( CMD_SHOW_MAINS );
+			return false;
+		}
+		case MC_UNDO: 
+		{
+			if ( bDown ) DoCommand( CMD_SOLO_ALL );
+			return false;
+		}
+		case MC_REDO: return false;
+		case MC_MARKER: 
+		{
+			if ( bDown ) FakeKeyPress( false, false, false, VK_LEFT );
+			return false;
+		}
+		case MC_LOOP:
+		{
+			if ( bDown ) FakeKeyPress( false, false, false, VK_RIGHT );
+			return false;
+		}
+		case MC_SELECT: bD1 = MC_LOOP_ON_OFF; break;
+		case MC_JOG_PRM: 
+		{
+			if ( bDown ) DoCommand( CMD_MARKER_PREVIOUS );
+			return false;
+		}
+		case MC_LOOP_ON_OFF: 
+		{
+			if ( bDown ) DoCommand( CMD_INSERT_MARKER );
+			return false;
+		}
+		case MC_HOME:
+		{
+			if ( bDown ) DoCommand( CMD_MARKER_NEXT );
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////

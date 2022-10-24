@@ -133,6 +133,10 @@ public:
 	bool GetUseHUIProtocol();
 	void SetHUIKeyPadControlsKeyPad(bool bVal);
 	bool GetHUIKeyPadControlsKeyPad();
+	void SetUseUniversalProtocol( bool bVal );
+	bool GetUseUniversalProtocol();
+	void SetUseCubaseProtocol( bool bVal );
+	bool GetUseCubaseProtocol();
 	virtual MackieSurfaceType GetSurfaceType();
 protected:
 	enum MASTER_IDs
@@ -363,6 +367,10 @@ protected:
 	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2);
 	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend);
 	bool OnHuiSwitch(BYTE bD1, BYTE bD2);
+	virtual bool TranslateUniversalButtons( BYTE &bD1, BYTE &bD2 ) override;
+	virtual bool TranslateUniversalLED( BYTE &bD1 ) override;
+	virtual bool TranslateCubaseButtons( BYTE &bD1, BYTE &bD2 ) override;
+	virtual bool TranslateCubaseLED( BYTE &bD1 ) override;
 };
 
 /////////////////////////////////////////////////////////////////////////////

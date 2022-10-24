@@ -517,6 +517,10 @@ void CMackieControlBase::SetLED(BYTE bID, BYTE bVal, bool bForceSend)
 		SetHuiLED(bID, bVal, bForceSend);
 		return;
 	}
+	else if ( UsingUniversalProtocol() && !TranslateUniversalLED(bID) )
+		return;
+	else if ( UsingCubaseProtocol() && !TranslateCubaseLED(bID) )
+		return;
 
 	// The hardware accepts:
 	//		0x00 - Off
@@ -565,6 +569,19 @@ bool CMackieControlBase::UsingHUIProtocol()
 	return m_cState.GetUseHUIProtocol();
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlBase::UsingUniversalProtocol()
+{
+	return m_cState.GetUseUniversalProtocol();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlBase::UsingCubaseProtocol()
+{
+	return m_cState.GetUseCubaseProtocol();
+}
 
 /////////////////////////////////////////////////////////////////////////////
 

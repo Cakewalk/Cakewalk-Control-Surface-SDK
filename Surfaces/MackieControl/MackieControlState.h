@@ -23,6 +23,8 @@
 #define NUM_USER_FUNCTION_KEYS			8
 #define NUM_USER_FOOT_SWITCHES			2
 
+#define MAX_PLUGIN_ENTRIES		9999
+
 /////////////////////////////////////////////////////////////////////////////
 
 enum Assignment
@@ -248,6 +250,8 @@ public:
 	bool GetScrubBankSelectsTrackBus()	{ return m_bScrubBankSelectsTrackBus; }
 	bool GetUseHUIProtocol()			{ return m_bUseHUIProtocol;  }
 	bool GetHUIKeyPadControlsKeyPad()	{ return m_bHUIKeyPadControlsKeyPad; }
+	bool GetUseUniversalProtocol()		{ return m_bUseUniversalProtocol; }
+	bool GetUseCubaseProtocol()			{ return m_bUseCubaseProtocol; }
 
 	// Setters
 	void SetConfigureLayoutMode(bool bConfigureLayoutMode);
@@ -289,11 +293,15 @@ public:
 	void SetScrubBankSelectsTrackBus(bool bScrubBankSelectsTrackBus);
 	void SetUseHUIProtocol(bool bHUIProtocol);
 	void SetHUIKeyPadControlsKeyPad(bool bHUIKeyPadControlsKeyPad);
+	void SetUseUniversalProtocol( bool bUseUniversalProtocol );
+	void SetUseCubaseProtocol( bool bUseCubaseProtocol );
 
 	void SetTempDisplayText(const char *szText);
 
+
 	void LoadPluginMappings();
-	void LoadParameterProperties(const char *szFile, const char *szPluginName, const char *szParamName, int iIndex, mapParameterProperties *mapParamProps, bool isLabelLine = false);
+	void LoadIniSection( const char *szPath, const char *szSection, std::map<std::string, std::string> &paramMap );
+	void LoadParameterProperties( std::map<std::string, std::string> &pluginParams, const char *szParamName, int iIndex, mapParameterProperties *mapParamProps, bool isLabelLine = false );
 	bool ParseParameterPropertiesLine(char *szLine, CParameterProperties *pPluginProps);
 	bool ParseParameterPropertiesLabelLine( char *szLine, CParameterProperties *pPluginProps );
 	void DumpPluginProperties();
@@ -360,8 +368,10 @@ protected:
 	bool m_bDisableHandshake;
 	bool m_bExcludeFiltersFromPlugins;
 	bool m_bScrubBankSelectsTrackBus;
-	bool m_bUseHUIProtocol;
-	bool m_bHUIKeyPadControlsKeyPad;
+	bool m_bUseHUIProtocol = false;
+	bool m_bHUIKeyPadControlsKeyPad = false;
+	bool m_bUseUniversalProtocol = false;
+	bool m_bUseCubaseProtocol = false;
 	CKeyBinding m_cUserFunctionKeys[NUM_USER_FUNCTION_KEYS];
 	CKeyBinding m_cUserFootSwitch[NUM_USER_FOOT_SWITCHES];
 	JogResolution m_eJogResolution;

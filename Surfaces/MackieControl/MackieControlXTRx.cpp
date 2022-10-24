@@ -310,10 +310,23 @@ void CMackieControlXT::OnSwitchSelect(BYTE bChan)
 {
 	if (m_SwStrip[bChan].StripExists())
 	{
-		m_cState.SetSelectedStripNum(m_SwStrip[bChan].GetStripNum(),
-			(m_cState.GetSelectHighlightsTrack()) ? m_pMixer : NULL);
+		switch ( m_cState.GetModifiers( M1_TO_M4_MASK ) )
+		{
+			case MCS_MODIFIER_NONE:
+			{
+				m_cState.SetSelectedStripNum(m_SwStrip[bChan].GetStripNum(),
+					(m_cState.GetSelectHighlightsTrack()) ? m_pMixer : NULL);
 
-		TempDisplaySelectedTrackName();
+				TempDisplaySelectedTrackName();
+			}
+			break;
+
+			case MCS_MODIFIER_M1:
+			{
+				m_SwFXBin[bChan].ToggleBooleanParam();
+			}
+			break;
+		}
 	}
 }
 

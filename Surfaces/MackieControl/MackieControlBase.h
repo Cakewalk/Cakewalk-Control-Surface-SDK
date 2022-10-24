@@ -171,6 +171,8 @@ public:
 	DWORD GetStripCount(SONAR_MIXER_STRIP eMixerStrip);
 	SONAR_MIXER_STRIP GetMasterStripType()		{ return m_cState.MasterType(); };
 	virtual bool UsingHUIProtocol();
+	virtual bool UsingUniversalProtocol();
+	virtual bool UsingCubaseProtocol();
 	virtual MackieSurfaceType GetSurfaceType();
 protected:
 	bool GetStripName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum, char *pszText, DWORD *pdwLen);
@@ -294,6 +296,10 @@ protected:
 	BYTE m_bHUIFaderHi[8];
 	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend) = 0;
 	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2) = 0;
+	virtual bool TranslateUniversalButtons( BYTE &bD1, BYTE &bD2 ) = 0;
+	virtual bool TranslateUniversalLED( BYTE &bD1 ) = 0;
+	virtual bool TranslateCubaseButtons( BYTE &bD1, BYTE &bD2 ) = 0;
+	virtual bool TranslateCubaseLED( BYTE &bD1 ) = 0;
 };
 
 /////////////////////////////////////////////////////////////////////////////

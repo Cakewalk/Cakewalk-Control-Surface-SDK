@@ -426,3 +426,39 @@ bool CMackieControlMaster::GetHUIKeyPadControlsKeyPad()
 
 	return m_cState.GetHUIKeyPadControlsKeyPad();
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetUseUniversalProtocol( bool bVal )
+{
+	CCriticalSectionAuto csa( m_cState.GetCS() );
+
+	m_cState.SetUseUniversalProtocol( bVal );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::GetUseUniversalProtocol()
+{
+	CCriticalSectionAuto csa( m_cState.GetCS() );
+
+	return m_cState.GetUseUniversalProtocol();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CMackieControlMaster::SetUseCubaseProtocol( bool bVal )
+{
+	CCriticalSectionAuto csa( m_cState.GetCS() );
+
+	m_cState.SetUseCubaseProtocol( bVal );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool CMackieControlMaster::GetUseCubaseProtocol()
+{
+	CCriticalSectionAuto csa( m_cState.GetCS() );
+
+	return m_cState.GetUseCubaseProtocol();
+}

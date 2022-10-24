@@ -240,6 +240,7 @@ void CMackieControlXT::OnConnect()
 		m_SwRec[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 		m_SwSolo[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 		m_SwMute[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
+		m_SwFXBin[n].Setup( m_pMixer, m_pTransport, &m_FilterLocator );
 		m_SwArchive[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 		m_SwInputEcho[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);
 		m_SwFader[n].Setup(m_pMixer, m_pTransport, &m_FilterLocator);

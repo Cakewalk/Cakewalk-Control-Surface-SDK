@@ -266,6 +266,10 @@ protected:
 
 	CKeyBinding m_cUserFunctionKeys[NUM_C4_USER_FUNCTION_KEYS];
 	virtual bool TranslateHUIButtons(BYTE bCurrentZone, BYTE bPort, bool bOn, BYTE &bD1, BYTE &bD2) { return false; };
+	virtual bool TranslateUniversalButtons( BYTE &bD1, BYTE &bD2 ) { return true; }
+	virtual bool TranslateUniversalLED( BYTE &bD1 ) { return true; }
+	virtual bool TranslateCubaseButtons( BYTE &bD1, BYTE &bD2 ) { return true; }
+	virtual bool TranslateCubaseLED( BYTE &bD1 ) { return true; }
 	virtual bool SetHuiLED(BYTE bID, BYTE bVal, bool bForceSend) { return false; };
 };
 

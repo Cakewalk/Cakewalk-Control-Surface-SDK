@@ -18,6 +18,7 @@ enum DataType
 	DT_LEVEL,
 	DT_PAN,
 	DT_INTERLEAVE,
+	DT_REVSPREAD,
 	NUM_DATA_TYPES
 };
 
