@@ -309,6 +309,9 @@ HRESULT CMixParam::GetStripName(LPSTR pszText, DWORD *pdwLen)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	return m_pMixer->GetMixStripName(m_eMixerStrip, m_dwStripNum,
 									pszText, pdwLen);
 }
@@ -318,6 +321,9 @@ HRESULT CMixParam::GetStripName(LPSTR pszText, DWORD *pdwLen)
 HRESULT CMixParam::SetStripName(LPSTR pszText)
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	return m_pMixer->SetMixStripName(m_eMixerStrip, m_dwStripNum,
@@ -352,6 +358,9 @@ HRESULT CMixParam::GetParamLabel(LPSTR pszText, DWORD *pdwLen)
 		return S_OK;
 	}
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	return m_pMixer->GetMixParamLabel(m_eMixerStrip, m_dwStripNum,
 									m_eMixerParam, GetParamNum(),
 									pszText, pdwLen);
@@ -362,6 +371,9 @@ HRESULT CMixParam::GetParamLabel(LPSTR pszText, DWORD *pdwLen)
 HRESULT CMixParam::GetVal(float *fVal)
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	return m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum,
@@ -377,6 +389,9 @@ HRESULT CMixParam::SetVal(float fVal, SONAR_MIXER_TOUCH eMixerTouch)
 		return E_FAIL;
 
 	if (m_bDisableWhilePlaying && IsPlaying())
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	return m_pMixer->SetMixParam(m_eMixerStrip, m_dwStripNum,
@@ -407,6 +422,9 @@ HRESULT CMixParam::GetValueText(float fVal, LPSTR pszText, DWORD *pdwLen)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	return m_pMixer->GetMixParamValueText(m_eMixerStrip, m_dwStripNum,
 									m_eMixerParam, GetParamNum(),
 									fVal, pszText, pdwLen);
@@ -423,6 +441,9 @@ HRESULT CMixParam::Touch(bool bTouchState)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	return m_pMixer->TouchMixParam(m_eMixerStrip, m_dwStripNum,
 									m_eMixerParam, GetParamNum(),
 									bTouchState ? TRUE : FALSE);
@@ -436,6 +457,9 @@ HRESULT CMixParam::GetArm(bool *pbArm)
 		return E_FAIL;
 
 	BOOL bArm;
+
+	if ( !m_pMixer )
+		return E_FAIL;
 
 	HRESULT hr = m_pMixer->GetArmMixParam(m_eMixerStrip, m_dwStripNum,
 									m_eMixerParam, GetParamNum(),
@@ -456,6 +480,9 @@ HRESULT CMixParam::SetArm(bool bArm)
 	if (IsPlaying())
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	return m_pMixer->SetArmMixParam(m_eMixerStrip, m_dwStripNum,
 									m_eMixerParam, GetParamNum(),
 									bArm ? TRUE : FALSE);
@@ -469,6 +496,9 @@ HRESULT CMixParam::GetArmAll(bool *pbArm)
 		return E_FAIL;
 
 	BOOL bArm;
+
+	if ( !m_pMixer )
+		return E_FAIL;
 
 	HRESULT hr = m_pMixer->GetArmMixParam(m_eMixerStrip, m_dwStripNum,
 									MIX_PARAM_ANY, 0,
@@ -489,6 +519,9 @@ HRESULT CMixParam::SetArmAll(bool bArm)
 	if (IsPlaying())
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	return m_pMixer->SetArmMixParam(m_eMixerStrip, m_dwStripNum,
 									MIX_PARAM_ANY, 0,
 									bArm ? TRUE : FALSE);
@@ -499,6 +532,9 @@ HRESULT CMixParam::SetArmAll(bool bArm)
 HRESULT CMixParam::Snapshot()
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	return m_pMixer->SnapshotMixParam(m_eMixerStrip, m_dwStripNum,
@@ -623,6 +659,9 @@ bool CMixParam::IsMIDITrack()
 
 	float fVal;
 
+	if ( !m_pMixer )
+		return false;
+
 	HRESULT hr = m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum,
 									MIX_PARAM_IS_MIDI, 0,
 									&fVal);
@@ -646,6 +685,9 @@ bool CMixParam::IsAudioTrack()
 
 	float fVal;
 
+	if ( !m_pMixer )
+		return false;
+
 	HRESULT hr = m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum,
 									MIX_PARAM_IS_MIDI, 0,
 									&fVal);
@@ -665,6 +707,9 @@ bool CMixParam::StripExists()
 
 	DWORD dwCount = 0;
 
+	if ( !m_pMixer )
+		return false;
+
 	HRESULT hr = m_pMixer->GetMixStripCount(m_eMixerStrip, &dwCount);
 
 	// While loading a new project, dwCount is -1
@@ -679,6 +724,9 @@ bool CMixParam::StripExists()
 bool CMixParam::IsPlaying()
 {
 	BOOL bVal;
+
+	if ( !m_pTransport )
+		return false;
 
 	HRESULT hr = m_pTransport->GetTransportState(TRANSPORT_STATE_PLAY, &bVal);
 
@@ -696,6 +744,9 @@ bool CMixParam::IsArchived()
 		return false;
 
 	float fVal;
+
+	if ( !m_pMixer )
+		return false;
 
 	HRESULT hr = m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum,
 									MIX_PARAM_ARCHIVE, 0,
@@ -721,6 +772,9 @@ void CMixParam::SetMetering(bool bOn)
 
 	float fVal = (bOn) ? 1.0f : 0.0f;
 
+	if ( !m_pMixer )
+		return;
+
 	HRESULT hr = m_pMixer->SetMixParam(m_eMixerStrip, m_dwStripNum, MIX_PARAM_AUDIO_METER, m_dwUniqueId, fVal, MIX_TOUCH_NORMAL);
 
 	m_bAudioMeteringEnabled = (bOn) ? (SUCCEEDED(hr)) : false;
@@ -733,6 +787,9 @@ void CMixParam::SetMetering(bool bOn)
 HRESULT CMixParam::ReadMeter(float *fVal)
 {
 	if (!m_bHasBinding || !m_bAudioMeteringEnabled)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	HRESULT hr = m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum, MIX_PARAM_AUDIO_METER, m_dwUniqueId, fVal);
@@ -768,6 +825,9 @@ bool CMixParam::CheckBinding()
 		return true;
 
 	float fVal;
+
+	if ( !m_pMixer )
+		return false;
 
 	HRESULT hr = m_pMixer->GetMixParam(m_eMixerStrip, m_dwStripNum,
 										MIX_PARAM_IS_MIDI, 0,

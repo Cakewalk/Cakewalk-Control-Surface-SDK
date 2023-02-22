@@ -140,7 +140,7 @@ protected:
 	virtual void SetAllFadersToDefault() =0;
 	virtual void SetAllVPotsToDefault() =0;
 
-	void DoCommand(DWORD dwCmdId)				{ m_pCommands->DoCommand(dwCmdId); };
+	void DoCommand(DWORD dwCmdId)				{ if ( m_pCommands ) m_pCommands->DoCommand(dwCmdId); };
 
 	bool GetHaveSerialNumber()					{ return m_bHaveSerialNumber; };
 	bool GetSerialNumber(BYTE *pSerialNumber);

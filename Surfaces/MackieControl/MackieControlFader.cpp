@@ -72,13 +72,16 @@ void CMackieControlFader::Send(bool bForceSend)
 	BYTE bLow = (BYTE)(wVal & 0x7F);
 	BYTE bHigh = (BYTE)(wVal >> 7);
 
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( m_pMackieControlBase )
 	{
-		m_pMackieControlBase->SendMidiShort(0xB0, m_bChan, bHigh);
-		m_pMackieControlBase->SendMidiShort(0xB0, 0x20 | m_bChan, bLow);
+		if ( m_pMackieControlBase->UsingHUIProtocol() )
+		{
+			m_pMackieControlBase->SendMidiShort( 0xB0, m_bChan, bHigh );
+			m_pMackieControlBase->SendMidiShort( 0xB0, 0x20 | m_bChan, bLow );
+		}
+		else
+			m_pMackieControlBase->SendMidiShort( 0xE0 | m_bChan, bLow, bHigh );
 	}
-	else
-		m_pMackieControlBase->SendMidiShort(0xE0 | m_bChan, bLow, bHigh);
 }
 
 /////////////////////////////////////////////////////////////////////////////

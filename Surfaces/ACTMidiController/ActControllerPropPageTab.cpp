@@ -26,6 +26,11 @@ CACTControllerPropPageTab::CACTControllerPropPageTab(UINT nIDTemplate, CWnd* pPa
 	//}}AFX_DATA_INIT
 }
 
+CACTControllerPropPageTab::~CACTControllerPropPageTab()
+{
+	delete m_cBrush;
+}
+
 
 void CACTControllerPropPageTab::DoDataExchange(CDataExchange* pDX)
 {

@@ -252,17 +252,17 @@ HRESULT CACTControllerPropPage::Help( LPCWSTR lpszHelpDir )
 	// Returning E_NOTIMPL here should be enough to cause the help file
 	// specified by GetPageInfo to be used, but it doesn't seem to work
 
-	TCHAR szDLL[_MAX_PATH];
+	char szDLL[_MAX_PATH];
 
-	DWORD dwLen = ::GetModuleFileName(theApp.m_hInstance, szDLL, sizeof(szDLL));
+	DWORD dwLen = ::GetModuleFileNameA(theApp.m_hInstance, szDLL, sizeof(szDLL));
 
 	if (dwLen < 3)
 	    return E_FAIL;
 
 	// OK not to use strlcpy here
-	::_tcscpy(szDLL + dwLen - 3, _T("chm"));
+	::strcpy(szDLL + dwLen - 3, "chm");
 
-	::HtmlHelp(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
+	::HtmlHelpA(m_hWnd, szDLL, HH_DISPLAY_TOPIC, NULL);
 
 	return S_OK;
 }
@@ -278,6 +278,9 @@ HRESULT CACTControllerPropPage::TranslateAccelerator( LPMSG lpMsg )
 
 HRESULT CACTControllerPropPage::GetPageInfo( LPPROPPAGEINFO pPageInfo )
 {
+	if ( !pPageInfo )
+		return E_FAIL;
+
 	IMalloc* pIMalloc;
 	if (FAILED( CoGetMalloc( MEMCTX_TASK, &pIMalloc ) ))
 		return E_FAIL;
@@ -289,11 +292,11 @@ HRESULT CACTControllerPropPage::GetPageInfo( LPPROPPAGEINFO pPageInfo )
 	if (!pPageInfo->pszTitle)
 		return E_OUTOFMEMORY;
 
-	static const TCHAR szTitle[] = _T("ACT MIDI Controller");
-	_tcsncpy( pPageInfo->pszTitle, szTitle, _countof(szTitle) );
+	static const char szTitle[] = "ACT MIDI Controller";
+	mbstowcs( pPageInfo->pszTitle, szTitle, strlen( szTitle ) );
 
 	// Populate the page info structure
-	pPageInfo->cb				= sizeof(PROPPAGEINFO);
+	pPageInfo->cb					= sizeof(PROPPAGEINFO);
 	pPageInfo->size.cx      = 100;
 	pPageInfo->size.cy      = 100;
 	pPageInfo->pszDocString = NULL;
@@ -397,7 +400,7 @@ void CACTControllerPropPage::UpdateACTStatus(bool bForce)
 
 void CACTControllerPropPage::GreyACTFields()
 {
-	BOOL bEnable = (m_pSurface->SupportsDynamicMappings()) ? TRUE : FALSE;
+	BOOL bEnable = (m_pSurface && m_pSurface->SupportsDynamicMappings()) ? TRUE : FALSE;
 
 	m_cACTEnable.EnableWindow(bEnable);
 	m_cACTLock.EnableWindow(bEnable);
@@ -413,6 +416,9 @@ void CACTControllerPropPage::GreyACTFields()
 
 void CACTControllerPropPage::UpdateGroupStatus(bool bForce)
 {
+	if ( !m_pSurface )
+		return;
+
 	SONAR_MIXER_STRIP eStripType = m_pSurface->GetStripType();
 
 	if (bForce || m_eStripType != eStripType)
@@ -504,7 +510,8 @@ void CACTControllerPropPage::OnACTEnable()
 {
 	m_bACTEnabled = (m_cACTEnable.GetCheck() != 0);
 
-	m_pSurface->SetUseDynamicMappings(m_bACTEnabled);
+	if ( m_pSurface )
+		m_pSurface->SetUseDynamicMappings(m_bACTEnabled);
 
 	GreyACTFields();
 }
@@ -515,49 +522,56 @@ void CACTControllerPropPage::OnACTLock()
 {
 	m_bACTLocked = (m_cACTLock.GetCheck() != 0);
 
-	m_pSurface->SetLockDynamicMappings(m_bACTLocked);
+	if ( m_pSurface )
+		m_pSurface->SetLockDynamicMappings(m_bACTLocked);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPage::OnGroupTrack() 
 {
-	m_pSurface->SetStripType(MIX_STRIP_TRACK);
+	if ( m_pSurface )
+		m_pSurface->SetStripType(MIX_STRIP_TRACK);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPage::OnGroupBus() 
 {
-	m_pSurface->SetStripType(MIX_STRIP_BUS);
+	if ( m_pSurface )
+		m_pSurface->SetStripType(MIX_STRIP_BUS);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPage::OnGroupMain() 
 {
-	m_pSurface->SetStripType(MIX_STRIP_MASTER);
+	if ( m_pSurface )
+		m_pSurface->SetStripType(MIX_STRIP_MASTER);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPage::OnMultiChannel() 
 {
-	m_pSurface->SetRotariesMode(MCS_ASSIGNMENT_MUTLI_CHANNEL);
+	if ( m_pSurface )
+		m_pSurface->SetRotariesMode(MCS_ASSIGNMENT_MUTLI_CHANNEL);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPage::OnChannelStrip() 
 {
-	m_pSurface->SetRotariesMode(MCS_ASSIGNMENT_CHANNEL_STRIP);
+	if ( m_pSurface )
+		m_pSurface->SetRotariesMode(MCS_ASSIGNMENT_CHANNEL_STRIP);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPage::OnMidiLearnShift() 
 {
-	m_pSurface->MidiLearnShift();
+	if ( m_pSurface )
+		m_pSurface->MidiLearnShift();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

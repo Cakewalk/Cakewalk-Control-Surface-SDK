@@ -28,6 +28,9 @@
 void CMackieControlBase::ConfParameterTrack(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	if (m_bBindMuteSoloArm)		// Include Mute/Solo/Arm?
 	{
 		// Insert them after Pan
@@ -169,6 +172,9 @@ void CMackieControlBase::ConfParameterTrack(SONAR_MIXER_STRIP eMixerStrip, DWORD
 void CMackieControlBase::ConfParameterAux(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 										DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	switch (dwIndex)
 	{
 		case IDX_DEFAULT_FADER:
@@ -207,6 +213,9 @@ void CMackieControlBase::ConfParameterAux(SONAR_MIXER_STRIP eMixerStrip, DWORD d
 void CMackieControlBase::ConfParameterMain(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 										 DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	switch (dwIndex)
 	{
 		case IDX_DEFAULT_FADER:
@@ -239,6 +248,9 @@ void CMackieControlBase::ConfParameterMain(SONAR_MIXER_STRIP eMixerStrip, DWORD 
 void CMackieControlBase::ConfParameterBus(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 										DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	switch (dwIndex)
 	{
 		case IDX_DEFAULT_FADER:
@@ -271,6 +283,9 @@ void CMackieControlBase::ConfParameterBus(SONAR_MIXER_STRIP eMixerStrip, DWORD d
 void CMackieControlBase::ConfParameterMaster(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	switch (dwIndex)
 	{
 		case IDX_DEFAULT_FADER:
@@ -299,6 +314,9 @@ void CMackieControlBase::ConfParameterMaster(SONAR_MIXER_STRIP eMixerStrip, DWOR
 void CMackieControlBase::ConfigureVolume(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 										 bool bIsMIDI, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	if (bIsMIDI)
 	{
 		pParam->SetParams(eMixerStrip, dwStripNum, MIX_PARAM_VOL, 0);
@@ -316,6 +334,9 @@ void CMackieControlBase::ConfigureVolume(SONAR_MIXER_STRIP eMixerStrip, DWORD dw
 void CMackieControlBase::ConfigureParamInput(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											 bool bAllowNone, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	DWORD dwNumInputs = GetNumInputs(eMixerStrip, dwStripNum);
 
 	if (0 == dwNumInputs)
@@ -335,6 +356,9 @@ void CMackieControlBase::ConfigureParamInput(SONAR_MIXER_STRIP eMixerStrip, DWOR
 void CMackieControlBase::ConfigureParamOutput(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 												bool bAllowNone, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	DWORD dwNumOutputs = GetNumOutputs(eMixerStrip, dwStripNum);
 
 	if (0 == dwNumOutputs)
@@ -354,6 +378,9 @@ void CMackieControlBase::ConfigureParamOutput(SONAR_MIXER_STRIP eMixerStrip, DWO
 void CMackieControlBase::ConfigureAuxSends(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											 DWORD dwIndex, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	if (!STRIP_HAS_AUX_SEND(eMixerStrip))
 	{
 		pParam->ClearBinding();
@@ -410,6 +437,9 @@ void CMackieControlBase::ConfigureAuxSends(SONAR_MIXER_STRIP eMixerStrip, DWORD 
 void CMackieControlBase::ConfPan(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 							   DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	switch (eMixerStrip)
 	{
 		case MIX_STRIP_TRACK:
@@ -519,6 +549,9 @@ void CMackieControlBase::ConfPan(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum
 void CMackieControlBase::ConfSend(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 								DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	bool bIsMIDI = IsMIDI(eMixerStrip, dwStripNum);
 
 	if (IDX_DEFAULT_FADER == dwIndex)					// Volume
@@ -568,7 +601,8 @@ void CMackieControlBase::ConfSend(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNu
 void CMackieControlBase::ConfPlugin(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 								  DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
-	ConfigurePlugins(eMixerStrip, dwStripNum, dwPluginNum, dwIndex, PT_ALL, dwModifiers, pParam);
+	if ( pParam )
+		ConfigurePlugins(eMixerStrip, dwStripNum, dwPluginNum, dwIndex, PT_ALL, dwModifiers, pParam);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -576,7 +610,8 @@ void CMackieControlBase::ConfPlugin(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStrip
 void CMackieControlBase::ConfEQ(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 							  DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
-	ConfigurePlugins(eMixerStrip, dwStripNum, dwPluginNum, dwIndex, PT_EQ, dwModifiers, pParam);
+	if ( pParam )
+		ConfigurePlugins(eMixerStrip, dwStripNum, dwPluginNum, dwIndex, PT_EQ, dwModifiers, pParam);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -584,7 +619,8 @@ void CMackieControlBase::ConfEQ(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 void CMackieControlBase::ConfDynamics(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 									DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
-	ConfigurePlugins(eMixerStrip, dwStripNum, dwPluginNum, dwIndex, PT_DYNAMICS, dwModifiers, pParam);
+	if ( pParam )
+		ConfigurePlugins(eMixerStrip, dwStripNum, dwPluginNum, dwIndex, PT_DYNAMICS, dwModifiers, pParam);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -592,7 +628,8 @@ void CMackieControlBase::ConfDynamics(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStr
 void CMackieControlBase::ConfNoBindings(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 									  DWORD dwPluginNum, DWORD dwIndex, DWORD dwModifiers, CMixParam *pParam)
 {
-	pParam->ClearBinding();
+	if ( pParam )
+		pParam->ClearBinding();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -600,6 +637,10 @@ void CMackieControlBase::ConfNoBindings(SONAR_MIXER_STRIP eMixerStrip, DWORD dwS
 void CMackieControlBase::ConfigureAuxSendPans(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											DWORD dwIndex, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
+
 	if (!STRIP_HAS_AUX_SEND(eMixerStrip) || IsMIDI(eMixerStrip, dwStripNum))
 	{
 		pParam->ClearBinding();
@@ -633,6 +674,9 @@ void CMackieControlBase::ConfigurePlugins(SONAR_MIXER_STRIP eMixerStrip, DWORD d
 										DWORD dwPluginNum, DWORD dwIndex, DWORD dwFilterMask, 
 										DWORD dwModifiers, CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	bool bIsMIDI = IsMIDI(eMixerStrip, dwStripNum);
 
 	if (IDX_DEFAULT_FADER == dwIndex)					// Volume
@@ -740,6 +784,9 @@ void CMackieControlBase::SetParamToProperty(SONAR_MIXER_STRIP eMixerStrip, DWORD
 										  mapParameterProperties *pParamProps,
 										  CMixParam *pParam)
 {
+	if ( !pParam )
+		return;
+
 	// Is there a parameter mapping table?
 	if (pParamProps->empty())							// No
 	{

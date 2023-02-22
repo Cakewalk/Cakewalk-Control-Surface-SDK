@@ -991,11 +991,13 @@ void CMackieControlMaster::OnSwitchCancel()
 	switch (m_cState.GetModifiers(FKEY_MASK))
 	{
 		case MCS_MODIFIER_NONE:							// Cancel
-			m_pKeyboard->NavigationKey(SNK_CANCEL);
+			if ( m_pKeyboard )
+				m_pKeyboard->NavigationKey(SNK_CANCEL);
 			break;
 
 		case MCS_MODIFIER_NUMERIC:						// Cancel
-			m_pKeyboard->NavigationKey(SNK_CANCEL);
+			if ( m_pKeyboard )
+				m_pKeyboard->NavigationKey(SNK_CANCEL);
 			break;
 
 		default:

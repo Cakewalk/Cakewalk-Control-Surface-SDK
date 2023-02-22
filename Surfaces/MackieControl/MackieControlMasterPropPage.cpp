@@ -272,7 +272,8 @@ HRESULT CMackieControlMasterPropPage::Deactivate()
 	if (NULL == m_hWnd)
 		return E_UNEXPECTED;
 
-	m_pSurface->SetConfigureLayoutMode(false);
+	if ( m_pSurface )
+		m_pSurface->SetConfigureLayoutMode(false);
 
 	DestroyMFCDialog();
 	return S_OK;
@@ -523,12 +524,12 @@ void CMackieControlMasterPropPage::TransferSettings(bool bSave)
 			m_cDisableHandshake.SetCheck( 1 );
 			m_cDisableHandshake.EnableWindow( 0 );
 			m_cScrubBankSelectsTrackBus.EnableWindow( 1 );
-			m_cHUIKeypadControlsKeypad.EnableWindow( 0 );
+			m_cHUIKeypadControlsKeypad.EnableWindow( 0 );			
 		}
 		else
 		{
 			m_pSurface->SetUseUniversalProtocol( false );
-			m_pSurface->SetUseHUIProtocol(false);
+			m_pSurface->SetUseHUIProtocol( false );
 			m_pSurface->SetUseCubaseProtocol( false );
 			m_pSurface->SetHUIKeyPadControlsKeyPad(false);
 			m_pSurface->SetUseUniversalProtocol( false );
@@ -711,6 +712,9 @@ void CMackieControlMasterPropPage::FillVirtualMainCombo()
 {
 	m_cVirtualMain.ResetContent();
 
+	if ( !m_pSurface )
+		return;
+
 	DWORD dwN = m_pSurface->GetStripCount(m_pSurface->GetMasterFaderType());
 	for (BYTE n = 0; n < dwN; n++)
 	{
@@ -783,8 +787,13 @@ BOOL CMackieControlMasterPropPage::OnInitDialog()
 
 	BOOL bRet = CDialog::OnInitDialog();
 	
+	if ( !m_pSurface )
+		return FALSE;
+
 	// Get a pointer to the Sonar Commands interface
 	ISonarCommands *pCommands = m_pSurface->GetSonarCommands();
+	if ( !pCommands )
+		return FALSE;
 
 	// Fill in the function keys combo box
 	DWORD dwCount;
@@ -1061,13 +1070,17 @@ void CMackieControlMasterPropPage::OnSelchangeVirtualMainType()
 
 	// Now rebuild the fader offset drop down
 	FillVirtualMainCombo();
-	m_cVirtualMain.SetCurSel(m_pSurface->GetMasterFaderOffset());
+	if ( m_pSurface )
+		m_cVirtualMain.SetCurSel(m_pSurface->GetMasterFaderOffset());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlMasterPropPage::OnConfigureLayout() 
 {
+	if ( !m_pSurface )
+		return;
+
 	bool bVal = m_pSurface->GetConfigureLayoutMode();
 
 	if (bVal)

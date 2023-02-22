@@ -38,6 +38,9 @@ DWORD CMackieControlBase::GetStripCount(SONAR_MIXER_STRIP eMixerStrip)
 bool CMackieControlBase::GetStripName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 									  char *pszText, DWORD *pdwLen)
 {
+	if ( !m_pMixer )
+		return false;
+
 	HRESULT hr = m_pMixer->GetMixStripName(eMixerStrip, dwStripNum, pszText, pdwLen);
 
 	return FAILED(hr) ? false : true;
@@ -47,6 +50,9 @@ bool CMackieControlBase::GetStripName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStr
 
 DWORD CMackieControlBase::GetPluginCount(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
+	if ( !m_pMixer )
+		return 0;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -64,6 +70,9 @@ DWORD CMackieControlBase::GetPluginCount(SONAR_MIXER_STRIP eMixerStrip, DWORD dw
 bool CMackieControlBase::GetPluginName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 									   DWORD dwParamNum, char *pszText, DWORD *pwdLen)
 {
+	if ( !m_pMixer )
+		return false;
+
 	HRESULT hr = m_pMixer->GetMixParamLabel(eMixerStrip, dwStripNum,
 										MIX_PARAM_FX, dwParamNum,
 										pszText, pwdLen);
@@ -78,6 +87,9 @@ bool CMackieControlBase::GetPluginName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwSt
 DWORD CMackieControlBase::GetPluginParamCount(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											  DWORD dwPluginNum)
 {
+	if ( !m_pMixer )
+		return 0;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -95,6 +107,9 @@ DWORD CMackieControlBase::GetPluginParamCount(SONAR_MIXER_STRIP eMixerStrip, DWO
 bool CMackieControlBase::GetFilterExists(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 										 DWORD dwFilterNum)
 {
+	if ( !m_pMixer )
+		return false;
+
 	if (!m_cState.HaveStripFilter())
 		return false;
 
@@ -125,6 +140,9 @@ bool CMackieControlBase::GetFilterExists(SONAR_MIXER_STRIP eMixerStrip, DWORD dw
 bool CMackieControlBase::GetFilterName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 									   DWORD dwFilterNum, char *pszText, DWORD *pwdLen)
 {
+	if ( !m_pMixer )
+		return false;
+
 	pszText[0] = 0;
 
 	// Force ProChannel EQ name to avoid clash with old EQ
@@ -157,6 +175,9 @@ bool CMackieControlBase::GetFilterName(SONAR_MIXER_STRIP eMixerStrip, DWORD dwSt
 DWORD CMackieControlBase::GetFilterParamCount(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum,
 											  DWORD dwFilterNum)
 {
+	if ( !m_pMixer )
+		return 0;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -174,6 +195,9 @@ DWORD CMackieControlBase::GetFilterParamCount(SONAR_MIXER_STRIP eMixerStrip, DWO
 
 DWORD CMackieControlBase::GetNumInputs(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
+	if ( !m_pMixer )
+		return 0;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -193,6 +217,9 @@ DWORD CMackieControlBase::GetNumInputs(SONAR_MIXER_STRIP eMixerStrip, DWORD dwSt
 
 DWORD CMackieControlBase::GetNumOutputs(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
+	if ( !m_pMixer )
+		return 0;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -215,7 +242,8 @@ DWORD CMackieControlBase::GetNumOutputs(SONAR_MIXER_STRIP eMixerStrip, DWORD dwS
 
 DWORD CMackieControlBase::GetNumSends(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
-//	return GetStripCount(m_cState.BusType());
+	if ( !m_pMixer )
+		return 0;
 
 	float fVal;
 
@@ -262,6 +290,9 @@ DWORD CMackieControlBase::GetMaxNumSends(SONAR_MIXER_STRIP eMixerStrip)
 
 DWORD CMackieControlBase::GetSelected()
 {
+	if ( !m_pMixer )
+		return 0;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(MIX_STRIP_TRACK, 0,
@@ -281,6 +312,9 @@ DWORD CMackieControlBase::GetSelected()
 
 bool CMackieControlBase::IsProjectLoaded()
 {
+	if ( !m_pProject )
+		return false;
+
 	char szName[128];
 	DWORD dwLen = sizeof(szName);
 
@@ -306,6 +340,9 @@ bool CMackieControlBase::IsProjectLoaded()
 
 bool CMackieControlBase::HaveMixerStrips()
 {
+	if ( !m_pMixer )
+		return false;
+
 	DWORD dwCount;
 
 	HRESULT hr = m_pMixer->GetMixStripCount(MIX_STRIP_TRACK, &dwCount);
@@ -338,6 +375,9 @@ bool CMackieControlBase::IsAPluginMode(Assignment eAssignment)
 
 bool CMackieControlBase::IsMIDI(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
+	if ( !m_pMixer )
+		return false;
+
 	bool bIsMIDI = false;
 
 	float fVal;
@@ -356,6 +396,9 @@ bool CMackieControlBase::IsMIDI(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 
 bool CMackieControlBase::GetRudeSoloStatus()
 {
+	if ( !m_pMixer )
+		return false;
+
 	if (m_cState.HaveStripAny())
 	{
 		float fVal;
@@ -418,6 +461,9 @@ bool CMackieControlBase::GetRudeSoloStatus()
 
 void CMackieControlBase::ClearAllMutes()
 {
+	if ( !m_pMixer )
+		return;
+
 //	TRACE("CMackieControlBase::ClearAllMutes()\n");
 
 	DWORD dwCount = GetStripCount(MIX_STRIP_TRACK);
@@ -439,6 +485,9 @@ void CMackieControlBase::ClearAllMutes()
 
 void CMackieControlBase::ClearAllSolos()
 {
+	if ( !m_pMixer )
+		return;
+
 //	TRACE("CMackieControlBase::ClearAllSolos()\n");
 
 	DWORD dwCount = GetStripCount(MIX_STRIP_TRACK);
@@ -460,6 +509,9 @@ void CMackieControlBase::ClearAllSolos()
 
 void CMackieControlBase::DisarmAllTracks()
 {
+	if ( !m_pMixer )
+		return;
+
 //	TRACE("CMackieControlBase::DisarmAllTracks()\n");
 
 	DWORD dwCount = GetStripCount(MIX_STRIP_TRACK);
@@ -472,6 +524,9 @@ void CMackieControlBase::DisarmAllTracks()
 
 void CMackieControlBase::ToggleLoopMode()
 {
+	if ( !m_pTransport )
+		return;
+
 	BOOL bVal;
 
 	HRESULT hr = m_pTransport->GetTransportState(TRANSPORT_STATE_LOOP, &bVal);
@@ -488,6 +543,9 @@ void CMackieControlBase::ToggleLoopMode()
 
 void CMackieControlBase::ToggleScrubMode()
 {
+	if ( !m_pTransport )
+		return;
+
 	BOOL bVal;
 
 	HRESULT hr = m_pTransport->GetTransportState(TRANSPORT_STATE_SCRUB, &bVal);
@@ -504,6 +562,9 @@ void CMackieControlBase::ToggleScrubMode()
 
 bool CMackieControlBase::GetTransportState(SONAR_TRANSPORT_STATE eState)
 {
+	if ( !m_pTransport )
+		return false;
+
 	BOOL bVal;
 
 	HRESULT hr = m_pTransport->GetTransportState(eState, &bVal);
@@ -518,7 +579,8 @@ bool CMackieControlBase::GetTransportState(SONAR_TRANSPORT_STATE eState)
 
 void CMackieControlBase::SetTransportState(SONAR_TRANSPORT_STATE eState, bool bVal)
 {
-	m_pTransport->SetTransportState(eState, bVal ? TRUE : FALSE);
+	if ( m_pTransport )
+		m_pTransport->SetTransportState(eState, bVal ? TRUE : FALSE);
 }
 
 
@@ -533,6 +595,9 @@ bool CMackieControlBase::IsRecording()
 
 void CMackieControlBase::SetTimeCursor(SONAR_TRANSPORT_TIME eTime)
 {
+	if ( !m_pTransport )
+		return;
+
 	if (TRANSPORT_TIME_CURSOR == eTime)
 		return;
 
@@ -552,6 +617,9 @@ void CMackieControlBase::SetTimeCursor(SONAR_TRANSPORT_TIME eTime)
 
 void CMackieControlBase::SetMarker(SONAR_TRANSPORT_TIME eTime)
 {
+	if ( !m_pTransport )
+		return;
+
 	if (TRANSPORT_TIME_CURSOR == eTime)
 		return;
 
@@ -573,6 +641,9 @@ void CMackieControlBase::FakeKeyPress(bool bShift, bool bCtrl, bool bAlt, int nV
 {
 //	TRACE("CMackieControlBase::FakeKeyPress(): shift: %d, ctrl: %d, alt: %d, key: %d (%c)\n",
 //			bShift, bCtrl, bAlt, nVirtKey, nVirtKey);
+
+	if ( !m_pKeyboard )
+		return;
 
 	if (bShift)	m_pKeyboard->KeyboardEvent(VK_SHIFT, SKE_KEYDOWN);
 	if (bCtrl)	m_pKeyboard->KeyboardEvent(VK_CONTROL, SKE_KEYDOWN);
@@ -605,7 +676,10 @@ void CMackieControlBase::SetRelayClick(bool bOn)
 
 void CMackieControlBase::NudgeTimeCursor(JogResolution eJogResolution, Direction eDir)
 {
-//	TRACE("CMackieControlBase::NudgeTimeCursor()\n");
+	if ( !m_pTransport )
+		return;
+
+	//	TRACE("CMackieControlBase::NudgeTimeCursor()\n");
 
 	MFX_TIME mfxTime;
 

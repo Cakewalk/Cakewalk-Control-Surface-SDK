@@ -362,14 +362,16 @@ void CMackieControlBase::SendMidiShort(BYTE bStatus, BYTE bD1, BYTE bD2)
 	dwMsg <<= 8;	dwMsg |= bD1;
 	dwMsg <<= 8;	dwMsg |= bStatus;
 
-	m_pMidiOut->MidiOutShortMsg(this, dwMsg);
+	if ( m_pMidiOut )
+		m_pMidiOut->MidiOutShortMsg(this, dwMsg);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlBase::SendMidiLong(DWORD cbLongMsg, const BYTE* pbLongMsg)
 {
-	m_pMidiOut->MidiOutLongMsg(this, cbLongMsg, pbLongMsg);
+	if ( m_pMidiOut )
+		m_pMidiOut->MidiOutLongMsg(this, cbLongMsg, pbLongMsg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +433,8 @@ void CMackieControlBase::DispatchRefreshRequest()
 //
 void CMackieControlBase::RequestRefresh(bool bForce)
 {
-	m_pProject->RequestRefresh((DWORD)(bForce ? &m_bMsgForceRefresh : &m_bMsgRefresh));
+	if ( m_pProject )
+		m_pProject->RequestRefresh((DWORD)(bForce ? &m_bMsgForceRefresh : &m_bMsgRefresh));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -440,7 +443,8 @@ void CMackieControlBase::RequestRefresh(bool bForce)
 //
 void CMackieControlBase::RequestRefreshAll(bool bForce)
 {
-	m_pProject->RequestRefresh((DWORD)(bForce ? &m_bMsgForceRefreshAll : &m_bMsgRefreshAll));
+	if ( m_pProject )
+		m_pProject->RequestRefresh((DWORD)(bForce ? &m_bMsgForceRefreshAll : &m_bMsgRefreshAll));
 }
 
 
@@ -448,14 +452,16 @@ void CMackieControlBase::RequestRefreshAll(bool bForce)
 
 void CMackieControlBase::RequestSetAllFadersToDefault()
 {
-	m_pProject->RequestRefresh((DWORD)&m_bMsgSetAllFadersToDefault);
+	if ( m_pProject )
+		m_pProject->RequestRefresh((DWORD)&m_bMsgSetAllFadersToDefault);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlBase::RequestSetAllVPotsToDefault()
 {
-	m_pProject->RequestRefresh((DWORD)&m_bMsgSetAllVPotsToDefault);
+	if ( m_pProject )
+		m_pProject->RequestRefresh((DWORD)&m_bMsgSetAllVPotsToDefault);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

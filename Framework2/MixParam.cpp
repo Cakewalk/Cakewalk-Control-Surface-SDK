@@ -77,8 +77,11 @@ CMixParam::~CMixParam()
 void CMixParam::SetInterfaces(ISonarMixer *pMixer, ISonarTransport *pTransport, DWORD dwUniqueId)
 {
 	m_pMixer = pMixer;
-	m_pMixer->QueryInterface( IID_ISonarMixer3, (void**)&m_pMixer3 );
-	m_pMixer->QueryInterface( IID_IHostLockStrip, (void**)&m_pLockStrip );
+	if ( m_pMixer )
+	{
+		m_pMixer->QueryInterface( IID_ISonarMixer3, (void**)&m_pMixer3 );
+		m_pMixer->QueryInterface( IID_IHostLockStrip, (void**)&m_pLockStrip );
+	}
 
 	m_pTransport = pTransport;
 	m_dwUniqueId = dwUniqueId;
@@ -270,6 +273,9 @@ HRESULT CMixParam::GetParamLabel(LPSTR pszText, DWORD *pdwLen)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	SONAR_MIXER_STRIP eStripType;
 	DWORD dwStripNum = 0;
 	GetStripInfo( &eStripType, &dwStripNum );
@@ -285,6 +291,9 @@ HRESULT CMixParam::GetParamLabel(LPSTR pszText, DWORD *pdwLen)
 HRESULT CMixParam::GetVal(float *fVal)
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	float f = 0.f;
@@ -322,6 +331,9 @@ HRESULT CMixParam::SetVal(float f01Val, // normalized value
 		return E_FAIL;
 
 	if (m_bDisableWhilePlaying && isPlaying())
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	HRESULT hr = S_OK;
@@ -481,6 +493,9 @@ void CMixParam::scaleValueToHost( float& fVal )
 	SONAR_MIXER_STRIP eStripType;
 	DWORD dwStripNum = 0;
 
+	if ( !m_pMixer )
+		return;
+
 	float fMax = 1.f;
 	switch (m_eMixerParam)
 	{
@@ -529,6 +544,9 @@ void CMixParam::scaleValueToHost( float& fVal )
 // Certain params are not normalized 0..1 such as I/O port assignments
 void CMixParam::scaleValueFromHost( float& fVal )
 {
+	if ( !m_pMixer )
+		return;
+
 	SONAR_MIXER_STRIP eStripType;
 	DWORD dwStripNum = 0;
 	GetStripInfo( &eStripType, &dwStripNum );
@@ -692,6 +710,9 @@ HRESULT CMixParam::GetValueText(float fVal, LPSTR pszText, DWORD *pdwLen)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	SONAR_MIXER_STRIP eStripType;
 	DWORD dwStripNum = 0;
 	GetStripInfo( &eStripType, &dwStripNum );
@@ -720,6 +741,9 @@ HRESULT CMixParam::Touch(bool bTouchState)
 	if (!m_bHasBinding)
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	if ( !bTouchState )
 		m_fValCached = -1.f;
 
@@ -737,6 +761,9 @@ HRESULT CMixParam::Touch(bool bTouchState)
 HRESULT CMixParam::GetWrite(bool *pbArm)
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	BOOL bArm;
@@ -764,6 +791,9 @@ HRESULT CMixParam::SetWrite(bool bArm)
 	if (isPlaying())
 		return E_FAIL;
 
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	SONAR_MIXER_STRIP eStripType;
 	DWORD dwStripNum = 0;
 	GetStripInfo( &eStripType, &dwStripNum );
@@ -778,6 +808,9 @@ HRESULT CMixParam::SetWrite(bool bArm)
 HRESULT CMixParam::GetRead(bool* pb)
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	ISonarMixer2*	pMixer2 = NULL;
@@ -802,6 +835,9 @@ HRESULT CMixParam::GetRead(bool* pb)
 HRESULT CMixParam::SetRead(bool b )
 {
 	if (!m_bHasBinding)
+		return E_FAIL;
+
+	if ( !m_pMixer )
 		return E_FAIL;
 
 	if (isPlaying())
@@ -872,6 +908,9 @@ HRESULT CMixParam::SetToDefaultValue()
 // Use ISonarMixer3 to revert to the previous punch value
 HRESULT CMixParam::RevertValue()
 {
+	if ( !m_pMixer )
+		return E_FAIL;
+
 	if ( !m_pMixer3 )
 	{
 		// Relies on ISonarMixer3
@@ -906,6 +945,9 @@ void CMixParam::SetStripNumOffset( DWORD dwOffset )
 bool CMixParam::isPlaying()
 {
 	BOOL bVal;
+
+	if ( !m_pTransport )
+		return false;
 
 	HRESULT hr = m_pTransport->GetTransportState(TRANSPORT_STATE_PLAY, &bVal);
 

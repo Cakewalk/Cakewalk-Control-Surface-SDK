@@ -35,11 +35,6 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave)
 	{
 		if (FAILED(Persist(pStm, bSave, &m_strRotaryLabel[n])))
 			return E_FAIL;
-		if (!bSave)
-		{
-			LPSTR psz = (char*)m_strRotaryLabel[n].GetBuffer();
-			TRACE( _T( "%s\n" ), psz );
-		}
 	}
 	for (n = 0; n < NUM_SLIDERS; n++)
 	{
@@ -119,8 +114,6 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave)
 	// Comments
 	if (FAILED(Persist(pStm, bSave, &m_strComments)))
 		return E_FAIL;
-
-	TRACE( _T( "Comments: %s\n" ), (LPSTR)m_strComments.GetBuffer() );
 
 	if (dwVersion <= 5)
 		return S_OK;
@@ -251,6 +244,9 @@ HRESULT CACTController::PersistBank(IStream* pStm, bool bSave, int iBank)
 
 HRESULT CACTController::Persist(IStream* pStm, bool bSave, CString *pStr)
 {
+	// string data used to be in char format!
+	// CString will be wide in UNICODE build.
+	// be explicit here for safety.
 	int iLen;
 
 	if (bSave)
@@ -258,15 +254,35 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave, CString *pStr)
 		iLen = pStr->GetLength();
 		if (FAILED(Persist(pStm, bSave, &iLen, sizeof(iLen))))
 			return E_FAIL;
-		if (FAILED(Persist(pStm, bSave, (void *)(LPCTSTR)(*pStr), iLen)))
+		char sz[512] = { NULL };
+		TCHAR2Char(sz, pStr->GetBuffer(), iLen);
+		pStr->ReleaseBuffer();
+		if (FAILED(Persist(pStm, bSave, sz, iLen)))
 			return E_FAIL;
 	}
 	else
 	{
 		if (FAILED(Persist(pStm, bSave, &iLen, sizeof(iLen))))
 			return E_FAIL;
-		HRESULT hr = Persist(pStm, bSave, pStr->GetBuffer(iLen), iLen);
-		pStr->ReleaseBuffer(iLen);
+
+		char * sz = new char[iLen+1];
+		TCHAR * tsz = new TCHAR[iLen+1];
+		// shouldn't be trying to read a novel!
+		if (iLen < 0 || iLen >= INT_MAX)
+		{
+			TRACE("CACTController::Persist(): ERROR: bogus iLen %d\n", iLen);
+			ASSERT(0);
+		}
+
+		HRESULT hr = Persist(pStm, bSave, (void*)sz, iLen);
+				
+		Char2TCHAR(tsz, sz, iLen+1);
+		*pStr = tsz; // assign to dest
+
+		// free allocations
+		delete[] sz;
+		delete[] tsz;
+
 		if (FAILED(hr))
 			return E_FAIL;
 	}
@@ -293,12 +309,14 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave, void *pData, ULONG ul
 	else
 	{
 		ULONG ulRead;
-
-		if (pStm->Read(pData, ulCount, &ulRead) != S_OK || ulRead != ulCount)
+		HRESULT hr = pStm->Read(pData, ulCount, &ulRead);
+		if (hr != S_OK || ulRead != ulCount)
 		{
-			TRACE("CACTController::Persist: load failed\n");
+			TRACE("CACTController::Persist: load failed, hr = %0x, ulRead %d, ulCount %d\n", ulRead, ulCount);
 			return E_FAIL;
 		}
+		//else
+		//	TRACE("CACTController::Persist: load succeeded\n");
 	}
 
 	return S_OK;

@@ -385,8 +385,14 @@ void CLabel::OnPaint()
 
 		USES_CONVERSION;
 
-		WCHAR* wsz = T2OLE( strText.GetBuffer() );
+		
+		// strText is now a wide string when building UNICODE
+#ifdef UNICODE
+		::DrawTextExW( *pDCMem, strText.GetBuffer(), (int)(strText.GetLength()), rc, dwFlags, NULL ); 
+#else
+		WCHAR* wsz = T2OLE( strText );
 		::DrawTextExW( *pDCMem, wsz, (int)(::wcslen( wsz )), rc, dwFlags, NULL ); 
+#endif
 		if (m_bFont3d)
 		{
 			pDCMem->SetTextColor(m_cr3DHiliteColor);

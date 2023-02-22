@@ -457,9 +457,15 @@ BOOL CMackieControlC4PropPage::OnInitDialog()
 //	TRACE("CMackieControlC4PropPage::OnInitDialog()\n");
 
 	BOOL bRet = CDialog::OnInitDialog();
-	
+
+	if ( !m_pSurface )
+		return FALSE;
+
 	// Get a pointer to the Sonar Commands interface
 	ISonarCommands *pCommands = m_pSurface->GetSonarCommands();
+
+	if ( !pCommands )
+		return FALSE;
 
 	m_cDisp1.SetLimitText(6);
 	m_cDisp2.SetLimitText(6);

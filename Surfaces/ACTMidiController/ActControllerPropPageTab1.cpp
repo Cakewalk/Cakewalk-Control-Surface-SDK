@@ -7,6 +7,7 @@
 #include "StringCruncher.h"
 #include "EditLabel.h"
 #include "CellMidiPropsDlg.h"
+#include "utils.h"
 
 
 #ifdef _DEBUG
@@ -619,7 +620,7 @@ BOOL CACTControllerPropPageTab1::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT*
 		{
 			if ( bWantProps )
 				ixCell = n;
-			else
+			else if ( m_pSurface )
 			{
 				m_pSurface->MidiLearnRotary(n);
 				bStartTimer =  m_pSurface->GetRotaryMessageInterpretation(n) == CMidiBinding::MI_Increment;
@@ -638,7 +639,7 @@ BOOL CACTControllerPropPageTab1::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT*
 			{
 				if ( bWantProps )
 					ixCell = n + NUM_KNOBS;
-				else
+				else if ( m_pSurface )
 				{
 					m_pSurface->MidiLearnSlider(n);
 					bStartTimer =  m_pSurface->GetSliderMessageInterpretation(n) == CMidiBinding::MI_Increment;
@@ -658,7 +659,7 @@ BOOL CACTControllerPropPageTab1::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT*
 			{
 				if ( bWantProps )
 					ixCell = n + NUM_KNOBS + NUM_SLIDERS;
-				else
+				else if ( m_pSurface )
 					m_pSurface->MidiLearnButton(n);
 				done = true;
 				break;
@@ -673,11 +674,12 @@ BOOL CACTControllerPropPageTab1::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT*
 			if (m_pRotaryLabel[n]->GetDlgCtrlID() == wParam)
 			{
 				CEditLabel dlgEditLabel;
-
-				m_pSurface->GetRotaryLabel(n, &dlgEditLabel.m_strLabel);
-				if (dlgEditLabel.DoModal() == IDOK)
-					m_pSurface->SetRotaryLabel(n, dlgEditLabel.m_strLabel);
-
+				if ( m_pSurface )
+				{
+					m_pSurface->GetRotaryLabel(n, &dlgEditLabel.m_strLabel);
+					if (dlgEditLabel.DoModal() == IDOK)
+						m_pSurface->SetRotaryLabel(n, dlgEditLabel.m_strLabel);
+				}
 				done = true;
 				break;
 			}
@@ -691,11 +693,12 @@ BOOL CACTControllerPropPageTab1::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT*
 			if (m_pSliderLabel[n]->GetDlgCtrlID() == wParam)
 			{
 				CEditLabel dlgEditLabel;
-
-				m_pSurface->GetSliderLabel(n, &dlgEditLabel.m_strLabel);
-				if (dlgEditLabel.DoModal() == IDOK)
-					m_pSurface->SetSliderLabel(n, dlgEditLabel.m_strLabel);
-
+				if ( m_pSurface )
+				{
+					m_pSurface->GetSliderLabel(n, &dlgEditLabel.m_strLabel);
+					if (dlgEditLabel.DoModal() == IDOK)
+						m_pSurface->SetSliderLabel(n, dlgEditLabel.m_strLabel);
+				}
 				done = true;
 				break;
 			}
@@ -709,11 +712,12 @@ BOOL CACTControllerPropPageTab1::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT*
 			if (m_pButtonLabel[n]->GetDlgCtrlID() == wParam)
 			{
 				CEditLabel dlgEditLabel;
-
-				m_pSurface->GetButtonLabel(m_eButtonIndex[n], &dlgEditLabel.m_strLabel);
-				if (dlgEditLabel.DoModal() == IDOK)
-					m_pSurface->SetButtonLabel(m_eButtonIndex[n], dlgEditLabel.m_strLabel);
-
+				if ( m_pSurface )
+				{
+					m_pSurface->GetButtonLabel(m_eButtonIndex[n], &dlgEditLabel.m_strLabel);
+					if (dlgEditLabel.DoModal() == IDOK)
+						m_pSurface->SetButtonLabel(m_eButtonIndex[n], dlgEditLabel.m_strLabel);
+				}
 				done = true;
 				break;
 			}
@@ -742,8 +746,8 @@ void CACTControllerPropPageTab1::OnSelchangeActiveRotaryBank()
 	if (idx != CB_ERR)
 	{
 		m_iRotaryBank = m_cActiveRotaryBank.GetItemData(idx);
-
-		m_pSurface->SetRotaryBank(int(m_iRotaryBank));
+		if ( m_pSurface )
+			m_pSurface->SetRotaryBank(int(m_iRotaryBank));
 	}
 }
 
@@ -755,8 +759,8 @@ void CACTControllerPropPageTab1::OnSelchangeActiveSliderBank()
 	if (idx != CB_ERR)
 	{
 		m_iSliderBank = m_cActiveSliderBank.GetItemData(idx);
-
-		m_pSurface->SetSliderBank(int(m_iSliderBank));
+		if ( m_pSurface )
+			m_pSurface->SetSliderBank(int(m_iSliderBank));
 	}
 }
 
@@ -768,8 +772,8 @@ void CACTControllerPropPageTab1::OnSelchangeActiveButtonBank()
 	if (idx != CB_ERR)
 	{
 		m_iButtonBank = m_cActiveButtonBank.GetItemData(idx);
-
-		m_pSurface->SetButtonBank(int(m_iButtonBank));
+		if ( m_pSurface )
+			m_pSurface->SetButtonBank(int(m_iButtonBank));
 	}
 }
 
@@ -780,7 +784,8 @@ void CACTControllerPropPageTab1::OnTimer(UINT_PTR nIDEvent)
 	if ( nIDEvent == TID_MIDI_LEARN )
 	{
 		KillTimer( nIDEvent );
-		m_pSurface->EndMidiLearn();
+		if ( m_pSurface )
+			m_pSurface->EndMidiLearn();
 	}
 
 	CACTControllerPropPageTab::OnTimer(nIDEvent);

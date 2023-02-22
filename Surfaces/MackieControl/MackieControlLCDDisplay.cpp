@@ -71,7 +71,7 @@ void CMackieControlLCDDisplay::SetMeterMode(BYTE bChan,
 											bool bDisplayPeakHold,
 											bool bForceSend)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol())
 		return;
 
 	if (bChan >= 8)
@@ -120,17 +120,20 @@ void CMackieControlLCDDisplay::SetMeterMode(BYTE bChan,
 
 void CMackieControlLCDDisplay::SendMeterLevel(BYTE bChan, BYTE bLevel, BYTE bRow)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
-		m_pMackieControlBase->SendMidiShort(0xA0, bChan, bLevel);
-	else
-		m_pMackieControlBase->SendMidiShort(0xD0 | bRow, (bChan << 4) | bLevel, 0);
+	if ( m_pMackieControlBase )
+	{
+		if ( m_pMackieControlBase->UsingHUIProtocol() )
+			m_pMackieControlBase->SendMidiShort( 0xA0, bChan, bLevel );
+		else
+			m_pMackieControlBase->SendMidiShort( 0xD0 | bRow, (bChan << 4) | bLevel, 0 );
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void CMackieControlLCDDisplay::WriteCentered(BYTE bY, const char *pText, bool bForceSend)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol())
 		return;
 
 	char szLine[LCD_WIDTH + 1];
@@ -152,7 +155,7 @@ void CMackieControlLCDDisplay::WriteCentered(BYTE bY, const char *pText, bool bF
 
 void CMackieControlLCDDisplay::WriteToEOL(BYTE bY, const char *pText, bool bForceSend)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol() )
 		return;
 
 	char szLine[LCD_WIDTH + 1];
@@ -174,7 +177,7 @@ void CMackieControlLCDDisplay::WriteToEOL(BYTE bY, const char *pText, bool bForc
 
 void CMackieControlLCDDisplay::Write(BYTE bX, BYTE bY, const char *pText, bool bForceSend)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol() )
 		return;
 
 	BYTE bOffset = (bY * LCD_WIDTH) + bX;
@@ -227,7 +230,7 @@ void CMackieControlLCDDisplay::Write(BYTE bX, BYTE bY, const char *pText, bool b
 
 void CMackieControlLCDDisplay::SendText(BYTE bOffset, BYTE bLen)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol() )
 		return;
 	
 	//	TRACE("CMackieControlLCDDisplay::SendText(%d, %d)\n", bOffset, bLen);
@@ -257,7 +260,7 @@ void CMackieControlLCDDisplay::SendText(BYTE bOffset, BYTE bLen)
 
 void CMackieControlLCDDisplay::SendGlobalMeterMode()
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol() )
 		return;
 
 	//	TRACE("CMackieControlLCDDisplay::SendGlobalMeterMode()\n");
@@ -273,7 +276,7 @@ void CMackieControlLCDDisplay::SendGlobalMeterMode()
 
 void CMackieControlLCDDisplay::SendMeterModeSelect(BYTE bChan, BYTE bVal)
 {
-	if (m_pMackieControlBase->UsingHUIProtocol())
+	if ( !m_pMackieControlBase || m_pMackieControlBase->UsingHUIProtocol() )
 		return;
 	
 	//	TRACE("CMackieControlLCDDisplay::SendMeterModeSelect(%d, %d)\n", bChan, bVal);

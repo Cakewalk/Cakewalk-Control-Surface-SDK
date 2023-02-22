@@ -36,7 +36,6 @@
 
 #pragma warning( disable:4100 )	// (4) unreferenced formal parameter
 
-#include <portdefs.h>
 #include <ControlSurface.h>
 #include <CommandIDs.h>
 

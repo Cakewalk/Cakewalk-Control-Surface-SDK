@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "ACTController.h"
+#include "utils.h"
 
 #define CHECK_RANGE( _n, _m ) (_n >= 0 && _n < _m)
 
@@ -389,7 +390,7 @@ vectorDwordCStringPairs *CACTController::GetButtonNames()
 	m_vButtonNames.clear();
 
 	for (n = 0; n < NUM_VIRTUAL_BUTTONS; n++)
-		AddItem(&m_vButtonNames, m_strButtonLabel[n].GetBuffer(), n);
+		AddItem(&m_vButtonNames, m_strButtonLabel[n], n);
 
 	return &m_vButtonNames;
 }
@@ -710,7 +711,6 @@ void CACTController::GetRotaryValue(BYTE bKnob, CString *strText)
 		strText->ReleaseBuffer();
 	}
 }
-
 
 /////////////////////////////////////////////////////////////////////////////
 

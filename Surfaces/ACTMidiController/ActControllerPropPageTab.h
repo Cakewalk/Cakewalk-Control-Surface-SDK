@@ -15,6 +15,7 @@ class CACTControllerPropPageTab : public CDialog
 // Construction
 public:
 	CACTControllerPropPageTab(UINT nIDTemplate, CWnd* pParent = NULL);   // standard constructor
+	~CACTControllerPropPageTab();
 
 // Dialog Data
 	//{{AFX_DATA(CACTControllerPropPageTab)

@@ -102,6 +102,9 @@ void CMackieControlC4::ReconfigureC4(bool bForce)
 
 bool CMackieControlC4::ReconfigureC4Half(C4SplitSection eSplit, int first, int last, bool bForce)
 {
+	if ( !m_pMixer )
+		return false;
+
 	SONAR_MIXER_STRIP eMixerStrip = GetMixerStrip(eSplit);
 	DWORD dwStripCount = GetStripCount(eMixerStrip);
 
@@ -188,7 +191,7 @@ bool CMackieControlC4::ReconfigureC4Half(C4SplitSection eSplit, int first, int l
 				case MIX_STRIP_AUX:			pConf = &CMackieControlC4::ConfParameterAux;		break;
 				case MIX_STRIP_MAIN:		pConf = &CMackieControlC4::ConfParameterMain;		break;
 				case MIX_STRIP_BUS:			pConf = &CMackieControlC4::ConfParameterBus;		break;
-				case MIX_STRIP_MASTER:		pConf = &CMackieControlC4::ConfParameterMaster;	break;
+				case MIX_STRIP_MASTER:		pConf = &CMackieControlC4::ConfParameterMaster;		break;
 				case MIX_STRIP_RACK:		return false; 										break;
 				default:
 					TRACE("CMackieControlC4::ReconfigureC4(): Error: unknown strip type!\n");

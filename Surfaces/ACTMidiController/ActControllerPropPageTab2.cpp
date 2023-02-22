@@ -95,6 +95,9 @@ void CACTControllerPropPageTab2::LoadAllFields()
 {
 	TRACE("CACTControllerPropPageTab2::LoadAllFields()\n");
 
+	if ( !m_pSurface )
+		return;
+
 	SelectByItemData(&m_cKnobsBinding, m_pSurface->GetKnobsBinding(int(m_iRotaryBank)));
 	SelectByItemData(&m_cSlidersBinding, m_pSurface->GetSlidersBinding(int(m_iSliderBank)));
 
@@ -138,6 +141,9 @@ void CACTControllerPropPageTab2::LoadAllFields()
 
 void CACTControllerPropPageTab2::Select()
 {
+	if ( !m_pSurface )
+		return;
+
 	int idx = m_cButtonSelect.GetCurSel();
 	FillComboBox(&m_cButtonSelect, m_pSurface->GetButtonNames());
 	m_cButtonSelect.SetCurSel(idx);
@@ -202,7 +208,7 @@ void CACTControllerPropPageTab2::UpdateACTStatus(bool bForce)
 
 void CACTControllerPropPageTab2::GreyACTFields()
 {
-	BOOL bEnable = (m_pSurface->SupportsDynamicMappings()) ? TRUE : FALSE;
+	BOOL bEnable = ( m_pSurface && m_pSurface->SupportsDynamicMappings()) ? TRUE : FALSE;
 
 	m_cButtonExcludeACT.EnableWindow(bEnable);
 	m_cExcludeRotariesACT.EnableWindow(bEnable);
@@ -274,6 +280,9 @@ BOOL CACTControllerPropPageTab2::OnInitDialog()
 
 void CACTControllerPropPageTab2::OnSelchangeButtonSelect() 
 {
+	if ( !m_pSurface )
+		return;
+
 	int idx = m_cButtonSelect.GetCurSel();
 	if (idx != CB_ERR)
 	{
@@ -301,8 +310,8 @@ void CACTControllerPropPageTab2::OnSelchangeButtonAction()
 		if (idx != CB_ERR)
 		{
 			DWORD_PTR dwButton = m_cButtonSelect.GetItemData(idx);
-
-			m_pSurface->SetButtonAction(int(m_iButtonBank), (VirtualButton)dwButton, DWORD(dwAction));
+			if ( m_pSurface )
+				m_pSurface->SetButtonAction(int(m_iButtonBank), (VirtualButton)dwButton, DWORD(dwAction));
 		}
 	}
 }
@@ -317,8 +326,8 @@ void CACTControllerPropPageTab2::OnButtonExcludeACT()
 	if (idx != CB_ERR)
 	{
 		DWORD_PTR dwButton = m_cButtonSelect.GetItemData(idx);
-
-		m_pSurface->SetButtonExcludeACT(int(m_iButtonBank), (VirtualButton)dwButton, bExclude);
+		if ( m_pSurface )
+			m_pSurface->SetButtonExcludeACT(int(m_iButtonBank), (VirtualButton)dwButton, bExclude);
 	}
 }
 
@@ -327,8 +336,8 @@ void CACTControllerPropPageTab2::OnButtonExcludeACT()
 void CACTControllerPropPageTab2::OnExcludeRotariesACT() 
 {
 	m_bExcludeRotariesACT = (m_cExcludeRotariesACT.GetCheck() != 0);
-
-	m_pSurface->SetExcludeRotariesACT(int(m_iRotaryBank), m_bExcludeRotariesACT);
+	if ( m_pSurface )
+		m_pSurface->SetExcludeRotariesACT(int(m_iRotaryBank), m_bExcludeRotariesACT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -336,8 +345,8 @@ void CACTControllerPropPageTab2::OnExcludeRotariesACT()
 void CACTControllerPropPageTab2::OnExcludeSlidersACT() 
 {
 	m_bExcludeSlidersACT = (m_cExcludeSlidersACT.GetCheck() != 0);
-
-	m_pSurface->SetExcludeSlidersACT(int(m_iSliderBank), m_bExcludeSlidersACT);
+	if ( m_pSurface )
+		m_pSurface->SetExcludeSlidersACT(int(m_iSliderBank), m_bExcludeSlidersACT);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -348,8 +357,8 @@ void CACTControllerPropPageTab2::OnSelchangeKnobsBinding()
 	if (idx != CB_ERR)
 	{
 		DWORD_PTR dwBinding = m_cKnobsBinding.GetItemData(idx);
-
-		m_pSurface->SetKnobsBinding(int(m_iRotaryBank), DWORD(dwBinding));
+		if ( m_pSurface )
+			m_pSurface->SetKnobsBinding(int(m_iRotaryBank), DWORD(dwBinding));
 	}
 }
 
@@ -361,8 +370,8 @@ void CACTControllerPropPageTab2::OnSelchangeSlidersBinding()
 	if (idx != CB_ERR)
 	{
 		DWORD_PTR dwBinding = m_cSlidersBinding.GetItemData(idx);
-
-		m_pSurface->SetSlidersBinding(int(m_iSliderBank), DWORD(dwBinding));
+		if ( m_pSurface )
+			m_pSurface->SetSlidersBinding(int(m_iSliderBank), DWORD(dwBinding));
 	}
 }
 
@@ -371,8 +380,8 @@ void CACTControllerPropPageTab2::OnSelchangeSlidersBinding()
 void CACTControllerPropPageTab2::OnSelectHighlightsTrack() 
 {
 	m_bSelectHighlightsTrack = (m_cSelectHighlightsTrack.GetCheck() != 0);
-
-	m_pSurface->SetSelectHighlightsTrack(m_bSelectHighlightsTrack);
+	if ( m_pSurface )
+		m_pSurface->SetSelectHighlightsTrack(m_bSelectHighlightsTrack);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -380,15 +389,16 @@ void CACTControllerPropPageTab2::OnSelectHighlightsTrack()
 void CACTControllerPropPageTab2::OnACTFollowsContext() 
 {
 	m_bACTFollowsContext = (m_cACTFollowsContext.GetCheck() != 0);
-
-	m_pSurface->SetACTFollowsContext(m_bACTFollowsContext);
+	if ( m_pSurface )
+		m_pSurface->SetACTFollowsContext(m_bACTFollowsContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CACTControllerPropPageTab2::OnDefaults() 
 {
-	m_pSurface->RestoreDefaultBindings(true);
+	if ( m_pSurface )
+		m_pSurface->RestoreDefaultBindings(true);
 
 	LoadAllFields();
 }
@@ -397,7 +407,8 @@ void CACTControllerPropPageTab2::OnDefaults()
 
 void CACTControllerPropPageTab2::OnResetMidiLearn() 
 {
-	m_pSurface->ResetMidiLearn();
+	if ( m_pSurface )
+		m_pSurface->ResetMidiLearn();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +459,8 @@ void CACTControllerPropPageTab2::OnKillfocusCommets()
 	CString strComments;
 
 	m_cComments.GetWindowText(strComments);
-	m_pSurface->SetComments(strComments);
+	if ( m_pSurface )
+		m_pSurface->SetComments(strComments);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -456,20 +468,22 @@ void CACTControllerPropPageTab2::OnKillfocusCommets()
 void CACTControllerPropPageTab2::OnCbnSelchangeKnobsCaptmode()
 {
 	int ix = m_cKnobsCapture.GetCurSel();
-	m_pSurface->SetRotaryCaptureType( int(m_iRotaryBank), (CMixParam::CaptureType)m_cKnobsCapture.GetItemData(ix) );
+	if ( m_pSurface )
+		m_pSurface->SetRotaryCaptureType( int(m_iRotaryBank), (CMixParam::CaptureType)m_cKnobsCapture.GetItemData(ix) );
 }
 
 void CACTControllerPropPageTab2::OnCbnSelchangeSlidersCaptmode()
 {
 	int ix = m_cSlidersCapture.GetCurSel();
-	m_pSurface->SetSliderCaptureType( int(m_iSliderBank), (CMixParam::CaptureType)m_cSlidersCapture.GetItemData(ix) );
+	if ( m_pSurface )
+		m_pSurface->SetSliderCaptureType( int(m_iSliderBank), (CMixParam::CaptureType)m_cSlidersCapture.GetItemData(ix) );
 }
 
 void CACTControllerPropPageTab2::OnBnClickedSend()
 {
 	CWaitCursor wc;
-
-	m_pSurface->SendInitMessages();
+	if ( m_pSurface )
+		m_pSurface->SendInitMessages();
 }
 
 void CACTControllerPropPageTab2::OnBnClickedEditInit()
@@ -481,7 +495,7 @@ void CACTControllerPropPageTab2::OnBnClickedEditInit()
 
 void CACTControllerPropPageTab2::OnTimer(UINT_PTR nIDEvent)
 {
-	if ( TID_REFRESH == nIDEvent )
+	if ( TID_REFRESH == nIDEvent && m_pSurface )
 		GetDlgItem( IDC_SEND )->EnableWindow( m_pSurface->HasInitMessage() );
 
 	CACTControllerPropPageTab::OnTimer(nIDEvent);

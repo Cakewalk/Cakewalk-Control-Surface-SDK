@@ -9,6 +9,7 @@
 #include "ACTController.h"
 #include "ACTControllerPropPage.h"
 #include "ControlSurface_i.c"
+#include "utils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,7 +62,7 @@ CACTController::CACTController() :
 
 	m_dwUpdateCount = 0;
 
-	m_strToolbarText = "ACT MIDI Controller";
+	m_strToolbarText = _T("ACT MIDI Controller");
 
 	m_dwNumTracks = 0;
 	m_dwNumBuses = 0;
@@ -386,14 +387,14 @@ HRESULT CACTController::GetDynamicControlCount( DWORD* pdwCount )
 {
 	CCriticalSectionAuto csa( &m_dyn_cs );
 
-	TRACE("CACTController::GetDynamicControlCount()\n");
+	TRACE(_T("CACTController::GetDynamicControlCount()\n"));
 
 	if (!pdwCount)
 		return E_POINTER;
 
 	*pdwCount = (DWORD)m_vDynControls.size();
 
-	TRACE("  Count = %u\n", *pdwCount);
+	TRACE(_T("  Count = %u\n"), *pdwCount);
 
 	return S_OK;
 }
@@ -486,15 +487,22 @@ HRESULT CACTController::Load( IStream* pStm )
 	// E_FAIL. Don't simply return whatever IStream::Read() returned.
 
 	HRESULT hr = Persist(pStm, false);
-
-	UpdateButtonActionStrings();
-	UpdateBindings();
-	onCaptureModeChange();
+	if ( FAILED( hr ) )
+	{
+		RestoreDefaultBindings();
+		ResetMidiLearn();
+	}
+	else
+	{
+		UpdateButtonActionStrings();
+		UpdateBindings();
+		onCaptureModeChange();
+	}
 
 	// Optional?   Send init messages?
 	// SendInitMessages();
 
-	if (FAILED(hr))
+	if ( FAILED( hr ) )
 		return hr;
 
 	m_bDirty = FALSE;
@@ -508,7 +516,7 @@ HRESULT CACTController::GetSizeMax( ULARGE_INTEGER* pcbSize )
 {
 	CCriticalSectionAuto csa( &m_cs );
 
-	TRACE("CACTController::GetSizeMax()\n");
+	TRACE(_T("CACTController::GetSizeMax()\n"));
 
 	// Assign the size of the data you write to the registry in Save() to pcbSize->LowPart
 	pcbSize->LowPart = 4096;
@@ -523,7 +531,7 @@ HRESULT CACTController::GetSizeMax( ULARGE_INTEGER* pcbSize )
 
 void CACTController::OnConnect()
 {
-	TRACE("CACTController::OnConnect()\n");
+	TRACE(_T("CACTController::OnConnect()\n"));
 
 	int m, n;
 
@@ -568,7 +576,7 @@ void CACTController::OnConnect()
 
 		vol.Format(fmt_vol, n + 1);
 		pan.Format(fmt_pan, n + 1);
-
+		
 		AddItem(&m_vKnobBindings,	(LPCTSTR)vol,	MAKELONG(MIX_PARAM_SEND_VOL, n));
 		AddItem(&m_vKnobBindings,	(LPCTSTR)pan,	MAKELONG(MIX_PARAM_SEND_PAN, n));
 
@@ -630,16 +638,19 @@ void CACTController::OnConnect()
 			DWORD dwCmdId;
 			DWORD dwSize;
 
-			if (FAILED(m_pCommands->GetCommandInfoW(n, &dwCmdId, NULL, &dwSize)))
+			if (FAILED(m_pCommands->GetCommandInfo(n, &dwCmdId, NULL, &dwSize)))
 				continue;
 
-			TCHAR* pszName = new TCHAR[dwSize];
+			LPSTR pszChar = new char[dwSize];
+			TCHAR * pszName = new TCHAR[dwSize];
 
-			if (SUCCEEDED( m_pCommands->GetCommandInfoW( n, &dwCmdId, pszName, &dwSize ) ))
+			if (SUCCEEDED(m_pCommands->GetCommandInfo(n, &dwCmdId, pszChar, &dwSize)))
 			{
-					AddItem(&m_vButtonActions, pszName, dwCmdId); // internally AddItem in the list is using a CString, so operator = should copy the memory so we don't need to keep it allocated correct?
+				Char2TCHAR(pszName, pszChar, dwSize);
+				AddItem(&m_vButtonActions, pszName, dwCmdId); // internally AddItem in the list is using a CString, so operator = should copy the memory so we don't need to keep it allocated correct?
 				// in other words, if we do NOT free pszName, then we'll have a memory leak?
 				// this page says operator = reinitializes memory already existing in the object and resizes if necessary.  
+				delete[] pszChar;
 				delete[] pszName;
 			}
 		}
@@ -713,7 +724,7 @@ void CACTController::DoCommand(DWORD dwCmdID)
 {
 	if (m_pCommands)
 	{
-		TRACE("CACTController::DoCommand(0x%08X)\n", dwCmdID);
+		TRACE(_T("CACTController::DoCommand(0x%08X)\n"), dwCmdID);
 		m_pCommands->DoCommand(dwCmdID);
 	}
 }
@@ -743,6 +754,9 @@ void CACTController::BindNthParam(CMixParam *pParam, SONAR_MIXER_STRIP eMixerStr
 {
 	SONAR_MIXER_PARAM eMixerParam = MIX_PARAM_VOL;
 	DWORD dwParamNum = 0;
+
+	if ( !pParam )
+		return;
 
 	switch (eMixerStrip)
 	{
@@ -816,6 +830,9 @@ void  CACTController::BindParamToBinding(CMixParam *pParam, SONAR_MIXER_STRIP eM
 	DWORD dwParamNum;
 	bool clear = false;
 
+	if ( !pParam )
+		return;
+
 	eMixerParam = (SONAR_MIXER_PARAM)LOWORD(dwBinding);
 	dwParamNum = HIWORD(dwBinding);
 
@@ -863,7 +880,8 @@ void  CACTController::BindParamToBinding(CMixParam *pParam, SONAR_MIXER_STRIP eM
 
 void CACTController::BindToACT(CMixParam *pParam, DWORD dwStripNum)
 {
-	pParam->SetParams(MIX_STRIP_ANY, dwStripNum, MIX_PARAM_DYN_MAP, m_dwSurfaceId);
+	if ( pParam )
+		pParam->SetParams(MIX_STRIP_ANY, dwStripNum, MIX_PARAM_DYN_MAP, m_dwSurfaceId);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -906,7 +924,7 @@ void CACTController::BuildDynControlsList()
 		}
 	}
 
-	TRACE("BuildDynControlsList() size = %d\n", m_vDynControls.size());
+	TRACE(_T("BuildDynControlsList() size = %d\n"), m_vDynControls.size());
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -915,7 +933,7 @@ void CACTController::AddItem(vectorDwordCStringPairs *vPair, UINT nID, DWORD num
 {
 	CDwordCStringPair data;
 
-	if (data.m_Str.LoadString(nID) != 0)
+	if (vPair && data.m_Str.LoadString(nID) != 0)
 	{
 		data.m_Num = num;
 
@@ -932,7 +950,8 @@ void CACTController::AddItem(vectorDwordCStringPairs *vPair, LPCTSTR str, DWORD 
 	data.m_Str = str;
 	data.m_Num = num;
 
-	vPair->push_back(data);
+	if ( vPair )
+		vPair->push_back(data);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1168,33 +1187,34 @@ void CACTController::GetStripNameAndParamLabel(CMixParam *pParam, CString *strTe
 	DWORD dwLen = 256;
 
 
-	TCHAR szUniLabel[256] = { 0 };
-	char  szLabel[ 256 ] = { 0 };
+	char szLabel[256] = { NULL };
+
 	HRESULT hr = pParam->GetParamLabel(szLabel, &dwLen);
-
-	// convert char to tchar for destination string.
-	Char2TCHAR( szUniLabel, szLabel, _countof( szUniLabel ) );
-
+	
 	if (SUCCEEDED(hr))
 	{
 		if (pParam->GetMixerStrip() != MIX_STRIP_ANY) // Not ACT
 		{
-			TCHAR cType;
+			char cType;
 
 			switch (pParam->GetMixerStrip())
 			{
-				case MIX_STRIP_TRACK:		cType = _T('T'); break;
+				case MIX_STRIP_TRACK:		cType = 'T'; break;
 				case MIX_STRIP_AUX:
-				case MIX_STRIP_BUS:			cType = _T('B'); break;
+				case MIX_STRIP_BUS:			cType = 'B'; break;
 				case MIX_STRIP_MAIN:
-				case MIX_STRIP_MASTER:		cType = _T('M'); break;
-				default:					cType = _T('E'); break; // Error
+				case MIX_STRIP_MASTER:		cType = 'M'; break;
+				default:					cType = 'E'; break; // Error
 			}
 
 			strText->Format(_T("%c%d "), cType, pParam->GetStripNum() + 1);
 		}
 
-		*strText += szUniLabel;
+		// convert char to tchar for destination string.
+		Char2TCHAR(strLabel.GetBufferSetLength(256), szLabel, 256);
+		strLabel.ReleaseBuffer();
+
+		*strText += strLabel;
 	}
 }
 
@@ -1249,6 +1269,9 @@ bool CACTController::IsMIDI(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 {
 	bool bIsMIDI = false;
 
+	if ( !m_pMixer )
+		return false;
+
 	float fVal;
 
 	HRESULT hr = m_pMixer->GetMixParam(eMixerStrip, dwStripNum,
@@ -1266,6 +1289,9 @@ bool CACTController::IsMIDI(SONAR_MIXER_STRIP eMixerStrip, DWORD dwStripNum)
 bool CACTController::GetTransportState(SONAR_TRANSPORT_STATE eState)
 {
 	BOOL bVal;
+
+	if ( !m_pTransport )
+		return false;
 
 	HRESULT hr = m_pTransport->GetTransportState(eState, &bVal);
 

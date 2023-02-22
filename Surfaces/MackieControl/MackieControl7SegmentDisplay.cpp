@@ -78,7 +78,8 @@ void CMackieControl7SegmentDisplay::Send()
 	BYTE bVal = m_bDecimalPoint ? 0x40 : 0x00;
 	bVal |= m_bVal;
 
-	m_pMackieControlBase->SendMidiShort(0xB0, 0x40 | m_bChan, bVal);
+	if ( m_pMackieControlBase )
+		m_pMackieControlBase->SendMidiShort(0xB0, 0x40 | m_bChan, bVal);
 }
 
 /////////////////////////////////////////////////////////////////////////////

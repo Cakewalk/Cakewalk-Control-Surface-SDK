@@ -227,6 +227,9 @@ void CMackieControlMaster::UpdateVSelectDisplay(bool bForceSend)
 
 void CMackieControlMaster::UpdateTimeCodeDisplay(bool bForceSend)
 {
+	if ( !m_pTransport )
+		return;
+
 	MFX_TIME timeCurrent;
 
 	// First check to see if it's changed
