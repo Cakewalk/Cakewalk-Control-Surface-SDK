@@ -254,11 +254,14 @@ HRESULT CACTController::Persist(IStream* pStm, bool bSave, CString *pStr)
 		iLen = pStr->GetLength();
 		if (FAILED(Persist(pStm, bSave, &iLen, sizeof(iLen))))
 			return E_FAIL;
-		char sz[512] = { NULL };
+		char sz[2048] = { NULL };
 		TCHAR2Char(sz, pStr->GetBuffer(), iLen);
-		pStr->ReleaseBuffer();
-		if (FAILED(Persist(pStm, bSave, sz, iLen)))
+		if ( FAILED( Persist( pStm, bSave, sz, iLen ) ) )
+		{
+			pStr->ReleaseBuffer();
 			return E_FAIL;
+		}
+		pStr->ReleaseBuffer();
 	}
 	else
 	{
