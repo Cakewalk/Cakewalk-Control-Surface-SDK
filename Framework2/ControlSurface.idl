@@ -244,6 +244,24 @@ interface ISonarCommands2 : ISonarCommands
 [
 	object,
 	local,
+	uuid(1A863DC2-F79D-4654-943B-08BE2D08551B),
+	helpstring("ISonarCommands3 interface"),
+	pointer_default(unique)
+]
+interface ISonarCommands3 : ISonarCommands2
+{
+	// Execute the CakeScript script specified by pszFilename
+	HRESULT RunCakeScript(
+		[in] LPCWSTR pszFilename
+	);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+[
+	object,
+	local,
 	uuid( E141CA65-0D23-4251-91E1-46D2E13322E1 ),
 	helpstring( "ISonarProject interface" ),
 	pointer_default( unique )
@@ -1449,6 +1467,7 @@ library ControlSurface
 	interface ISonarKeyboard;
 	interface ISonarCommands;
 	interface ISonarCommands2;
+	interface ISonarCommands3;
 	interface ISonarProject;
 	interface ISonarProject2;
 	interface ISonarProject3;
